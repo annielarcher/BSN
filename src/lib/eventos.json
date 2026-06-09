@@ -1,0 +1,49 @@
+{
+  "events": [
+    {
+      "title": "XXI RioHarpFestival: Banda Sinfônica Nacional Feat. Beatriz Millán (harpa)",
+      "date": "07 de Julho de 2026",
+      "time": "18h",
+      "location": "Espaço Cultural Arte Sesc Flamengo — R. Marquês de Abrantes, 99",
+      "description": "Apresentação confirmada da Banda Sinfônica Nacional no RioHarpFestival, contando com a brilhante participação especial da harpista Beatriz Millán.",
+      "imageId": "gallery-5",
+      "imagePosition": "object-bottom"
+    },
+    {
+      "title": "Abertura da Série \"Música no Museu\"",
+      "date": "20 de Janeiro de 2026",
+      "location": "Espaço Cultural Arte Sesc, Flamengo",
+      "description": "Concerto gratuito de abertura da temporada 2026 da série \"Música no Museu\", com participações especiais do tenor Wladimir Cabanas e do grupo gaiteiro BrazilianPiper."
+    },
+    {
+      "title": "Queen Sinfônica",
+      "date": "19 de Dezembro de 2025",
+      "location": "Multiplan Hall - Park Shopping Jacarepaguá",
+      "description": "Uma fusão espetacular de Rock e Clássico, apresentando os maiores sucessos do Queen em colaboração com a banda Special Queen."
+    },
+    {
+      "title": "Concerto \"Clássicos Brasileiros\"",
+      "date": "29 de Setembro de 2025",
+      "location": "Espaço Cultural Sesc Flamengo",
+      "description": "Uma noite dedicada aos grandes mestres da música brasileira, em um concerto às 18h que exalta nossa riqueza cultural."
+    },
+    {
+      "title": "Concerto em Homenagem ao Dia dos Pais",
+      "date": "10 de Agosto de 2025",
+      "location": "Teatro Carlos Gomes",
+      "description": "Uma apresentação especial às 11:00 em homenagem ao Dia dos Pais, com um repertório emocionante e envolvente."
+    },
+    {
+      "title": "Abertura da Série \"Sons do Brasil\"",
+      "date": "01 de Agosto de 2025",
+      "location": "Centro Cultural Banco do Brasil (CCBB), RJ",
+      "description": "Concerto de abertura da série \"Sons do Brasil\" às 12:30, com um repertório que celebra a diversidade musical de todas as regiões do Brasil e clássicos mundiais."
+    },
+    {
+      "title": "Estreia no XX Rio Harp Festival",
+      "date": "22 de Julho de 2025",
+      "location": "Espaço Cultural Arte Sesc, Flamengo",
+      "description": "A grande estreia da Banda Sinfônica Nacional, marcando presença no prestigiado XX Rio Harp Festival às 18h."
+    }
+  ]
+}
