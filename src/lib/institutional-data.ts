@@ -231,7 +231,8 @@ export const parceiros = [
     name: 'Weril',
     category: 'Marca de Instrumentos Musicais',
     description: 'A tradicional marca brasileira de instrumentos musicais apoia a BSN oferecendo condições especiais e descontos exclusivos para os membros da nossa banda.',
-    imageId: 'weril-logo' // We assume a placeholder until they have it
+    imageId: 'weril-logo', // We assume a placeholder until they have it
+    website: 'https://weril.com.br/'
   },
   {
     id: 'parceiro-reginaldo',
