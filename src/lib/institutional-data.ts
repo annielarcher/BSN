@@ -224,3 +224,20 @@ export const noticias = [
     url: 'https://www.facebook.com/jornaldr1/posts/pfbid034Cbqj8Xy8Fpecy3z7jn1ou4KyH1C9xNQf3vbDsbpSqUAV4r8DuSF19YFXLiw8CpRl?rdid=jGlcHwzcFkrNGVVQ'
   }
 ];
+
+export const parceiros = [
+  {
+    id: 'parceiro-weril',
+    name: 'Weril',
+    category: 'Marca de Instrumentos Musicais',
+    description: 'A tradicional marca brasileira de instrumentos musicais apoia a BSN oferecendo condições especiais e descontos exclusivos para os membros da nossa banda.',
+    imageId: 'weril-logo' // We assume a placeholder until they have it
+  },
+  {
+    id: 'parceiro-reginaldo',
+    name: 'RJF Luthier',
+    category: 'Luthieria',
+    description: 'Serviços de luthieria de excelência para nossos músicos, garantindo que os instrumentos da BSN soem com a máxima perfeição. Condições especiais para membros.',
+    imageId: 'reginaldo-logo'
+  }
+];

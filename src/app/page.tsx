@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Music, ArrowRight, Handshake, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { ImageAssets } from '@/lib/placeholder-images';
-import { lideranca, testimonials } from '@/lib/institutional-data';
+import { lideranca, testimonials, parceiros } from '@/lib/institutional-data';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -108,6 +108,41 @@ export default function Home() {
                         Ler mais <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Parceiros Section */}
+      <section id="parceiros" className="py-16 md:py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="font-headline text-4xl md:text-5xl font-bold">Nossos Parceiros</h2>
+            <p className="text-muted-foreground mt-2 text-lg">Instituições e profissionais que apoiam a nossa música.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {parceiros.map((parceiro) => {
+              const image = ImageAssets.find((img) => img.id === parceiro.imageId);
+              return (
+                <Card key={parceiro.id} className="bg-card border-border/60 shadow-md flex flex-col text-center items-center transform-gpu will-change-transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary/50 group">
+                  <CardHeader className="pt-8 w-full flex flex-col items-center">
+                    <div className="h-32 w-32 rounded-full bg-muted/50 border-4 border-muted flex items-center justify-center mb-4 overflow-hidden group-hover:border-primary transition-colors duration-300">
+                      {image ? (
+                        <Image src={image.imageUrl} alt={parceiro.name} width={128} height={128} className="object-cover" />
+                      ) : (
+                        <Handshake className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+                      )}
+                    </div>
+                    <CardTitle className="font-headline text-2xl md:text-3xl pt-2">{parceiro.name}</CardTitle>
+                    <CardDescription className="text-primary font-semibold text-base mt-1">{parceiro.category}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow flex flex-col items-center pb-8 px-6">
+                    <p className="text-muted-foreground text-center line-clamp-4">
+                      {parceiro.description}
+                    </p>
                   </CardContent>
                 </Card>
               );
