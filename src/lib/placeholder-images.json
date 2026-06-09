@@ -191,6 +191,12 @@
       "description": "",
       "imageUrl": "https://i.ibb.co/gLTpF987/ccbb2.png",
       "imageHint": "classical music"
+    },
+    {
+      "id": "weril-logo",
+      "description": "Weril Logo",
+      "imageUrl": "/parceiros/weril.webp",
+      "imageHint": "weril logo"
     }
   ],
   "videos": [
