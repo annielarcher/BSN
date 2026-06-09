@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Music, ArrowRight, Handshake, Star, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Music, ArrowRight, Handshake, Star, ChevronDown, ChevronUp, ExternalLink, CalendarDays } from 'lucide-react';
 
 import { ImageAssets } from '@/lib/placeholder-images';
 import { lideranca, testimonials, parceiros } from '@/lib/institutional-data';
@@ -39,27 +39,25 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-black/50" />
         
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4">
-          <div className="flex-grow flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center gap-2 md:gap-3 w-full -mt-10 md:-mt-20">
             {logoImage && (
               <Image 
                 src={logoImage.imageUrl} 
                 alt="Banda Sinfônica Nacional Logo" 
-                width={600} 
-                height={300} 
-                className="object-contain animate-fade-in-down w-[300px] h-auto sm:w-[450px] md:w-[600px]" 
+                width={900} 
+                height={450} 
+                className="object-contain animate-fade-in-down w-full max-w-[400px] sm:max-w-[650px] md:max-w-[900px] h-auto max-h-[55vh] md:max-h-[70vh]" 
                 priority 
               />
             )}
-          </div>
-          <div className="flex-shrink-0 pb-16 md:pb-20">
-              <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base sm:text-lg py-6 sm:py-7 px-8 sm:px-10 rounded-full shadow-lg shadow-primary/20 transform transition-transform hover:scale-105">
-                  <Link href="/agenda">
-                      <Music className="mr-3 h-6 w-6" />
-                      Nossa Agenda
-                  </Link>
-                  </Button>
-              </div>
+            <div className="opacity-0 animate-fade-in-up -mt-4 md:-mt-8" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm sm:text-base py-4 sm:py-5 px-6 sm:px-8 rounded-full shadow-lg shadow-primary/20 transform transition-transform hover:scale-105">
+                <Link href="/agenda">
+                    <CalendarDays className="mr-2 h-5 w-5" />
+                    Nossa Agenda
+                </Link>
+                </Button>
+            </div>
           </div>
         </div>
       </section>
