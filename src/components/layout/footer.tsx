@@ -27,7 +27,7 @@ export function Footer() {
           </p>
           <p>
             Desenvolvido por{' '}
-            <Link href="https://github.com/annielarcher" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary transition-colors">
+            <Link href="https://www.linkedin.com/in/anniecrlarcher/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary transition-colors">
               Annie Larcher
             </Link>
           </p>
