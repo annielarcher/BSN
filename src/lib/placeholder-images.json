@@ -197,6 +197,12 @@
       "description": "Weril Logo",
       "imageUrl": "/parceiros/weril.webp",
       "imageHint": "weril logo"
+    },
+    {
+      "id": "reginaldo-logo",
+      "description": "RJF Luthier Logo",
+      "imageUrl": "/parceiros/rjf-luthier.jpg",
+      "imageHint": "rjf luthier logo"
     }
   ],
   "videos": [
