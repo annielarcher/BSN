@@ -239,6 +239,7 @@ export const parceiros = [
     name: 'RJF Luthier',
     category: 'Luthieria',
     description: 'Serviços de luthieria de excelência para nossos músicos, garantindo que os instrumentos da BSN soem com a máxima perfeição. Condições especiais para membros.',
-    imageId: 'reginaldo-logo'
+    imageId: 'reginaldo-logo',
+    website: 'https://www.instagram.com/rjfconsertos/'
   }
 ];

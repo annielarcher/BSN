@@ -196,18 +196,28 @@ export default function NovoPortfolio() {
             <div className="flex flex-wrap gap-6 print:gap-4 items-center justify-start">
                {parceiros.map(p => {
                   const img = ImageAssets.find(i => i.id === p.imageId);
-                  return (
-                     <div key={p.id} className="flex flex-col items-center gap-4 break-inside-avoid">
+                  const content = (
+                     <div className="flex flex-col items-center gap-4 break-inside-avoid hover:scale-105 transition-transform cursor-pointer">
                         <div className="h-32 w-32 print:h-28 print:w-28 rounded-full bg-white border-4 border-white/20 flex items-center justify-center overflow-hidden shadow-2xl transition-all">
                            {img ? (
-                              <Image src={img.imageUrl} alt={p.name} width={128} height={128} className="object-cover w-full h-full print:opacity-100 print:grayscale-0 opacity-80 grayscale hover:grayscale-0 hover:opacity-100 transition-all" priority />
+                              <Image src={img.imageUrl} alt={p.name} width={128} height={128} className="object-contain p-3 w-full h-full print:opacity-100 print:grayscale-0 opacity-80 grayscale hover:grayscale-0 hover:opacity-100 transition-all" priority />
                            ) : (
                               <Handshake className="h-12 w-12 text-zinc-400 print:text-zinc-400" />
                            )}
                         </div>
-                        <span className="text-sm font-bold text-zinc-300 uppercase tracking-wider text-center">{p.name}</span>
+                        <span className="text-sm font-bold text-zinc-300 uppercase tracking-wider text-center flex items-center gap-1">
+                          {p.name} {p.website && <ExternalLink size={12} className="print:hidden text-amber-500" />}
+                        </span>
                      </div>
-                  )
+                  );
+                  
+                  return p.website ? (
+                     <Link key={p.id} href={p.website} target="_blank" className="group">
+                        {content}
+                     </Link>
+                  ) : (
+                     <div key={p.id}>{content}</div>
+                  );
                })}
             </div>
          </div>
