@@ -122,7 +122,8 @@ export default function RootLayout({
               ],
               "sameAs": [
                 "https://www.instagram.com/bandasinfonicanacionalbr",
-                "https://youtube.com/@bandasinfonicanacional"
+                "https://youtube.com/@bandasinfonicanacional",
+                "https://pt.wikipedia.org/wiki/Banda_Sinf%C3%B4nica_Nacional"
               ]
             })
           }}
