@@ -9,8 +9,7 @@ import { ImageAssets } from '@/lib/placeholder-images';
 
 const title = 'Banda Sinfônica Nacional';
 const description = 'Excelência e inovação na música sinfônica brasileira. Sob a direção de Geyzi Moreira e a regência do maestro Alexandre Rocha.';
-const logoImage = ImageAssets.find(img => img.id === 'bsn-logo');
-const imageUrl = logoImage?.imageUrl || 'https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png';
+const imageUrl = '/og-image.png';
 
 const siteUrl = 'https://bandasinfonicanacional.com.br';
 
@@ -35,6 +34,23 @@ export const metadata: Metadata = {
     'Rio de Janeiro',
     'música brasileira'
   ],
+  authors: [{ name: 'Banda Sinfônica Nacional' }],
+  creator: 'Banda Sinfônica Nacional',
+  publisher: 'Banda Sinfônica Nacional',
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -47,6 +63,7 @@ export const metadata: Metadata = {
     description: description,
     url: siteUrl, // Adiciona a URL canônica
     siteName: title,
+    locale: 'pt_BR',
     type: 'website',
     images: [
       {
@@ -78,6 +95,37 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
           rel="stylesheet"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "MusicGroup",
+              "name": "Banda Sinfônica Nacional",
+              "alternateName": "BSN",
+              "url": "https://bandasinfonicanacional.com.br",
+              "image": "https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png",
+              "description": "Banda Sinfônica civil sediada no Rio de Janeiro, com repertório de música clássica e popular brasileira.",
+              "foundingLocation": {
+                "@type": "Place",
+                "name": "Rio de Janeiro, Brasil"
+              },
+              "founder": {
+                "@type": "Person",
+                "name": "Geyzi Moreira"
+              },
+              "genre": [
+                "Música Clássica",
+                "Música Instrumental Brasileira",
+                "Trilhas Sonoras"
+              ],
+              "sameAs": [
+                "https://www.instagram.com/bandasinfonicanacionalbr",
+                "https://youtube.com/@bandasinfonicanacional"
+              ]
+            })
+          }}
         />
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col bg-background')}>
