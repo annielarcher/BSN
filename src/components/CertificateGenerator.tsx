@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather } from "lucide-react";
+import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather, Download } from "lucide-react";
+import { jsPDF } from "jspdf";
 
 // BSN Brand Colors
 const BSN_NAVY = "#031529";
@@ -12,7 +13,43 @@ const BSN_GOLD_LIGHT = "#f5c842";
 const BSN_CREAM = "#f5ead8";
 const BSN_LOGO = "https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png";
 
-type CertificateCategory = "musico" | "apoiador" | "colaborador" | "fundacao" | "custom";
+// Helper to load image as HTMLImageElement for PDF generation
+const loadImage = (url: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = (e) => reject(e);
+    img.src = url;
+  });
+};
+
+// Helper to render transparent PNG on client canvas for PDF watermark
+const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): string => {
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.globalAlpha = opacity;
+    ctx.drawImage(img, 0, 0);
+  }
+  return canvas.toDataURL("image/png");
+};
+
+// Helper to fetch custom fonts and convert to base64 for PDF embedding
+const fetchFontBase64 = async (url: string): Promise<string> => {
+  const resp = await fetch(url);
+  const buffer = await resp.arrayBuffer();
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+};
+
+type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
 type CertificateTheme = "navy" | "saver";
 
 interface CategoryPreset {
@@ -23,19 +60,15 @@ interface CategoryPreset {
 const CATEGORY_PRESETS: Record<CertificateCategory, CategoryPreset> = {
   musico: {
     title: "Músico Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional e ao seu precioso trabalho voluntário prestado durante o processo de estruturação e fundação desta instituição, expressando nossa profunda gratidão pelo talento, virtuosismo e dedicação exemplar demonstrados ao longo deste primeiro ano de história e conquistas.",
+    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo seu talento, virtuosismo e dedicação exemplar apresentados no decorrer deste primeiro ano de história e conquistas.",
   },
   apoiador: {
     title: "Apoiador Homenageado",
-    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional e ao precioso trabalho voluntário prestado durante o processo de realização e fundação da Banda Sinfônica Nacional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais desta instituição em seu primeiro aniversário.",
+    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais da Banda Sinfônica Nacional em seu primeiro aniversário de fundação.",
   },
   colaborador: {
     title: "Colaborador Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional e ao precioso trabalho voluntário prestado durante o processo de estruturação e fundação da Banda Sinfônica Nacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos desta instituição em seu primeiro aniversário.",
-  },
-  fundacao: {
-    title: "Apoio na Fundação",
-    defaultText: "Em reconhecimento e profunda gratidão pelo seu precioso trabalho voluntário prestado durante o processo de realização e estruturação que viabilizou o surgimento da Banda Sinfônica Nacional, expressando nossa sincera admiração pelo engajamento, dedicação e generosidade ofertados a este projeto musical.",
+    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos da Banda Sinfônica Nacional no ano de seu primeiro aniversário.",
   },
   custom: {
     title: "Texto Customizado",
@@ -60,7 +93,421 @@ export function CertificateGenerator() {
   const [isCropMarks, setIsCropMarks] = useState(false);
   const [aspectRatioMode, setAspectRatioMode] = useState<"a4" | "16_9">("a4");
 
-  // Synchronize preset text when category changes
+  const [isExporting, setIsExporting] = useState(false);
+
+  const drawEmblemSeal = (doc: jsPDF, sx: number, sy: number, size: number) => {
+    const setDrawCMYK = (c: number, m: number, y: number, k: number) => {
+      doc.setDrawColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+    };
+    const setFillCMYK = (c: number, m: number, y: number, k: number) => {
+      doc.setFillColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+    };
+    const setTextCMYK = (c: number, m: number, y: number, k: number) => {
+      doc.setTextColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+    };
+
+    const cx = sx + size / 2;
+    const cy = sy + size / 2;
+    const r = size / 2;
+
+    if (isNavy) {
+      setFillCMYK(93, 60, 20, 80);
+    } else {
+      setFillCMYK(0, 4, 11, 4);
+    }
+    doc.ellipse(cx, cy, r, r, "F");
+
+    if (isNavy) {
+      setDrawCMYK(0, 29, 86, 12);
+    } else {
+      setDrawCMYK(0, 35, 90, 45);
+    }
+    doc.setLineWidth(0.4);
+    doc.ellipse(cx, cy, r, r, "S");
+
+    doc.setLineWidth(0.2);
+    doc.ellipse(cx, cy, r - 0.8, r - 0.8, "S");
+
+    doc.setFont("Times-Roman", "bold");
+    
+    doc.setFontSize(5);
+    if (isNavy) {
+      setTextCMYK(0, 18, 73, 4);
+    } else {
+      setTextCMYK(0, 35, 90, 25);
+    }
+    doc.text("BSN", cx, cy - 2, { align: "center" });
+
+    doc.setFontSize(7.5);
+    if (isNavy) {
+      setTextCMYK(0, 29, 86, 12);
+    } else {
+      setTextCMYK(0, 35, 90, 45);
+    }
+    doc.text("1º Ano", cx, cy + 1, { align: "center" });
+
+    doc.setFontSize(4.5);
+    if (isNavy) {
+      setTextCMYK(0, 18, 73, 4);
+    } else {
+      setTextCMYK(0, 35, 90, 25);
+    }
+    doc.text("2025-2026", cx, cy + 3.5, { align: "center" });
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [printWidth, printHeight]
+      });
+
+      const setFillColorCMYK = (c: number, m: number, y: number, k: number) => {
+        doc.setFillColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+      };
+
+      const setTextColorCMYK = (c: number, m: number, y: number, k: number) => {
+        doc.setTextColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+      };
+
+      const setDrawColorCMYK = (c: number, m: number, y: number, k: number) => {
+        doc.setDrawColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+      };
+
+      let hasCustomFonts = false;
+      try {
+        const [cinzelData, garamondData, garamondItalicData, greatVibesData] = await Promise.all([
+          fetchFontBase64("https://fonts.gstatic.com/s/cinzel/v22/8UhDycjLQ8COyeg3rN6oUG4.ttf"),
+          fetchFontBase64("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3fW5289_iN9aPChU45cR67fTfFhNqYyyd_81G4.ttf"),
+          fetchFontBase64("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3gW5289_iN9aPChU45cR67fTfFhNqYyyd_82W_N02a.ttf"),
+          fetchFontBase64("https://fonts.gstatic.com/s/greatvibes/v18/RWzc3v3L_5XZO8yA3ifW-6yA.ttf")
+        ]);
+
+        doc.addFileToVFS("Cinzel.ttf", cinzelData);
+        doc.addFont("Cinzel.ttf", "Cinzel", "normal");
+
+        doc.addFileToVFS("Garamond.ttf", garamondData);
+        doc.addFont("Garamond.ttf", "Garamond", "normal");
+
+        doc.addFileToVFS("Garamond-Italic.ttf", garamondItalicData);
+        doc.addFont("Garamond-Italic.ttf", "Garamond-Italic", "italic");
+
+        doc.addFileToVFS("GreatVibes.ttf", greatVibesData);
+        doc.addFont("GreatVibes.ttf", "GreatVibes", "normal");
+
+        hasCustomFonts = true;
+      } catch (err) {
+        console.warn("Failed to load Google Fonts, falling back to standard fonts:", err);
+      }
+
+      const fontCinzel = hasCustomFonts ? "Cinzel" : "Times-Roman";
+      const fontGaramond = hasCustomFonts ? "Garamond" : "Times-Roman";
+      const fontGaramondItalic = hasCustomFonts ? "Garamond-Italic" : "Times-Italic";
+      const fontGreatVibes = hasCustomFonts ? "GreatVibes" : "Times-Italic";
+
+      const xOffset = isCropMarks ? 3 : 0;
+      const yOffset = isCropMarks ? 3 : 0;
+
+      // 1. Background
+      if (isNavy) {
+        setFillColorCMYK(93, 49, 0, 84);
+      } else {
+        setFillColorCMYK(0, 4, 11, 4);
+      }
+      doc.rect(0, 0, printWidth, printHeight, "F");
+
+      // 2. Watermark Logo
+      try {
+        const logoImg = await loadImage(BSN_LOGO);
+        const transparentLogoDataUrl = getTransparentLogoBase64(logoImg, isNavy ? 0.1 : 0.08);
+        const watermarkSize = 200;
+        const wx = xOffset + (baseWidth - watermarkSize) / 2;
+        const wy = yOffset + (baseHeight - watermarkSize) / 2;
+        doc.addImage(transparentLogoDataUrl, "PNG", wx, wy, watermarkSize, watermarkSize);
+      } catch (err) {
+        console.warn("Could not draw watermark logo in PDF:", err);
+      }
+
+      // 3. Borders & Margins
+      if (isNavy) {
+        setDrawColorCMYK(0, 29, 86, 12);
+      } else {
+        setDrawColorCMYK(0, 35, 90, 45);
+      }
+      doc.setLineWidth(1.2);
+      doc.rect(xOffset + 4, yOffset + 4, baseWidth - 8, baseHeight - 8, "S");
+      doc.setLineWidth(0.4);
+      doc.rect(xOffset + 5.5, yOffset + 5.5, baseWidth - 11, baseHeight - 11, "S");
+
+      if (isNavy) {
+        setDrawColorCMYK(0, 18, 73, 4);
+      } else {
+        setDrawColorCMYK(0, 25, 80, 25);
+      }
+      doc.setLineWidth(0.3);
+      doc.rect(xOffset + 7.5, yOffset + 7.5, baseWidth - 15, baseHeight - 15, "S");
+
+      const flOffset = 8.5;
+      const flSize = 6;
+      doc.setLineWidth(0.8);
+      // Top-Left
+      doc.line(xOffset + flOffset, yOffset + flOffset, xOffset + flOffset + flSize, yOffset + flOffset);
+      doc.line(xOffset + flOffset, yOffset + flOffset, xOffset + flOffset, yOffset + flOffset + flSize);
+      // Top-Right
+      doc.line(xOffset + baseWidth - flOffset, yOffset + flOffset, xOffset + baseWidth - flOffset - flSize, yOffset + flOffset);
+      doc.line(xOffset + baseWidth - flOffset, yOffset + flOffset, xOffset + baseWidth - flOffset, yOffset + flOffset + flSize);
+      // Bottom-Left
+      doc.line(xOffset + flOffset, yOffset + baseHeight - flOffset, xOffset + flOffset + flSize, yOffset + baseHeight - flOffset);
+      doc.line(xOffset + flOffset, yOffset + baseHeight - flOffset, xOffset + flOffset, yOffset + baseHeight - flOffset - flSize);
+      // Bottom-Right
+      doc.line(xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset, xOffset + baseWidth - flOffset - flSize, yOffset + baseHeight - flOffset);
+      doc.line(xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset, xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset - flSize);
+
+      // 4. Header Logo
+      try {
+        const logoImg = await loadImage(BSN_LOGO);
+        const logoSize = 18;
+        const lx = xOffset + (baseWidth - logoSize) / 2;
+        const ly = yOffset + 12;
+        doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize);
+      } catch (err) {
+        console.warn("Could not draw header logo in PDF:", err);
+      }
+
+      doc.setFont(fontCinzel, "normal");
+      doc.setFontSize(8.5);
+      if (isNavy) {
+        setTextColorCMYK(0, 4, 11, 4);
+      } else {
+        setTextColorCMYK(93, 49, 0, 84);
+      }
+      doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 36, { align: "center" });
+
+      if (isNavy) {
+        setDrawColorCMYK(0, 29, 86, 12);
+      } else {
+        setDrawColorCMYK(0, 35, 90, 45);
+      }
+      doc.setLineWidth(0.4);
+      doc.line(xOffset + baseWidth / 2 - 20, yOffset + 40, xOffset + baseWidth / 2 + 20, yOffset + 40);
+
+      // 5. Titles & Content
+      doc.setFont(fontCinzel, "normal");
+      doc.setFontSize(28);
+      if (isNavy) {
+        setTextColorCMYK(0, 18, 73, 4);
+      } else {
+        setTextColorCMYK(0, 35, 90, 45);
+      }
+      doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 58, { align: "center" });
+
+      doc.setFont(fontCinzel, "normal");
+      doc.setFontSize(8.5);
+      if (isNavy) {
+        setTextColorCMYK(0, 29, 86, 12);
+      } else {
+        setTextColorCMYK(0, 45, 90, 45);
+      }
+      doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 64, { align: "center" });
+
+      doc.setFont(fontGaramondItalic, "italic");
+      doc.setFontSize(12);
+      if (isNavy) {
+        setTextColorCMYK(0, 0, 0, 30);
+      } else {
+        setTextColorCMYK(0, 0, 0, 70);
+      }
+      doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 80, { align: "center" });
+
+      doc.setFont(fontCinzel, "normal");
+      doc.setFontSize(24);
+      if (isNavy) {
+        setTextColorCMYK(0, 0, 0, 0);
+      } else {
+        setTextColorCMYK(93, 49, 0, 84);
+      }
+      doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 96, { align: "center" });
+
+      if (isNavy) {
+        setDrawColorCMYK(0, 29, 86, 25);
+      } else {
+        setDrawColorCMYK(0, 35, 90, 45);
+      }
+      doc.setLineWidth(0.3);
+      doc.line(xOffset + baseWidth / 2 - 60, yOffset + 100, xOffset + baseWidth / 2 + 60, yOffset + 100);
+
+      doc.setFont(fontGaramondItalic, "italic");
+      doc.setFontSize(11);
+      if (isNavy) {
+        setTextColorCMYK(0, 4, 11, 4);
+      } else {
+        setTextColorCMYK(0, 0, 0, 85);
+      }
+      const wrappedTextLines = doc.splitTextToSize(customText, 195);
+      let descY = yOffset + 110;
+      wrappedTextLines.forEach((line: string) => {
+        doc.text(line, xOffset + baseWidth / 2, descY, { align: "center" });
+        descY += 5.5;
+      });
+
+      // 6. Signatures Footer
+      const footerY = yOffset + baseHeight - 32;
+
+      if (isSingleSig) {
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(8.5);
+        if (isNavy) {
+          setTextColorCMYK(0, 18, 73, 4);
+        } else {
+          setTextColorCMYK(0, 35, 90, 45);
+        }
+        doc.text(dateText, xOffset + 40, footerY + 12, { align: "center" });
+
+        doc.setFont(fontGreatVibes, "normal");
+        doc.setFontSize(22);
+        if (isNavy) {
+          setTextColorCMYK(0, 18, 73, 4);
+        } else {
+          setTextColorCMYK(0, 0, 0, 85);
+        }
+        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 2, { align: "center" });
+
+        if (isNavy) {
+          setDrawColorCMYK(0, 0, 0, 0);
+        } else {
+          setDrawColorCMYK(93, 49, 0, 84);
+        }
+        doc.setLineWidth(0.25);
+        doc.line(xOffset + baseWidth / 2 - 25, footerY + 5, xOffset + baseWidth / 2 + 25, footerY + 5);
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(8.5);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 0);
+        } else {
+          setTextColorCMYK(93, 49, 0, 84);
+        }
+        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 9, { align: "center" });
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(7);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 40);
+        } else {
+          setTextColorCMYK(0, 0, 0, 60);
+        }
+        doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 13, { align: "center" });
+
+        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 15, footerY - 2, 15);
+      } else {
+        doc.setFont(fontGreatVibes, "normal");
+        doc.setFontSize(22);
+        if (isNavy) {
+          setTextColorCMYK(0, 18, 73, 4);
+        } else {
+          setTextColorCMYK(0, 0, 0, 85);
+        }
+        doc.text(sig1Name, xOffset + 50, footerY + 2, { align: "center" });
+
+        if (isNavy) {
+          setDrawColorCMYK(0, 0, 0, 0);
+        } else {
+          setDrawColorCMYK(93, 49, 0, 84);
+        }
+        doc.setLineWidth(0.25);
+        doc.line(xOffset + 25, footerY + 5, xOffset + 75, footerY + 5);
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(8.5);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 0);
+        } else {
+          setTextColorCMYK(93, 49, 0, 84);
+        }
+        doc.text(sig1Name, xOffset + 50, footerY + 9, { align: "center" });
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(7);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 40);
+        } else {
+          setTextColorCMYK(0, 0, 0, 60);
+        }
+        doc.text(sig1Role, xOffset + 50, footerY + 13, { align: "center" });
+
+        drawEmblemSeal(doc, xOffset + (baseWidth - 15) / 2, footerY - 5, 15);
+
+        doc.setFont(fontGreatVibes, "normal");
+        doc.setFontSize(22);
+        if (isNavy) {
+          setTextColorCMYK(0, 18, 73, 4);
+        } else {
+          setTextColorCMYK(0, 0, 0, 85);
+        }
+        doc.text(sig2Name, xOffset + baseWidth - 50, footerY + 2, { align: "center" });
+
+        if (isNavy) {
+          setDrawColorCMYK(0, 0, 0, 0);
+        } else {
+          setDrawColorCMYK(93, 49, 0, 84);
+        }
+        doc.setLineWidth(0.25);
+        doc.line(xOffset + baseWidth - 75, footerY + 5, xOffset + baseWidth - 25, footerY + 5);
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(8.5);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 0);
+        } else {
+          setTextColorCMYK(93, 49, 0, 84);
+        }
+        doc.text(sig2Name, xOffset + baseWidth - 50, footerY + 9, { align: "center" });
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(7);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 40);
+        } else {
+          setTextColorCMYK(0, 0, 0, 60);
+        }
+        doc.text(sig2Role, xOffset + baseWidth - 50, footerY + 13, { align: "center" });
+
+        doc.setFont(fontGaramond, "normal");
+        doc.setFontSize(8.5);
+        if (isNavy) {
+          setTextColorCMYK(0, 18, 73, 4);
+        } else {
+          setTextColorCMYK(0, 35, 90, 45);
+        }
+        doc.text(dateText, xOffset + baseWidth / 2, footerY + 22, { align: "center" });
+      }
+
+      // 7. Crop Marks
+      if (isCropMarks) {
+        setDrawColorCMYK(0, 0, 0, 100);
+        doc.setLineWidth(0.15);
+        const lLen = 6;
+        
+        doc.line(0, 3, lLen, 3);
+        doc.line(3, 0, 3, lLen);
+        doc.line(printWidth, 3, printWidth - lLen, 3);
+        doc.line(printWidth - 3, 0, printWidth - 3, lLen);
+        doc.line(0, printHeight - 3, lLen, printHeight - 3);
+        doc.line(3, printHeight, 3, printHeight - lLen);
+        doc.line(printWidth, printHeight - 3, printWidth - lLen, printHeight - 3);
+        doc.line(printWidth - 3, printHeight, printWidth - 3, printHeight - lLen);
+      }
+
+      doc.save(`certificado-${recipientName.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+    } catch (error) {
+      console.error("Error generating CMYK PDF:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   useEffect(() => {
     if (category !== "custom") {
       setCustomText(CATEGORY_PRESETS[category].defaultText);
@@ -113,51 +560,33 @@ export function CertificateGenerator() {
         
         @media print {
           @page {
-            size: ${printWidth}mm ${printHeight}mm landscape;
+            size: ${printWidth}mm ${printHeight}mm;
             margin: 0;
           }
-
-          /* Tell the browser to preserve ALL colors globally — without this, 
-             browsers override every color to black/white to save ink */
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
           
-          /* Force background color on entire printed page */
-          html, body {
+          /* Full page print dimensions */
+          html, body, #__next, #root {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
-            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            background: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           
-          /* Hide all page wrappers */
-          #__next, #root, main {
-            margin: 0 !important;
+          /* Hide app layout wrappers and keep only certificate canvas */
+          main {
+            min-height: 0 !important;
             padding: 0 !important;
             background: transparent !important;
-            min-height: 0 !important;
           }
-
-          /* Hide sidebar and everything except the canvas */
-          .print-hidden-sidebar, .print-hide {
+          
+          .print-hidden-sidebar {
             display: none !important;
           }
-
-          /* The flex wrapper around the canvas */
-          .certificate-preview-area {
-            padding: 0 !important;
-            background: transparent !important;
-            display: block !important;
-            width: ${printWidth}mm !important;
-            height: ${printHeight}mm !important;
-          }
-
-          /* The outermost canvas container fills the full page */
+          
           .certificate-canvas-container {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
@@ -165,40 +594,16 @@ export function CertificateGenerator() {
             padding: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            border: none !important;
             transform: none !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            overflow: hidden !important;
-            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            z-index: 9999 !important;
+            background: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
           }
           
-          /* Inner canvas: scale up content by 30%.
-             Layout-box is set to printWidth/1.3 so that after scale(1.3)
-             the visual rendering fills exactly printWidth × printHeight. */
-          .certificate-inner-canvas {
-            width: ${(printWidth / 1.3).toFixed(2)}mm !important;
-            height: ${(printHeight / 1.3).toFixed(2)}mm !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            color: ${isNavy ? "#ffffff" : "#031529"} !important;
-            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
-            transform: scale(1.3) !important;
-            transform-origin: top left !important;
-          }
-
-          /* Explicit color classes — these override everything in print */
-          .cert-gold        { color: ${isNavy ? "#e0a020" : "#9a7510"} !important; }
-          .cert-gold-light  { color: ${isNavy ? "#f5c842" : "#c8920f"} !important; }
-          .cert-cream       { color: ${isNavy ? "#f5ead8" : "#1e293b"} !important; }
-          .cert-white       { color: ${isNavy ? "#ffffff" : "#031529"} !important; }
-          .cert-dim-white   { color: ${isNavy ? "rgba(255,255,255,0.7)" : "#475569"} !important; }
-          .cert-muted-white { color: ${isNavy ? "rgba(255,255,255,0.4)" : "#64748b"} !important; }
-
           .certificate-canvas-content {
-            padding: 18mm !important;
+            padding: 24mm !important;
           }
         }
       `}} />
@@ -316,7 +721,6 @@ export function CertificateGenerator() {
               <option value="musico" className="bg-slate-900 text-white">Músico Homenageado</option>
               <option value="apoiador" className="bg-slate-900 text-white">Apoiador Institucional</option>
               <option value="colaborador" className="bg-slate-900 text-white">Colaborador Técnico</option>
-              <option value="fundacao" className="bg-slate-900 text-white">Apoio na Fundação</option>
               <option value="custom" className="bg-slate-900 text-white">Texto Customizado</option>
             </select>
           </div>
@@ -428,7 +832,21 @@ export function CertificateGenerator() {
               onClick={handlePrint}
               className="w-full bg-[#e0a020] text-slate-950 font-extrabold hover:bg-[#f5c842] active:scale-95 transition-all py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg shadow-[#e0a020]/10"
             >
-              <Printer className="w-4 h-4" /> Imprimir / Salvar A4
+              <Printer className="w-4 h-4" /> Imprimir A4 (Navegador)
+            </button>
+
+            <button
+              onClick={handleExportPDF}
+              disabled={isExporting}
+              className="w-full bg-blue-600 text-white font-extrabold hover:bg-blue-500 disabled:bg-blue-800 disabled:opacity-50 active:scale-95 transition-all py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-600/10"
+            >
+              {isExporting ? (
+                <>Gerando PDF CMYK...</>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" /> Baixar PDF Gráfica (CMYK)
+                </>
+              )}
             </button>
             
             <button
@@ -437,16 +855,16 @@ export function CertificateGenerator() {
             >
               <RotateCcw className="w-3.5 h-3.5" /> Restaurar Padrões
             </button>
-            
+
             <p className="text-[9px] text-slate-450 mt-2 leading-relaxed text-center px-1">
-              💡 <strong>Dica de Impressão:</strong> Ao salvar como PDF nas configurações do seu navegador, o arquivo gerado é <strong>vetorizado (DPI infinito)</strong>, atendendo com perfeição aos padrões de 300 DPI exigidos pelas gráficas.
+              💡 <strong>Dica Gráfica:</strong> O botão azul gera um arquivo PDF configurado nativamente no padrão <strong>CMYK de alta resolução</strong> (ideal para fidelidade de cores na impressão).
             </p>
           </div>
 
         </div>
 
       {/* 3. CERTIFICATE CANVAS WRAPPER (Landscape Preview) */}
-      <div className="certificate-preview-area flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
+      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
         
         {/* Prepress Outer Wrapper with Crop Marks if active */}
         <div
@@ -483,7 +901,7 @@ export function CertificateGenerator() {
 
           {/* Actual Certificate Card Canvas */}
           <div
-            className="certificate-inner-canvas relative overflow-hidden w-full h-full flex flex-col justify-between"
+            className="relative overflow-hidden w-full h-full flex flex-col justify-between"
             style={{
               background: isNavy ? BSN_NAVY : "#faf6ee",
               border: isNavy ? `1px solid ${BSN_GOLD}33` : "1px solid #cfb53b55",
@@ -508,7 +926,7 @@ export function CertificateGenerator() {
             className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
             style={{ opacity: isNavy ? 0.1 : 0.08 }}
           >
-            <img src={BSN_LOGO} alt="Watermark BSN" className="w-[520px] h-[520px] object-contain" />
+            <img src={BSN_LOGO} alt="Watermark BSN" className="w-[700px] h-[700px] object-contain" />
           </div>
 
           {/* ── BORDERS & MARGINS ── */}
@@ -540,11 +958,11 @@ export function CertificateGenerator() {
             <img
               src={BSN_LOGO}
               alt="BSN Logo"
-              className="h-20 object-contain mb-2.5"
+              className="h-40 object-contain mb-2.5"
               style={{ filter: isNavy ? `drop-shadow(0 0 5px ${BSN_GOLD}55)` : `drop-shadow(0 2px 4px rgba(0,0,0,0.15))` }}
             />
             <span 
-              className="cert-cream text-[10px] font-black tracking-[0.3em] uppercase leading-none"
+              className="text-[10px] font-black tracking-[0.3em] uppercase leading-none"
               style={{ color: isNavy ? BSN_CREAM : "#0a2240" }}
             >
               BANDA SINFÔNICA NACIONAL
@@ -557,24 +975,24 @@ export function CertificateGenerator() {
             
             {/* Main Certificate Title using Cinzel serif font */}
             <h2 
-              className="cert-gold-light text-[36px] font-black tracking-[0.25em] uppercase font-serif"
+              className="text-[36px] font-black tracking-[0.25em] uppercase font-serif"
               style={{ 
-                color: isNavy ? BSN_GOLD_LIGHT : "#c8920f",
+                color: isNavy ? BSN_GOLD_LIGHT : "#8b6508",
                 fontFamily: "'Cinzel', serif"
               }}
             >
               CERTIFICADO
             </h2>
             
-            <p className="cert-gold text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
                style={{ 
-                 color: isNavy ? BSN_GOLD : "#9a7510",
+                 color: isNavy ? BSN_GOLD : "#5c4008",
                  fontFamily: "'Cinzel', serif"
                }}>
               Homenagem Comemorativa de 1º Ano
             </p>
 
-            <span className="cert-dim-white text-[14px] font-medium italic mt-5 block"
+            <span className="text-[14px] font-medium italic mt-5 block"
                   style={{ 
                     color: isNavy ? "rgba(255,255,255,0.7)" : "#475569",
                     fontFamily: "'Cormorant Garamond', serif"
@@ -597,7 +1015,7 @@ export function CertificateGenerator() {
 
             {/* Certificate description text */}
             <p 
-              className="cert-cream text-[13.5px] font-medium leading-relaxed max-w-[82%] mx-auto mt-3 font-serif"
+              className="text-[13.5px] font-medium leading-relaxed max-w-[82%] mx-auto mt-3 font-serif"
               style={{ 
                 color: isNavy ? BSN_CREAM : "#1e293b",
                 fontFamily: "'Cormorant Garamond', serif",
@@ -615,7 +1033,7 @@ export function CertificateGenerator() {
               <>
                 {/* Left side: Date Text */}
                 <div className="flex flex-col items-center justify-center pb-2">
-                  <span className="cert-gold-light text-[10px] font-bold tracking-wider uppercase text-center" 
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-center" 
                         style={{ 
                           color: isNavy ? BSN_GOLD_LIGHT : "#5c4008",
                           fontFamily: "'Cormorant Garamond', serif"
@@ -627,7 +1045,7 @@ export function CertificateGenerator() {
                 {/* Center: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="cert-gold-light h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
+                    className="h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -638,14 +1056,14 @@ export function CertificateGenerator() {
                   </div>
                   <div className="w-[160px] h-[1px] bg-gradient-to-r from-transparent via-current to-transparent opacity-30" 
                        style={{ color: isNavy ? "#ffffff" : "#031529" }} />
-                  <span className="cert-white text-[9px] font-bold uppercase tracking-wider mt-1"
+                  <span className="text-[9px] font-bold uppercase tracking-wider mt-1"
                         style={{ 
                           color: isNavy ? "#ffffff" : "#031529",
                           fontFamily: "'Cormorant Garamond', serif"
                         }}>
                     {sig1Name}
                   </span>
-                  <span className="cert-muted-white text-[7.5px] font-semibold text-white/50 uppercase tracking-widest mt-0.5"
+                  <span className="text-[7.5px] font-semibold text-white/50 uppercase tracking-widest mt-0.5"
                         style={{ 
                           color: isNavy ? "rgba(255,255,255,0.4)" : "#64748b",
                           fontFamily: "'Cormorant Garamond', serif"
@@ -665,10 +1083,10 @@ export function CertificateGenerator() {
                     }}
                   >
                     <div className="absolute inset-0.5 rounded-full border border-dashed opacity-40" style={{ borderColor: BSN_GOLD }} />
-                    <span className="cert-gold-light text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
+                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
                       BSN
                     </span>
-                    <span className="cert-gold text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
+                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
                       1º Ano
                     </span>
                     <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: BSN_GOLD_LIGHT }}>
