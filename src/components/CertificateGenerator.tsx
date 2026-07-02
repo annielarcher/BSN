@@ -113,50 +113,70 @@ export function CertificateGenerator() {
         
         @media print {
           @page {
-            size: ${printWidth}mm ${printHeight}mm;
+            size: ${printWidth}mm ${printHeight}mm landscape;
             margin: 0;
           }
           
-          /* Full page print dimensions */
-          html, body, #__next, #root {
+          /* Force background color on entire printed page */
+          html, body {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
-            background: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
           
-          /* Hide app layout wrappers and keep only certificate canvas */
-          main {
-            min-height: 0 !important;
+          /* Hide all page wrappers */
+          #__next, #root, main {
+            margin: 0 !important;
             padding: 0 !important;
             background: transparent !important;
+            min-height: 0 !important;
           }
-          
-          .print-hidden-sidebar {
+
+          /* Hide sidebar and everything except the canvas */
+          .print-hidden-sidebar, .print-hide {
             display: none !important;
           }
-          
+
+          /* The flex wrapper around the canvas */
+          .certificate-preview-area {
+            padding: 0 !important;
+            background: transparent !important;
+            display: block !important;
+            width: ${printWidth}mm !important;
+            height: ${printHeight}mm !important;
+          }
+
+          /* The outermost canvas container fills the full page */
           .certificate-canvas-container {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: ${isCropMarks ? "3mm" : "0"} !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             transform: none !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            z-index: 9999 !important;
-            background: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           
+          /* The inner certificate canvas */
+          .certificate-inner-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+          }
+
           .certificate-canvas-content {
-            padding: 24mm !important;
+            padding: 18mm !important;
           }
         }
       `}} />
@@ -400,7 +420,7 @@ export function CertificateGenerator() {
         </div>
 
       {/* 3. CERTIFICATE CANVAS WRAPPER (Landscape Preview) */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
+      <div className="certificate-preview-area flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
         
         {/* Prepress Outer Wrapper with Crop Marks if active */}
         <div
@@ -437,7 +457,7 @@ export function CertificateGenerator() {
 
           {/* Actual Certificate Card Canvas */}
           <div
-            className="relative overflow-hidden w-full h-full flex flex-col justify-between"
+            className="certificate-inner-canvas relative overflow-hidden w-full h-full flex flex-col justify-between"
             style={{
               background: isNavy ? BSN_NAVY : "#faf6ee",
               border: isNavy ? `1px solid ${BSN_GOLD}33` : "1px solid #cfb53b55",
