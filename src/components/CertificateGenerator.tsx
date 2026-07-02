@@ -116,6 +116,14 @@ export function CertificateGenerator() {
             size: ${printWidth}mm ${printHeight}mm landscape;
             margin: 0;
           }
+
+          /* Tell the browser to preserve ALL colors globally — without this, 
+             browsers override every color to black/white to save ink */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
           
           /* Force background color on entire printed page */
           html, body {
@@ -125,8 +133,6 @@ export function CertificateGenerator() {
             padding: 0 !important;
             overflow: hidden !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
           }
           
           /* Hide all page wrappers */
@@ -164,15 +170,21 @@ export function CertificateGenerator() {
             top: 0 !important;
             left: 0 !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
           }
           
-          /* The inner certificate canvas */
+          /* The inner certificate canvas — force base text color so 
+             elements using 'inherit' or no explicit color get the right value */
           .certificate-inner-canvas {
             width: 100% !important;
             height: 100% !important;
             border-radius: 0 !important;
+            color: ${isNavy ? "#ffffff" : "#031529"} !important;
+            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+          }
+
+          /* All descendants must inherit and not get overridden to black */
+          .certificate-inner-canvas * {
+            color: inherit;
           }
 
           .certificate-canvas-content {
