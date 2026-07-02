@@ -162,23 +162,28 @@ export function CertificateGenerator() {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
             margin: 0 !important;
-            padding: ${isCropMarks ? "3mm" : "0"} !important;
+            padding: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             transform: none !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
+            overflow: hidden !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
           }
           
-          /* Inner canvas base */
+          /* Inner canvas: scale up content by 30%.
+             Layout-box is set to printWidth/1.3 so that after scale(1.3)
+             the visual rendering fills exactly printWidth × printHeight. */
           .certificate-inner-canvas {
-            width: 100% !important;
-            height: 100% !important;
+            width: ${(printWidth / 1.3).toFixed(2)}mm !important;
+            height: ${(printHeight / 1.3).toFixed(2)}mm !important;
             border-radius: 0 !important;
             color: ${isNavy ? "#ffffff" : "#031529"} !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            transform: scale(1.3) !important;
+            transform-origin: top left !important;
           }
 
           /* Explicit color classes — these override everything in print */
