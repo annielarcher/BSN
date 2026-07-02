@@ -12,7 +12,7 @@ const BSN_GOLD_LIGHT = "#f5c842";
 const BSN_CREAM = "#f5ead8";
 const BSN_LOGO = "https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png";
 
-type CertificateCategory = "musico" | "apoiador" | "colaborador" | "fundacao" | "custom";
+type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
 type CertificateTheme = "navy" | "saver";
 
 interface CategoryPreset {
@@ -23,19 +23,15 @@ interface CategoryPreset {
 const CATEGORY_PRESETS: Record<CertificateCategory, CategoryPreset> = {
   musico: {
     title: "Músico Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional e ao seu precioso trabalho voluntário prestado durante o processo de estruturação e fundação desta instituição, expressando nossa profunda gratidão pelo talento, virtuosismo e dedicação exemplar demonstrados ao longo deste primeiro ano de história e conquistas.",
+    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo seu talento, virtuosismo e dedicação exemplar apresentados no decorrer deste primeiro ano de história e conquistas.",
   },
   apoiador: {
     title: "Apoiador Homenageado",
-    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional e ao precioso trabalho voluntário prestado durante o processo de realização e fundação da Banda Sinfônica Nacional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais desta instituição em seu primeiro aniversário.",
+    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais da Banda Sinfônica Nacional em seu primeiro aniversário de fundação.",
   },
   colaborador: {
     title: "Colaborador Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional e ao precioso trabalho voluntário prestado durante o processo de estruturação e fundação da Banda Sinfônica Nacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos desta instituição em seu primeiro aniversário.",
-  },
-  fundacao: {
-    title: "Apoio na Fundação",
-    defaultText: "Em reconhecimento e profunda gratidão pelo seu precioso trabalho voluntário prestado durante o processo de realização e estruturação que viabilizou o surgimento da Banda Sinfônica Nacional, expressando nossa sincera admiração pelo engajamento, dedicação e generosidade ofertados a este projeto musical.",
+    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos da Banda Sinfônica Nacional no ano de seu primeiro aniversário.",
   },
   custom: {
     title: "Texto Customizado",
@@ -113,51 +109,33 @@ export function CertificateGenerator() {
         
         @media print {
           @page {
-            size: ${printWidth}mm ${printHeight}mm landscape;
+            size: ${printWidth}mm ${printHeight}mm;
             margin: 0;
           }
-
-          /* Tell the browser to preserve ALL colors globally — without this, 
-             browsers override every color to black/white to save ink */
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
           
-          /* Force background color on entire printed page */
-          html, body {
+          /* Full page print dimensions */
+          html, body, #__next, #root {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
-            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            background: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           
-          /* Hide all page wrappers */
-          #__next, #root, main {
-            margin: 0 !important;
+          /* Hide app layout wrappers and keep only certificate canvas */
+          main {
+            min-height: 0 !important;
             padding: 0 !important;
             background: transparent !important;
-            min-height: 0 !important;
           }
-
-          /* Hide sidebar and everything except the canvas */
-          .print-hidden-sidebar, .print-hide {
+          
+          .print-hidden-sidebar {
             display: none !important;
           }
-
-          /* The flex wrapper around the canvas */
-          .certificate-preview-area {
-            padding: 0 !important;
-            background: transparent !important;
-            display: block !important;
-            width: ${printWidth}mm !important;
-            height: ${printHeight}mm !important;
-          }
-
-          /* The outermost canvas container fills the full page */
+          
           .certificate-canvas-container {
             width: ${printWidth}mm !important;
             height: ${printHeight}mm !important;
@@ -169,33 +147,12 @@ export function CertificateGenerator() {
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            overflow: hidden !important;
-            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
+            z-index: 9999 !important;
+            background: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
           }
           
-          /* Inner canvas: scale up content by 30%.
-             Layout-box is set to printWidth/1.3 so that after scale(1.3)
-             the visual rendering fills exactly printWidth × printHeight. */
-          .certificate-inner-canvas {
-            width: ${(printWidth / 1.3).toFixed(2)}mm !important;
-            height: ${(printHeight / 1.3).toFixed(2)}mm !important;
-            border-radius: 0 !important;
-            color: ${isNavy ? "#ffffff" : "#031529"} !important;
-            background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
-            transform: scale(1.3) !important;
-            transform-origin: top left !important;
-          }
-
-          /* Explicit color classes — these override everything in print */
-          .cert-gold        { color: ${isNavy ? "#e0a020" : "#9a7510"} !important; }
-          .cert-gold-light  { color: ${isNavy ? "#f5c842" : "#c8920f"} !important; }
-          .cert-cream       { color: ${isNavy ? "#f5ead8" : "#1e293b"} !important; }
-          .cert-white       { color: ${isNavy ? "#ffffff" : "#031529"} !important; }
-          .cert-dim-white   { color: ${isNavy ? "rgba(255,255,255,0.7)" : "#475569"} !important; }
-          .cert-muted-white { color: ${isNavy ? "rgba(255,255,255,0.4)" : "#64748b"} !important; }
-
           .certificate-canvas-content {
-            padding: 18mm !important;
+            padding: 24mm !important;
           }
         }
       `}} />
@@ -313,7 +270,6 @@ export function CertificateGenerator() {
               <option value="musico" className="bg-slate-900 text-white">Músico Homenageado</option>
               <option value="apoiador" className="bg-slate-900 text-white">Apoiador Institucional</option>
               <option value="colaborador" className="bg-slate-900 text-white">Colaborador Técnico</option>
-              <option value="fundacao" className="bg-slate-900 text-white">Apoio na Fundação</option>
               <option value="custom" className="bg-slate-900 text-white">Texto Customizado</option>
             </select>
           </div>
@@ -439,7 +395,7 @@ export function CertificateGenerator() {
         </div>
 
       {/* 3. CERTIFICATE CANVAS WRAPPER (Landscape Preview) */}
-      <div className="certificate-preview-area flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
+      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
         
         {/* Prepress Outer Wrapper with Crop Marks if active */}
         <div
@@ -476,7 +432,7 @@ export function CertificateGenerator() {
 
           {/* Actual Certificate Card Canvas */}
           <div
-            className="certificate-inner-canvas relative overflow-hidden w-full h-full flex flex-col justify-between"
+            className="relative overflow-hidden w-full h-full flex flex-col justify-between"
             style={{
               background: isNavy ? BSN_NAVY : "#faf6ee",
               border: isNavy ? `1px solid ${BSN_GOLD}33` : "1px solid #cfb53b55",
@@ -537,7 +493,7 @@ export function CertificateGenerator() {
               style={{ filter: isNavy ? `drop-shadow(0 0 5px ${BSN_GOLD}55)` : `drop-shadow(0 2px 4px rgba(0,0,0,0.15))` }}
             />
             <span 
-              className="cert-cream text-[10px] font-black tracking-[0.3em] uppercase leading-none"
+              className="text-[10px] font-black tracking-[0.3em] uppercase leading-none"
               style={{ color: isNavy ? BSN_CREAM : "#0a2240" }}
             >
               BANDA SINFÔNICA NACIONAL
@@ -550,24 +506,24 @@ export function CertificateGenerator() {
             
             {/* Main Certificate Title using Cinzel serif font */}
             <h2 
-              className="cert-gold-light text-[36px] font-black tracking-[0.25em] uppercase font-serif"
+              className="text-[36px] font-black tracking-[0.25em] uppercase font-serif"
               style={{ 
-                color: isNavy ? BSN_GOLD_LIGHT : "#c8920f",
+                color: isNavy ? BSN_GOLD_LIGHT : "#8b6508",
                 fontFamily: "'Cinzel', serif"
               }}
             >
               CERTIFICADO
             </h2>
             
-            <p className="cert-gold text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
                style={{ 
-                 color: isNavy ? BSN_GOLD : "#9a7510",
+                 color: isNavy ? BSN_GOLD : "#5c4008",
                  fontFamily: "'Cinzel', serif"
                }}>
               Homenagem Comemorativa de 1º Ano
             </p>
 
-            <span className="cert-dim-white text-[14px] font-medium italic mt-5 block"
+            <span className="text-[14px] font-medium italic mt-5 block"
                   style={{ 
                     color: isNavy ? "rgba(255,255,255,0.7)" : "#475569",
                     fontFamily: "'Cormorant Garamond', serif"
@@ -590,7 +546,7 @@ export function CertificateGenerator() {
 
             {/* Certificate description text */}
             <p 
-              className="cert-cream text-[13.5px] font-medium leading-relaxed max-w-[82%] mx-auto mt-3 font-serif"
+              className="text-[13.5px] font-medium leading-relaxed max-w-[82%] mx-auto mt-3 font-serif"
               style={{ 
                 color: isNavy ? BSN_CREAM : "#1e293b",
                 fontFamily: "'Cormorant Garamond', serif",
@@ -608,7 +564,7 @@ export function CertificateGenerator() {
               <>
                 {/* Left side: Date Text */}
                 <div className="flex flex-col items-center justify-center pb-2">
-                  <span className="cert-gold-light text-[10px] font-bold tracking-wider uppercase text-center" 
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-center" 
                         style={{ 
                           color: isNavy ? BSN_GOLD_LIGHT : "#5c4008",
                           fontFamily: "'Cormorant Garamond', serif"
@@ -620,7 +576,7 @@ export function CertificateGenerator() {
                 {/* Center: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="cert-gold-light h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
+                    className="h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -631,14 +587,14 @@ export function CertificateGenerator() {
                   </div>
                   <div className="w-[160px] h-[1px] bg-gradient-to-r from-transparent via-current to-transparent opacity-30" 
                        style={{ color: isNavy ? "#ffffff" : "#031529" }} />
-                  <span className="cert-white text-[9px] font-bold uppercase tracking-wider mt-1"
+                  <span className="text-[9px] font-bold uppercase tracking-wider mt-1"
                         style={{ 
                           color: isNavy ? "#ffffff" : "#031529",
                           fontFamily: "'Cormorant Garamond', serif"
                         }}>
                     {sig1Name}
                   </span>
-                  <span className="cert-muted-white text-[7.5px] font-semibold text-white/50 uppercase tracking-widest mt-0.5"
+                  <span className="text-[7.5px] font-semibold text-white/50 uppercase tracking-widest mt-0.5"
                         style={{ 
                           color: isNavy ? "rgba(255,255,255,0.4)" : "#64748b",
                           fontFamily: "'Cormorant Garamond', serif"
@@ -658,10 +614,10 @@ export function CertificateGenerator() {
                     }}
                   >
                     <div className="absolute inset-0.5 rounded-full border border-dashed opacity-40" style={{ borderColor: BSN_GOLD }} />
-                    <span className="cert-gold-light text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
+                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
                       BSN
                     </span>
-                    <span className="cert-gold text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
+                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
                       1º Ano
                     </span>
                     <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: BSN_GOLD_LIGHT }}>

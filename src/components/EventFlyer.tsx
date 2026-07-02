@@ -314,23 +314,29 @@ export function SinfonicaEventFlyer() {
                 {/* Oficina Luthieria */}
                 <div className="flex flex-col">
                   <span className="text-[7.5px] font-extrabold uppercase text-[#f5c842] tracking-wider mb-0.5">
-                    Oficina de Luthieria
+                    Oficina de Luthieria - traga seu instrumento!
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <p className="text-[8.5px] font-medium text-white/90 leading-tight">
+                    <p className="text-[7px] font-bold text-white leading-tight">
+                        "Cuidados essenciais e pequenos reparos"
+                      </p>
+                    <p className="text-[7px] font-medium text-white/90 leading-tight">
                       Com {LUTHIER_REGINALDO.name}
                     </p>
                   </div>
                 </div>
 
-                {/* Amostra Weril */}
+                {/* Palestra/Exposição Weril */}
                 <div className="flex flex-col">
                   <span className="text-[7.5px] font-extrabold uppercase text-[#f5c842] tracking-wider mb-0.5">
-                    Mostra de Instrumentos
+                    Palestra & Exposição Weril
                   </span>
-                  <div className="flex items-center gap-1.5">                  
-                    <p className="text-[8.5px] font-medium text-white/90 leading-tight">
-                      Exposição Weril com {CONVIDADO_ROBERTO.name}
+                  <div className="flex flex-col gap-0.5">                  
+                    <p className="text-[7px] font-bold text-white leading-tight">
+                      "Weril: A Ciência e a Arte dos Instrumentos de Sopro"
+                    </p>
+                    <p className="text-[7px] font-medium text-white/90 leading-tight">
+                      Palestra com Exposição de Metais e Madeiras — com {CONVIDADO_ROBERTO.name}
                     </p>
                   </div>
                 </div>
@@ -342,7 +348,7 @@ export function SinfonicaEventFlyer() {
               <div className="flex items-center gap-1.5 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 mb-2.5"
                    style={{ background: `${BSN_LIGHT_NAVY}cc` }}>
                 <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: BSN_GOLD_LIGHT }}>
-                  Entrada Franca
+                  Evento Gratuito
                 </span>
               </div>
               
@@ -390,16 +396,8 @@ export function SinfonicaEventFlyer() {
                     className="h-10 rounded object-contain opacity-80"
                     style={{ mixBlendMode: "multiply" }}
                   />
-                </div>
-                {/* Partner Logo 3 (Lei Rouanet) */}
-                <div className="h-6 flex items-center">
-                  <img
-                    src="https://www.gov.br/cultura/pt-br/centrais-de-conteudo/marcas-e-logotipos/marcas-rouanet/LogoLeiRouanet_colorida.png"
-                    alt="Lei de Incentivo à Cultura - Lei Rouanet"
-                    className="h-3.5 object-contain brightness-0 invert opacity-70"
-                  />
-                </div>
-                {/* Partner Logo 4 (Catedral Presbiteriana)*/}
+                </div>                
+                {/* Partner Logo 3 (Catedral Presbiteriana)*/}
                 <div className="h-6 flex items-center">
                   <img
                       src="/parceiros/catedral-presbiteriana.png"
