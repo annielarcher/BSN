@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Music, ArrowRight, Handshake, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { Music, ArrowRight, Handshake, Star, ChevronDown, ChevronUp, ExternalLink, CalendarDays } from 'lucide-react';
 
 import { ImageAssets } from '@/lib/placeholder-images';
-import { lideranca, testimonials } from '@/lib/institutional-data';
+import { lideranca, testimonials, parceiros } from '@/lib/institutional-data';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -39,27 +39,25 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-black/50" />
         
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4">
-          <div className="flex-grow flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center gap-2 md:gap-3 w-full -mt-10 md:-mt-20">
             {logoImage && (
               <Image 
                 src={logoImage.imageUrl} 
                 alt="Banda Sinfônica Nacional Logo" 
-                width={600} 
-                height={300} 
-                className="object-contain animate-fade-in-down w-[300px] h-auto sm:w-[450px] md:w-[600px]" 
+                width={900} 
+                height={450} 
+                className="object-contain animate-fade-in-down w-full max-w-[400px] sm:max-w-[650px] md:max-w-[900px] h-auto max-h-[55vh] md:max-h-[70vh]" 
                 priority 
               />
             )}
-          </div>
-          <div className="flex-shrink-0 pb-16 md:pb-20">
-              <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base sm:text-lg py-6 sm:py-7 px-8 sm:px-10 rounded-full shadow-lg shadow-primary/20 transform transition-transform hover:scale-105">
-                  <Link href="/agenda">
-                      <Music className="mr-3 h-6 w-6" />
-                      Nossa Agenda
-                  </Link>
-                  </Button>
-              </div>
+            <div className="opacity-0 animate-fade-in-up -mt-4 md:-mt-8" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm sm:text-base py-4 sm:py-5 px-6 sm:px-8 rounded-full shadow-lg shadow-primary/20 transform transition-transform hover:scale-105">
+                <Link href="/agenda">
+                    <CalendarDays className="mr-2 h-5 w-5" />
+                    Nossa Agenda
+                </Link>
+                </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -110,6 +108,56 @@ export default function Home() {
                     </Button>
                   </CardContent>
                 </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Parceiros Section */}
+      <section id="parceiros" className="py-16 md:py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="font-headline text-4xl md:text-5xl font-bold">Nossos Parceiros</h2>
+            <p className="text-muted-foreground mt-2 text-lg">Instituições e profissionais que apoiam a nossa música.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {parceiros.map((parceiro) => {
+              const image = ImageAssets.find((img) => img.id === parceiro.imageId);
+              const CardContentElement = (
+                <Card className={`bg-card border-border/60 shadow-md flex flex-col text-center items-center transform-gpu will-change-transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary/50 group h-full relative ${parceiro.website ? 'cursor-pointer' : ''}`}>
+                  {parceiro.website && (
+                    <div className="absolute top-4 right-4 text-muted-foreground group-hover:text-primary transition-colors opacity-70 group-hover:opacity-100">
+                      <ExternalLink className="h-6 w-6" />
+                    </div>
+                  )}
+                  <CardHeader className="pt-8 w-full flex flex-col items-center">
+                    <div className="h-32 w-32 rounded-full bg-white border-4 border-muted flex items-center justify-center mb-4 overflow-hidden group-hover:border-primary transition-colors duration-300">
+                      {image ? (
+                        <Image src={image.imageUrl} alt={parceiro.name} width={128} height={128} className="object-cover" />
+                      ) : (
+                        <Handshake className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+                      )}
+                    </div>
+                    <CardTitle className="font-headline text-2xl md:text-3xl pt-2">{parceiro.name}</CardTitle>
+                    <CardDescription className="text-primary font-semibold text-base mt-1">{parceiro.category}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow flex flex-col items-center pb-8 px-6">
+                    <p className="text-muted-foreground text-center line-clamp-4">
+                      {parceiro.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+
+              return parceiro.website ? (
+                <Link key={parceiro.id} href={parceiro.website} target="_blank" rel="noopener noreferrer" className="block focus:outline-none">
+                  {CardContentElement}
+                </Link>
+              ) : (
+                <div key={parceiro.id}>
+                  {CardContentElement}
+                </div>
               );
             })}
           </div>

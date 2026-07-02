@@ -26,7 +26,7 @@ Seu trabalho foi premiado com o Prêmio Shell (duas edições) e o CBTIJ, além 
   {
     id: 'eduardo-lagreca',
     nome: 'Eduardo Lagreca Fan',
-    cargo: 'Maestro Adjunto',
+    cargo: 'Maestro',
     bio: "Bacharel em Piano pela Universidade Federal de Santa Maria (UFSM), Bacharel em Regência pela Universidade Federal do Estado do Rio de Janeiro (UNIRIO) e Mestre em Música também pela UNIRIO. Foi regente assistente da Orquestra da Unirio, regendo a mesma em palcos como a Sala Cecília Meireles; diretor assistente do projeto Ópera na Unirio, onde regeu as óperas Suor Angelica (G. Puccini), Mesdames de La Halle (J. Offenbach), Amahl e os Visitantes Noturnos (G. C. Menotti). Fez parte como aluno da Academia de Música da OSESP, tendo aulas com professores como Wagner Polistchuk, Fabio Mechetti, Claudio Cruz, Stéphane Deneve e Jac van Steen, Atualmente é regente titular da Orquestra Carioca de Flautas, e também regente adjunto da Banda Sinfônica Nacional. Trabalhou em palcos importantes do país como Sala Cecília Meireles, Theatro Municipal (RJ) e Sala São Paulo, a frente de orquestras como OSB Jovem e Orquestra Jovem do Estado de São Paulo (OJESP)..",
     quote: "A verdadeira regência nasce quando a profundidade dos estudos acadêmicos encontra a alma e a exigência dos grandes palcos."
   },
@@ -222,5 +222,24 @@ export const noticias = [
     excerpt: 'O Jornal DR1 noticiou o concerto de abertura da série "Sons do Brasil", realizado pela Banda Sinfônica Nacional no Centro Cultural Banco do Brasil (CCBB), ressaltando a celebração da diversidade musical brasileira.',
     imageIds: ['gallery-14'],
     url: 'https://www.facebook.com/jornaldr1/posts/pfbid034Cbqj8Xy8Fpecy3z7jn1ou4KyH1C9xNQf3vbDsbpSqUAV4r8DuSF19YFXLiw8CpRl?rdid=jGlcHwzcFkrNGVVQ'
+  }
+];
+
+export const parceiros = [
+  {
+    id: 'parceiro-weril',
+    name: 'Weril',
+    category: 'Marca de Instrumentos Musicais',
+    description: 'A tradicional marca brasileira de instrumentos musicais apoia a BSN oferecendo condições especiais e descontos exclusivos para os membros da nossa banda.',
+    imageId: 'weril-logo', // We assume a placeholder until they have it
+    website: 'https://weril.com.br/'
+  },
+  {
+    id: 'parceiro-reginaldo',
+    name: 'RJF Luthier',
+    category: 'Luthieria',
+    description: 'Serviços de luthieria de excelência para nossos músicos, garantindo que os instrumentos da BSN soem com a máxima perfeição. Condições especiais para membros.',
+    imageId: 'reginaldo-logo',
+    website: 'https://www.instagram.com/rjfconsertos/'
   }
 ];
