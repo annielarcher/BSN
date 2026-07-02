@@ -271,7 +271,7 @@ export function SinfonicaEventFlyer() {
                   {/* Reginaldo */}
                   <div className="flex flex-col items-center text-center">
                     <div className="w-[68px] h-[52px] border border-[#f5c842]/50 rounded overflow-hidden bg-[#020d1a]">
-                      <img src={LUTHIER_REGINALDO.imageUrl} alt={LUTHIER_REGINALDO.name} className="w-full h-full object-cover object-top" />
+                      <img src={LUTHIER_REGINALDO.imageUrl} alt={LUTHIER_REGINALDO.name} className="w-full h-full object-cover object-center" />
                     </div>
                     <span className="text-[4.5px] font-black tracking-wider text-[#f5c842] uppercase mt-1 leading-none text-ellipsis overflow-hidden whitespace-nowrap w-[68px]">REGINALDO DE JESUS</span>
                     <span className="text-[4px] font-bold text-white/70 uppercase leading-none mt-0.5">(LUTHIER)</span>
