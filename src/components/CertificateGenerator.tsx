@@ -165,15 +165,15 @@ export function CertificateGenerator() {
       });
 
       const setFillColorCMYK = (c: number, m: number, y: number, k: number) => {
-        doc.setFillColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+        doc.setFillColor(c / 100, m / 100, y / 100, k / 100);
       };
 
       const setTextColorCMYK = (c: number, m: number, y: number, k: number) => {
-        doc.setTextColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+        doc.setTextColor(c / 100, m / 100, y / 100, k / 100);
       };
 
       const setDrawColorCMYK = (c: number, m: number, y: number, k: number) => {
-        doc.setDrawColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
+        doc.setDrawColor(c / 100, m / 100, y / 100, k / 100);
       };
 
       const fontCinzel = "times";
@@ -193,9 +193,9 @@ export function CertificateGenerator() {
 
       // 1. Background
       if (isNavy) {
-        setFillColorCMYK(93, 49, 0, 84);
+        setFillColorCMYK(93, 49, 0, 84); // Rich BSN Navy CMYK
       } else {
-        setFillColorCMYK(0, 4, 11, 4);
+        setFillColorCMYK(0, 4, 11, 4); // Elegant Cream CMYK
       }
       doc.rect(0, 0, printWidth, printHeight, "F");
 
@@ -213,9 +213,9 @@ export function CertificateGenerator() {
 
       // 3. Borders & Margins
       if (isNavy) {
-        setDrawColorCMYK(0, 29, 86, 12);
+        setDrawColorCMYK(0, 29, 86, 12); // BSN Gold
       } else {
-        setDrawColorCMYK(0, 35, 90, 45);
+        setDrawColorCMYK(0, 45, 90, 45); // Darker Amber Gold
       }
       doc.setLineWidth(1.2);
       doc.rect(xOffset + 4, yOffset + 4, baseWidth - 8, baseHeight - 8, "S");
@@ -223,9 +223,9 @@ export function CertificateGenerator() {
       doc.rect(xOffset + 5.5, yOffset + 5.5, baseWidth - 11, baseHeight - 11, "S");
 
       if (isNavy) {
-        setDrawColorCMYK(0, 18, 73, 4);
+        setDrawColorCMYK(0, 18, 73, 4); // BSN Gold Light
       } else {
-        setDrawColorCMYK(0, 25, 80, 25);
+        setDrawColorCMYK(0, 35, 90, 25); // Amber Gold
       }
       doc.setLineWidth(0.3);
       doc.rect(xOffset + 7.5, yOffset + 7.5, baseWidth - 15, baseHeight - 15, "S");
@@ -296,18 +296,18 @@ export function CertificateGenerator() {
       doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
       doc.setFontSize(12);
       if (isNavy) {
-        setTextColorCMYK(0, 0, 0, 30);
+        setTextColorCMYK(0, 4, 11, 20); // Dim Cream
       } else {
-        setTextColorCMYK(0, 0, 0, 70);
+        setTextColorCMYK(0, 0, 0, 70); // Slate Gray
       }
       doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 80, { align: "center" });
 
       doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(24);
       if (isNavy) {
-        setTextColorCMYK(0, 0, 0, 0);
+        setTextColorCMYK(0, 0, 0, 0); // Pure unprinted white paper color
       } else {
-        setTextColorCMYK(93, 49, 0, 84);
+        setTextColorCMYK(93, 49, 0, 84); // BSN Deep Navy
       }
       doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 96, { align: "center" });
 
