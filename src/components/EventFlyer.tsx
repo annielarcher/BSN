@@ -1,415 +1,410 @@
 import React from "react";
-import { MapPin, Calendar, Clock, Mic2, Wrench, ChevronRight, Navigation } from "lucide-react";
+import { Calendar, Clock, Mic2, Wrench, ChevronRight, Navigation } from "lucide-react";
 
-export interface Guest {
-  id: string;
-  name: string;
-  role: string;
-  imageUrl?: string;
-}
+// BSN Brand Colors
+const BSN_NAVY = "#031529";      // Primary Deep Navy
+const BSN_DARK_BLUE = "#020d1a";  // Darker shade for gradient depths
+const BSN_LIGHT_NAVY = "#0a2240"; // Lighter shade for bottom split
+const BSN_GOLD = "#e0a020";       // Gold Accent
+const BSN_GOLD_LIGHT = "#f5c842"; // Lighter Gold Accent
+const BSN_CREAM = "#f5ead8";      // Cream for off-white text readability
 
-export interface EventActivity {
-  id: string;
-  title: string;
-  type: string;
-  items?: string[];
-  guestIds?: string[];
-}
-
-export interface EventFlyerProps {
-  title: string;
-  subtitle: string;
-  date: string;
-  time: string;
-  location: string;
-  locationUrl?: string;
-  entryFee: string;
-  activities: EventActivity[];
-  guests: Guest[];
-  director: Guest;
-}
-
-const GOLD = "#e0a020";
-const GOLD_LIGHT = "#f5c842";
-const TEAL = "#00c9b1";
-const DARK = "#07080e";
-const CONDUCTOR_PHOTO = "https://images.unsplash.com/photo-1617544517234-c436b0624a34?w=600&h=900&fit=crop&auto=format";
 const BSN_LOGO = "https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png";
 
-function PersonCard({ photo, name, role }: { photo?: string; name: string; role?: string }) {
-  return (
-    <div className="flex flex-col items-center gap-1.5 text-center">
-      <div
-        className="w-14 h-14 rounded-full overflow-hidden shrink-0 bg-[#07080e] flex items-center justify-center relative"
-        style={{ boxShadow: `0 0 0 2px ${GOLD_LIGHT}` }}
-      >
-        {photo ? (
-          <img src={photo} alt={name} className="w-full h-full object-cover object-top" />
-        ) : (
-          <span className="text-[10px] font-bold text-white/40">FOTO</span>
-        )}
-      </div>
-      <p className="text-[10px] font-bold leading-tight line-clamp-1" style={{ color: "#f5ead8", fontFamily: "'Raleway',sans-serif" }}>
-        {name}
-      </p>
-      {role && (
-        <p className="text-[9px] font-semibold line-clamp-1" style={{ color: TEAL }}>
-          {role}
-        </p>
-      )}
-    </div>
-  );
-}
+// Static Guest Data (Clean and easily editable)
+const MAESTRO_ALEXANDRE = {
+  name: "Alexandre Rocha",
+  role: "Maestro",
+  imageUrl: "https://i.ibb.co/3y59L7mb/Whats-App-Image-2026-01-29-at-19-04-21.jpg"
+};
 
-export function EventFlyer({
-  title,
-  subtitle,
-  date,
-  time,
-  location,
-  entryFee,
-  activities,
-  guests,
-  director,
-}: EventFlyerProps) {
+const MAESTRO_EDUARDO = {
+  name: "Eduardo Lagreca Fan",
+  role: "Maestro",
+  imageUrl: "/Images/Eduardo-lagreca-fan.jpeg.jpeg"
+};
 
-  // Helper to safely get guest by id
-  const getGuest = (id: string) => guests.find((g) => g.id === id);
+const LUTHIER_REGINALDO = {
+  name: "Reginaldo de Jesus",
+  role: "Oficina Luthieria",
+  imageUrl: "/Images/Reginaldo-Jesus.jpeg"
+};
 
-  return (
-    <div
-      className="w-full min-h-screen flex items-center justify-center py-8 px-4 print:py-0 print:px-0"
-      style={{ background: "#04050a", fontFamily: "'Raleway', sans-serif" }}
-    >
-      {/* Import external fonts dynamically to guarantee the design looks exactly as intended */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Raleway:wght@400;600;700;900&display=swap');
-      `}} />
+const CONVIDADO_ROBERTO = {
+  name: "Roberto Weingrill Jr.",
+  role: "Amostra Weril",
+  imageUrl: "/Images/Roberto-Weingrill.jpeg"
+};
 
-      {/* Flyer container — fixed A4-ish proportion */}
-      <div
-        className="relative w-full overflow-hidden print:shadow-none print:max-w-none print:rounded-none"
-        style={{
-          maxWidth: 480,
-          aspectRatio: "5 / 7",
-          background: DARK,
-          borderRadius: 20,
-          boxShadow: "0 40px 120px rgba(0,0,0,0.9), 0 0 0 1px rgba(224,160,32,0.15)",
-        }}
-      >
+const DIRETORA_GEYZI = {
+  name: "Geyzi Moreira",
+  role: "Dir. Artística",
+  imageUrl: "https://i.ibb.co/Jw1wR0n7/Whats-App-Image-2026-01-30-at-18-58-42.jpg"
+};
 
-        {/* ── HERO PHOTO with teal duotone overlay ── */}
-        <div className="absolute inset-0">
-          <img
-            src={CONDUCTOR_PHOTO}
-            alt="Maestro em ação"
-            className="w-full h-full object-cover object-center"
-            style={{ opacity: 0.55, filter: "grayscale(60%) contrast(1.1)" }}
-          />
-          {/* Teal color overlay */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: `linear-gradient(160deg, rgba(0,201,177,0.35) 0%, rgba(7,8,14,0.2) 50%, rgba(7,8,14,0.0) 100%)`,
-              mixBlendMode: "screen",
-            }}
-          />
-          {/* Dark fade bottom */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: `linear-gradient(to bottom, rgba(7,8,14,0.2) 0%, rgba(7,8,14,0.55) 42%, rgba(7,8,14,0.97) 70%, ${DARK} 88%)`,
-            }}
-          />
-          {/* Dark fade left edge */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: `linear-gradient(to right, rgba(7,8,14,0.6) 0%, transparent 55%)`,
-            }}
-          />
-        </div>
-
-        {/* ── DIAGONAL GOLD SLASH ── */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            clipPath: "polygon(62% 0%, 72% 0%, 52% 100%, 42% 100%)",
-            background: `linear-gradient(160deg, rgba(245,200,66,0.18) 0%, rgba(224,160,32,0.06) 100%)`,
-            borderLeft: `1px solid rgba(245,200,66,0.3)`,
-          }}
-        />
-        {/* ── DIAGONAL TEAL SLASH ── */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            clipPath: "polygon(74% 0%, 80% 0%, 60% 100%, 54% 100%)",
-            background: `linear-gradient(160deg, rgba(0,201,177,0.15) 0%, rgba(0,201,177,0.04) 100%)`,
-          }}
-        />
-
-        {/* ── VERTICAL SIDE TEXT ── */}
-        <div
-          className="absolute right-4 top-[40%] flex flex-col items-center gap-1 pointer-events-none"
-          style={{ transform: "rotate(90deg)", transformOrigin: "center center", marginRight: -32 }}
-        >
-          <span
-            className="text-[8px] font-bold tracking-[0.35em] uppercase whitespace-nowrap"
-            style={{ color: "rgba(245,200,66,0.35)" }}
-          >
-            {subtitle} · {new Date().getFullYear()}
-          </span>
-        </div>
-
-        {/* ── CONTENT layer ── */}
-        <div className="absolute inset-0 flex flex-col px-7 pt-7 pb-6 z-10">
-
-          {/* Top bar: logo + badge */}
-          <div className="flex items-center justify-between mb-auto">
-            <div className="w-14 h-14">
-              <img
-                src={BSN_LOGO}
-                alt="BSN Logo"
-                className="w-full h-full object-contain"
-                style={{ filter: `drop-shadow(0 0 8px rgba(224,160,32,0.7))` }}
-              />
-            </div>
-            <span
-              className="text-[9px] font-black tracking-widest uppercase px-3 py-1.5 rounded-full shadow-lg animate-pulse"
-              style={{
-                background: `linear-gradient(135deg, ${GOLD_LIGHT}, ${GOLD})`,
-                color: DARK,
-                letterSpacing: "0.18em",
-              }}
-            >
-              Entrada Franca
-            </span>
-          </div>
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* Main title block */}
-          <div className="mb-5">
-            <p
-              className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-              style={{ color: TEAL }}
-            >
-              {title.split(" ")[0]}
-            </p>
-            <div className="flex flex-col">
-              <h1
-                style={{
-                  fontFamily: "'Cinzel Decorative', serif",
-                  fontSize: "clamp(2.6rem, 9vw, 3.6rem)",
-                  fontWeight: 900,
-                  lineHeight: 0.92,
-                  color: "#ffffff",
-                  letterSpacing: "-0.01em",
-                  textShadow: "0 2px 30px rgba(0,0,0,0.6)",
-                }}
-              >
-                {title.split(" ")[1]}
-              </h1>
-              <h1
-                style={{
-                  fontFamily: "'Cinzel Decorative', serif",
-                  fontSize: "clamp(2.6rem, 9vw, 3.6rem)",
-                  fontWeight: 900,
-                  lineHeight: 0.92,
-                  background: `linear-gradient(120deg, ${GOLD_LIGHT} 0%, ${GOLD} 70%)`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {title.split(" ").slice(2).join(" ")}
-              </h1>
-            </div>
-          </div>
-
-          {/* Date / time / address row */}
-          <div className="flex items-start gap-3 mb-5">
-            <div
-              className="flex items-center gap-1.5 rounded-xl px-3 py-2 backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <Calendar size={12} style={{ color: GOLD_LIGHT }} />
-              <span className="text-[10px] font-bold" style={{ color: "#f5ead8" }}>{date}</span>
-            </div>
-            <div
-              className="flex items-center gap-1.5 rounded-xl px-3 py-2 backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <Clock size={12} style={{ color: GOLD_LIGHT }} />
-              <span className="text-[10px] font-bold" style={{ color: "#f5ead8" }}>{time}</span>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2 mb-5">
-            <Navigation size={12} className="mt-0.5 shrink-0" style={{ color: TEAL }} />
-            <div>
-              <p className="text-[11px] font-bold leading-tight" style={{ color: "#f5ead8" }}>
-                {location}
-              </p>
-              <p className="text-[9px] mt-0.5" style={{ color: "#4a6a66" }}>
-                Ver no mapa
-              </p>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div
-            className="h-px w-full mb-4"
-            style={{ background: `linear-gradient(90deg, ${TEAL}44, ${GOLD}55, transparent)` }}
-          />
-
-          {/* Programação label */}
-          <p
-            className="text-[8px] font-black tracking-[0.3em] uppercase mb-3"
-            style={{ color: "rgba(245,200,66,0.5)" }}
-          >
-            Programação
-          </p>
-
-          {/* People grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-
-            {/* Roda de conversa */}
-            <div
-              className="rounded-2xl p-3 backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-            >
-              <div className="flex items-center gap-1.5 mb-3">
-                <Mic2 size={10} style={{ color: GOLD_LIGHT }} />
-                <p className="text-[8px] font-black tracking-widest uppercase" style={{ color: GOLD_LIGHT }}>
-                  Roda de Conversa
-                </p>
-              </div>
-              <div className="flex justify-around">
-                <PersonCard 
-                  photo={getGuest("alexandre")?.imageUrl} 
-                  name={getGuest("alexandre")?.name || "Alexandre Rocha"} 
-                  role={getGuest("alexandre")?.role} 
-                />
-                <PersonCard 
-                  photo={getGuest("eduardo")?.imageUrl} 
-                  name={getGuest("eduardo")?.name || "Eduardo Lagreca Fan"} 
-                  role={getGuest("eduardo")?.role} 
-                />
-              </div>
-            </div>
-
-            {/* Convidados */}
-            <div
-              className="rounded-2xl p-3 backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-            >
-              <div className="flex items-center gap-1.5 mb-3">
-                <Mic2 size={10} style={{ color: GOLD_LIGHT }} />
-                <p className="text-[8px] font-black tracking-widest uppercase" style={{ color: GOLD_LIGHT }}>
-                  Convidados
-                </p>
-              </div>
-              <div className="flex justify-around">
-                <PersonCard 
-                  photo={getGuest("roberto")?.imageUrl} 
-                  name={getGuest("roberto")?.name || "Roberto Weingrill Jr."} 
-                  role={getGuest("roberto")?.role} 
-                />
-                <PersonCard 
-                  photo={getGuest("reginaldo")?.imageUrl} 
-                  name={getGuest("reginaldo")?.name || "Reginaldo de Jesus"} 
-                  role={getGuest("reginaldo")?.role} 
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Oficinas + Direção */}
-          <div className="flex items-center justify-between gap-3">
-            <div
-              className="flex-1 rounded-2xl px-3 py-2.5 backdrop-blur-sm h-full flex flex-col justify-center"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-            >
-              <div className="flex items-center gap-1 mb-1.5">
-                <Wrench size={9} style={{ color: TEAL }} />
-                <p className="text-[8px] font-black tracking-widest uppercase" style={{ color: TEAL }}>
-                  Oficina & Mostra
-                </p>
-              </div>
-              <div className="flex flex-col gap-1 mt-1">
-                <div className="flex items-start gap-1">
-                  <ChevronRight size={9} className="mt-0.5 shrink-0" style={{ color: GOLD }} />
-                  <p className="text-[9px] leading-tight" style={{ color: "#c8bfaa" }}>
-                    Luthieria com <span className="font-bold text-[#f5ead8]">Reginaldo</span>
-                  </p>
-                </div>
-                <div className="flex items-start gap-1 mt-0.5">
-                  <ChevronRight size={9} className="mt-0.5 shrink-0" style={{ color: GOLD }} />
-                  <p className="text-[9px] leading-tight" style={{ color: "#c8bfaa" }}>
-                    Amostra Weril com <span className="font-bold text-[#f5ead8]">Roberto W.</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Direção artística */}
-            <div className="flex flex-col items-center gap-1.5">
-              <div
-                className="w-14 h-14 rounded-full overflow-hidden bg-[#07080e] flex items-center justify-center shrink-0"
-                style={{ boxShadow: `0 0 0 2px ${GOLD_LIGHT}, 0 0 16px rgba(224,160,32,0.3)` }}
-              >
-                {director.imageUrl ? (
-                  <img
-                    src={director.imageUrl}
-                    alt={director.name}
-                    className="w-full h-full object-cover object-top"
-                  />
-                ) : (
-                  <span className="text-[10px] font-bold text-white/40">FOTO</span>
-                )}
-              </div>
-              <p className="text-[9px] font-bold text-center leading-tight line-clamp-1" style={{ color: "#f5ead8" }}>
-                {director.name}
-              </p>
-              <p className="text-[8px] text-center line-clamp-1" style={{ color: GOLD }}>{director.role}</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Exemplo configurado exportado para o app visualizá-lo
 export function SinfonicaEventFlyer() {
   return (
-    <EventFlyer
-      title="Primeiro Encontro Musical"
-      subtitle="Banda Sinfônica Nacional"
-      date="17 Jul · Sex"
-      time="18h30"
-      location="Catedral Presbiteriana do Rio de Janeiro"
-      entryFee="Franca"
-      activities={[]}
-      guests={[
-        { id: "alexandre", name: "Alexandre Rocha", role: "Maestro", imageUrl: "https://i.ibb.co/3y59L7mb/Whats-App-Image-2026-01-29-at-19-04-21.jpg" },
-        { id: "eduardo", name: "Eduardo Lagreca Fan", role: "Maestro", imageUrl: "/Images/Eduardo-lagreca-fan.jpeg.jpeg" },
-        { id: "reginaldo", name: "Reginaldo de Jesus", role: "Oficina Luthieria", imageUrl: "/Images/Reginaldo-Jesus.jpeg" },
-        { id: "roberto", name: "Roberto Weingrill Jr.", role: "Amostra Weril", imageUrl: "/Images/Roberto-Weingrill.jpeg" },
-      ]}
-      director={{ id: "geyzi", name: "Geyzi Moreira", role: "Dir. Artística", imageUrl: "https://i.ibb.co/Jw1wR0n7/Whats-App-Image-2026-01-30-at-18-58-42.jpg" }}
-    />
+    <div
+      className="w-full min-h-screen flex items-center justify-center py-8 px-4 print:py-0 print:px-0 print-wrapper"
+      style={{ background: "#04050a", fontFamily: "'Inter', sans-serif" }}
+    >
+      {/* Import Inter font dynamically and configure professional A6 print layout */}
+      <style dangerouslySetInnerHTML={{__html: `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+  
+  @media print {
+    @page {
+      size: 105mm 148mm;
+      margin: 0;
+    }
+    
+    /* Zera a página inteira e bloqueia barras de rolagem */
+    html, body, #__next, #root {
+      width: 105mm !important;
+      height: 148mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #031529 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      overflow: hidden !important;
+    }
+    
+    /* O pulo do gato: quebra o Flexbox e fixa o wrapper no topo esquerdo da folha */
+    .print-wrapper {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 105mm !important;
+      height: 148mm !important;
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #031529 !important;
+      z-index: 9999 !important;
+    }
+    
+    /* Força o card a esticar 100% e anula os estilos inline de borda redonda e sombra */
+    .flyer-card {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 105mm !important;
+      height: 148mm !important;
+      max-width: none !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+    
+    /* Garante o padding interno da arte na versão impressa */
+    .flyer-card-content {
+      padding: 20px !important;
+    }
+  }
+`}} />
+
+      {/* Flyer container — A4-ish proportion matching the target design */}
+      <div
+        className="relative w-full overflow-hidden print:shadow-none print:max-w-none print:rounded-none flyer-card"
+        style={{
+          maxWidth: 480,
+          aspectRatio: "5 / 6.8",
+          background: BSN_NAVY,
+          borderRadius: 16,
+          boxShadow: "0 30px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(245,200,66,0.1)",
+        }}
+      >
+        {/* Subtle background textured pattern */}
+        <div 
+          className="absolute inset-0 opacity-5 pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(circle at 20% 30%, transparent 60%, rgba(0,0,0,0.6) 100%), 
+                              repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)`,
+            backgroundSize: "10px 10px",
+          }}
+        />
+
+        {/* ── SPLIT DIAGONAL WAVE (Lighter bottom-left section) ── */}
+        <div
+          className="absolute bottom-0 left-0 w-full h-[55%] pointer-events-none"
+          style={{
+            background: `linear-gradient(135deg, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)`,
+            clipPath: "polygon(0 30%, 100% 85%, 100% 100%, 0 100%)",
+          }}
+        />
+
+        {/* ── SPLIT CURVED CONTRAST DIAGONAL ── */}
+        <div
+          className="absolute bottom-0 left-0 w-full h-[58%] pointer-events-none opacity-20"
+          style={{
+            background: BSN_GOLD_LIGHT,
+            clipPath: "polygon(0 28%, 100% 83%, 100% 85%, 0 32%)",
+          }}
+        />
+
+        {/* ── CONTENT LAYER ── */}
+        <div className="absolute inset-0 flex flex-col justify-between p-6 z-10 text-white flyer-card-content">
+          
+          {/* 1. HEADER ROW */}
+          <div className="flex flex-col gap-1 items-start w-full">            
+            <div className="flex justify-between items-center w-full mt-1">
+              <div className="flex items-center gap-2">
+                <img
+                  src={BSN_LOGO}
+                  alt="BSN Logo"
+                  className="h-10 object-contain"
+                  style={{ filter: `drop-shadow(0 0 4px ${BSN_GOLD}55)` }}
+                />
+                <div className="h-6 w-px bg-white/20" />
+                <span className="text-[8px] font-bold tracking-wider leading-none" style={{ color: BSN_CREAM }}>
+                  BANDA SINFÔNICA<br/>NACIONAL
+                </span>
+              </div>
+              <div className="text-right">        
+                <span className="block text-[10px] font-light tracking-[0.25em] uppercase text-white/90 leading-none">
+                  <span className="font">série</span> I<br/>
+                  <span className="font-bold">2026</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. MAIN TITLE BLOCK & GUESTS COLLAGE OVERLAY */}
+          <div className="relative my-auto py-4 flex items-center justify-between">
+            
+            {/* Títulos na Esquerda (Escala Ajustada para A6) */}
+            <div className="w-full max-w-[48%] z-20 flex flex-col items-start">
+              <h1 className="text-[20px] font-black leading-[0.95] tracking-tight uppercase" style={{ color: BSN_CREAM }}>
+                I PAINEL<br/>
+                SINFÔNICO
+              </h1>
+              <div className="h-1.5"></div>
+              
+              <h2 className="text-[22px] font-black leading-none uppercase tracking-tight px-2 py-1 inline-block rounded-md shadow-md"
+                  style={{ background: BSN_GOLD_LIGHT, color: BSN_NAVY }}>
+                Diálogos 
+              </h2>
+              <p className="text-[12px] font-semibold italic text-white/70 my-0.5 leading-tight ml-1">
+                &
+              </p>
+              <h2 className="text-[22px] font-black leading-none uppercase tracking-tight px-2 py-1 inline-block rounded-md shadow-md"
+                  style={{ background: BSN_GOLD_LIGHT, color: BSN_NAVY }}>
+                sons
+              </h2>
+            </div>
+
+            {/* Círculo da Direita (Reduzido de 250px para 210px para caber no A6) */}
+            <div className="w-[210px] h-[210px] absolute right-[-8px] top-[-5px] shrink-0 z-10">
+              <div 
+                className="w-full h-full rounded-full flex flex-col items-center justify-center border-2 relative"
+                style={{
+                  borderColor: BSN_GOLD,
+                  background: "radial-gradient(circle at center, #102d54 0%, #031529 70%, #010811 100%)",
+                  boxShadow: `0 15px 45px rgba(0,0,0,0.85), 0 0 25px rgba(245,200,66,0.3), inset 0 0 30px rgba(245,200,66,0.15)`
+                }}
+              >
+                {/* Anéis Internos Ajustados */}
+                <div className="w-[186px] h-[186px] border border-[#f5c842]/15 rounded-full absolute pointer-events-none z-10" style={{ top: "10px", left: "10px" }} />
+                <div className="w-[162px] h-[162px] border border-dashed border-[#f5c842]/10 rounded-full absolute pointer-events-none z-10" style={{ top: "22px", left: "22px" }} />
+                <div className="w-[138px] h-[138px] border border-[#f5c842]/5 rounded-full absolute pointer-events-none z-10" style={{ top: "34px", left: "34px" }} />
+
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 z-20 mt-1">
+                  
+                  {/* Alexandre */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-[68px] h-[52px] border border-[#f5c842]/50 rounded overflow-hidden bg-[#020d1a]">
+                      <img src={MAESTRO_ALEXANDRE.imageUrl} alt={MAESTRO_ALEXANDRE.name} className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="text-[4.5px] font-black tracking-wider text-[#f5c842] uppercase mt-1 leading-none">MAESTRO</span>
+                    <span className="text-[4.5px] font-bold text-white/95 uppercase leading-none mt-0.5">ALEXANDRE ROCHA</span>
+                  </div>
+
+                  {/* Eduardo */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-[68px] h-[52px] border border-[#f5c842]/50 rounded overflow-hidden bg-[#020d1a]">
+                      <img src={MAESTRO_EDUARDO.imageUrl} alt={MAESTRO_EDUARDO.name} className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="text-[4.5px] font-black tracking-wider text-[#f5c842] uppercase mt-1 leading-none">MAESTRO</span>
+                    <span className="text-[4.5px] font-bold text-white/95 uppercase leading-none mt-0.5 text-ellipsis overflow-hidden whitespace-nowrap w-[68px]">EDUARDO LAGRECA</span>
+                  </div>
+
+                  {/* Roberto */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-[68px] h-[52px] border border-[#f5c842]/50 rounded overflow-hidden bg-[#020d1a]">
+                      <img src={CONVIDADO_ROBERTO.imageUrl} alt={CONVIDADO_ROBERTO.name} className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="text-[4.5px] font-black tracking-wider text-[#f5c842] uppercase mt-1 leading-none text-ellipsis overflow-hidden whitespace-nowrap w-[68px]">ROBERTO WEINGRILL</span>
+                    <span className="text-[4px] font-bold text-white/70 uppercase leading-none mt-0.5">(WERIL)</span>
+                  </div>
+
+                  {/* Reginaldo */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-[68px] h-[52px] border border-[#f5c842]/50 rounded overflow-hidden bg-[#020d1a]">
+                      <img src={LUTHIER_REGINALDO.imageUrl} alt={LUTHIER_REGINALDO.name} className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="text-[4.5px] font-black tracking-wider text-[#f5c842] uppercase mt-1 leading-none text-ellipsis overflow-hidden whitespace-nowrap w-[68px]">REGINALDO DE JESUS</span>
+                    <span className="text-[4px] font-bold text-white/70 uppercase leading-none mt-0.5">(LUTHIER)</span>
+                  </div>
+
+                </div>
+                {/* Overlay dourado sutil */}
+                <div className="absolute inset-0 mix-blend-color pointer-events-none rounded-full" style={{ background: `rgba(224, 160, 32, 0.12)` }} />
+              </div>
+            </div>
+          </div>
+
+          {/* 3. PROGRAM DETAILS & DATE */}
+          <div className="grid grid-cols-12 gap-3 items-end mt-auto pt-2">
+            
+            {/* Bottom-left: Activities & Participants (Blue section) */}
+            <div className="col-span-7 flex flex-col gap-2 z-20 text-left">
+              <div className="flex flex-col gap-2">
+                <span className="text-[9px] font-extrabold tracking-wider uppercase text-white/90 border-b border-white/20 pb-0.5 w-[80%]">
+                  Programação
+                </span>
+                
+                {/* Roda de Conversa */}
+                <div className="flex flex-col">
+                  <span className="text-[7.5px] font-extrabold uppercase text-[#f5c842] tracking-wider mb-0.5">
+                    Roda de Conversa
+                  </span>
+                  <div className="flex items-center gap-1.5">                    
+                    <div className="flex flex-col">
+                      <p className="text-[8.5px] font-bold text-white leading-tight">
+                        "Perspectivas para Banda Sinfônica"
+                      </p>
+                      <p className="text-[7px] font-semibold text-white/70 leading-tight mt-0.5">
+                        Com os Maestros {MAESTRO_ALEXANDRE.name} & {MAESTRO_EDUARDO.name}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Oficina Luthieria */}
+                <div className="flex flex-col">
+                  <span className="text-[7.5px] font-extrabold uppercase text-[#f5c842] tracking-wider mb-0.5">
+                    Oficina de Luthieria
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[8.5px] font-medium text-white/90 leading-tight">
+                      Com {LUTHIER_REGINALDO.name}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Amostra Weril */}
+                <div className="flex flex-col">
+                  <span className="text-[7.5px] font-extrabold uppercase text-[#f5c842] tracking-wider mb-0.5">
+                    Mostra de Instrumentos
+                  </span>
+                  <div className="flex items-center gap-1.5">                  
+                    <p className="text-[8.5px] font-medium text-white/90 leading-tight">
+                      Exposição Weril com {CONVIDADO_ROBERTO.name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom-right: Date, Time & Location Display styled like the reference */}
+            <div className="col-span-5 text-right z-20 flex flex-col items-end justify-end">
+              <div className="flex items-center gap-1.5 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 mb-2.5"
+                   style={{ background: `${BSN_LIGHT_NAVY}cc` }}>
+                <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: BSN_GOLD_LIGHT }}>
+                  Entrada Franca
+                </span>
+              </div>
+              
+              {/* Date | Time | Day Row */}
+              <div className="flex items-center gap-1.5 text-[14px] font-black uppercase tracking-wider text-white">
+                <span>17 JUL</span>
+                <span className="text-white/30 font-light">|</span>
+                <span>18H30</span>
+                <span className="text-white/30 font-light">|</span>
+                <span style={{ color: BSN_GOLD_LIGHT }}>SEX</span>
+              </div>
+              
+              {/* Location Name Row */}
+              <p className="text-[9px] font-black uppercase tracking-wider text-white mt-2 leading-tight">
+                Catedral Presbiteriana
+              </p>
+              {/* Address Row */}
+              <p className="text-[7.5px] text-white/60 tracking-normal leading-tight mt-0.5">
+                R. Silva Jardim, 23 - Centro
+              </p>
+            </div>
+
+          </div>
+
+          {/* 4. FOOTER & SPONSORS */}
+          <div className="border-t border-white/10 mt-3 pt-3 flex items-center justify-between z-20">
+            <div className="flex flex-col gap-1 items-start">
+              <span className="text-[6.5px] font-bold text-white/40 uppercase tracking-widest leading-none mb-0.5">
+                Apoio & Incentivo
+              </span>
+              <div className="flex gap-3.5 items-center">
+                {/* Partner Logo 1 (Weril) */}
+                <div className="h-10 flex items-center">
+                  <img
+                    src="/parceiros/weril.webp"
+                    alt="Weril"
+                    className="h-8 object-contain brightness-0 invert opacity-70"
+                  />
+                </div>
+                {/* Partner Logo 2 (RJF Luthier) */}
+                <div className="h-6 flex items-center">
+                  <img
+                    src="/parceiros/rjf-luthier.png"
+                    alt="RJF Luthier"
+                    className="h-10 rounded object-contain opacity-80"
+                    style={{ mixBlendMode: "multiply" }}
+                  />
+                </div>
+                {/* Partner Logo 3 (Lei Rouanet) */}
+                <div className="h-6 flex items-center">
+                  <img
+                    src="https://www.gov.br/cultura/pt-br/centrais-de-conteudo/marcas-e-logotipos/marcas-rouanet/LogoLeiRouanet_colorida.png"
+                    alt="Lei de Incentivo à Cultura - Lei Rouanet"
+                    className="h-3.5 object-contain brightness-0 invert opacity-70"
+                  />
+                </div>
+                {/* Partner Logo 4 (Catedral Presbiteriana)*/}
+                <div className="h-6 flex items-center">
+                  <img
+                      src="/parceiros/catedral-presbiteriana.png"
+                      alt="Catedral Presbiteriana"
+                      className="h-6 rounded object-contain opacity-80"
+                      style={{ mixBlendMode: "multiply" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+            <div className="flex items-center gap-2">
+              <div className="text-right flex flex-col justify-center">
+                <span className="text-[7px] font-semibold text-white/50 uppercase leading-none">
+                  Direção Artística
+                </span>
+                <span className="text-[8.5px] font-extrabold uppercase leading-tight mt-0.5" style={{ color: BSN_GOLD_LIGHT }}>
+                  {DIRETORA_GEYZI.name}
+                </span>
+              </div>
+              {DIRETORA_GEYZI.imageUrl && (
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-[#f5c842] shrink-0 relative bg-[#020d1a]">
+                  <img
+                    src={DIRETORA_GEYZI.imageUrl}
+                    alt={DIRETORA_GEYZI.name}
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
   );
 }
