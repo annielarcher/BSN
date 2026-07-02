@@ -165,6 +165,7 @@ export function CertificateGenerator() {
             padding: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            border: none !important;
             transform: none !important;
             position: fixed !important;
             top: 0 !important;
@@ -180,6 +181,8 @@ export function CertificateGenerator() {
             width: ${(printWidth / 1.3).toFixed(2)}mm !important;
             height: ${(printHeight / 1.3).toFixed(2)}mm !important;
             border-radius: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
             color: ${isNavy ? "#ffffff" : "#031529"} !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
             transform: scale(1.3) !important;
