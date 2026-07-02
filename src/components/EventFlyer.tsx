@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Calendar, Clock, Mic2, Wrench, ChevronRight, Navigation } from "lucide-react";
 
@@ -43,9 +45,12 @@ const DIRETORA_GEYZI = {
 };
 
 export function SinfonicaEventFlyer() {
+  const [format, setFormat] = React.useState<"a6" | "instagram">("a6");
+  const isInsta = format === "instagram";
+
   return (
     <div
-      className="w-full min-h-screen flex items-center justify-center py-8 px-4 print:py-0 print:px-0 print-wrapper"
+      className="w-full min-h-screen flex flex-col items-center justify-center py-8 px-4 print:py-0 print:px-0 print-wrapper"
       style={{ background: "#04050a", fontFamily: "'Inter', sans-serif" }}
     >
       {/* Import Inter font dynamically and configure professional A6 print layout */}
@@ -105,12 +110,36 @@ export function SinfonicaEventFlyer() {
   }
 `}} />
 
+      {/* Switcher Bar - hidden during print */}
+      <div className="flex gap-2.5 mb-5 justify-center print:hidden z-30 relative">
+        <button
+          onClick={() => setFormat("a6")}
+          className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-lg border ${
+            format === "a6"
+              ? "bg-[#e0a020] text-[#031529] border-[#e0a020]"
+              : "bg-white/5 text-white/80 border-white/10 hover:bg-white/10"
+          }`}
+        >
+          A6 Impressão
+        </button>
+        <button
+          onClick={() => setFormat("instagram")}
+          className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-lg border ${
+            format === "instagram"
+              ? "bg-[#e0a020] text-[#031529] border-[#e0a020]"
+              : "bg-white/5 text-white/80 border-white/10 hover:bg-white/10"
+          }`}
+        >
+          Instagram (1080x1350)
+        </button>
+      </div>
+
       {/* Flyer container — A4-ish proportion matching the target design */}
       <div
-        className="relative w-full overflow-hidden print:shadow-none print:max-w-none print:rounded-none flyer-card"
+        className="relative w-full overflow-hidden print:shadow-none print:max-w-none print:rounded-none flyer-card transition-all duration-300"
         style={{
           maxWidth: 480,
-          aspectRatio: "5 / 6.8",
+          aspectRatio: isInsta ? "4 / 5" : "5 / 6.8",
           background: BSN_NAVY,
           borderRadius: 16,
           boxShadow: "0 30px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(245,200,66,0.1)",
@@ -145,7 +174,7 @@ export function SinfonicaEventFlyer() {
         />
 
         {/* ── CONTENT LAYER ── */}
-        <div className="absolute inset-0 flex flex-col justify-between p-6 z-10 text-white flyer-card-content">
+        <div className={`absolute inset-0 flex flex-col justify-between z-10 text-white flyer-card-content transition-all duration-300 ${isInsta ? "p-5 pb-4" : "p-6"}`}>
           
           {/* 1. HEADER ROW */}
           <div className="flex flex-col gap-1 items-start w-full">            
@@ -195,8 +224,8 @@ export function SinfonicaEventFlyer() {
               </h2>
             </div>
 
-            {/* Círculo da Direita (Reduzido de 250px para 210px para caber no A6) */}
-            <div className="w-[210px] h-[210px] absolute right-[-8px] top-[-5px] shrink-0 z-10">
+            {/* Círculo da Direita */}
+            <div className={`w-[210px] h-[210px] absolute shrink-0 z-10 transition-all duration-300 ${isInsta ? "right-[4px] top-[4px]" : "right-[-8px] top-[-5px]"}`}>
               <div 
                 className="w-full h-full rounded-full flex flex-col items-center justify-center border-2 relative"
                 style={{
