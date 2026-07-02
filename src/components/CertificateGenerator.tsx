@@ -176,36 +176,17 @@ export function CertificateGenerator() {
         doc.setDrawColor(Math.round(c * 2.55), Math.round(m * 2.55), Math.round(y * 2.55), Math.round(k * 2.55));
       };
 
-      let hasCustomFonts = false;
-      try {
-        const [cinzelData, garamondData, garamondItalicData, greatVibesData] = await Promise.all([
-          fetchFontBase64("https://fonts.gstatic.com/s/cinzel/v22/8UhDycjLQ8COyeg3rN6oUG4.ttf"),
-          fetchFontBase64("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3fW5289_iN9aPChU45cR67fTfFhNqYyyd_81G4.ttf"),
-          fetchFontBase64("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3gW5289_iN9aPChU45cR67fTfFhNqYyyd_82W_N02a.ttf"),
-          fetchFontBase64("https://fonts.gstatic.com/s/greatvibes/v18/RWzc3v3L_5XZO8yA3ifW-6yA.ttf")
-        ]);
+      const fontCinzel = "times";
+      const fontCinzelStyle = "bold";
 
-        doc.addFileToVFS("Cinzel.ttf", cinzelData);
-        doc.addFont("Cinzel.ttf", "Cinzel", "normal");
+      const fontGaramond = "times";
+      const fontGaramondStyle = "normal";
 
-        doc.addFileToVFS("Garamond.ttf", garamondData);
-        doc.addFont("Garamond.ttf", "Garamond", "normal");
+      const fontGaramondItalic = "times";
+      const fontGaramondItalicStyle = "italic";
 
-        doc.addFileToVFS("Garamond-Italic.ttf", garamondItalicData);
-        doc.addFont("Garamond-Italic.ttf", "Garamond-Italic", "italic");
-
-        doc.addFileToVFS("GreatVibes.ttf", greatVibesData);
-        doc.addFont("GreatVibes.ttf", "GreatVibes", "normal");
-
-        hasCustomFonts = true;
-      } catch (err) {
-        console.warn("Failed to load Google Fonts, falling back to standard fonts:", err);
-      }
-
-      const fontCinzel = hasCustomFonts ? "Cinzel" : "Times-Roman";
-      const fontGaramond = hasCustomFonts ? "Garamond" : "Times-Roman";
-      const fontGaramondItalic = hasCustomFonts ? "Garamond-Italic" : "Times-Italic";
-      const fontGreatVibes = hasCustomFonts ? "GreatVibes" : "Times-Italic";
+      const fontGreatVibes = "times";
+      const fontGreatVibesStyle = "italic";
 
       const xOffset = isCropMarks ? 3 : 0;
       const yOffset = isCropMarks ? 3 : 0;
@@ -276,7 +257,7 @@ export function CertificateGenerator() {
         console.warn("Could not draw header logo in PDF:", err);
       }
 
-      doc.setFont(fontCinzel, "normal");
+      doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(8.5);
       if (isNavy) {
         setTextColorCMYK(0, 4, 11, 4);
@@ -294,7 +275,7 @@ export function CertificateGenerator() {
       doc.line(xOffset + baseWidth / 2 - 20, yOffset + 40, xOffset + baseWidth / 2 + 20, yOffset + 40);
 
       // 5. Titles & Content
-      doc.setFont(fontCinzel, "normal");
+      doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(28);
       if (isNavy) {
         setTextColorCMYK(0, 18, 73, 4);
@@ -303,7 +284,7 @@ export function CertificateGenerator() {
       }
       doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 58, { align: "center" });
 
-      doc.setFont(fontCinzel, "normal");
+      doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(8.5);
       if (isNavy) {
         setTextColorCMYK(0, 29, 86, 12);
@@ -312,7 +293,7 @@ export function CertificateGenerator() {
       }
       doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 64, { align: "center" });
 
-      doc.setFont(fontGaramondItalic, "italic");
+      doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
       doc.setFontSize(12);
       if (isNavy) {
         setTextColorCMYK(0, 0, 0, 30);
@@ -321,7 +302,7 @@ export function CertificateGenerator() {
       }
       doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 80, { align: "center" });
 
-      doc.setFont(fontCinzel, "normal");
+      doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(24);
       if (isNavy) {
         setTextColorCMYK(0, 0, 0, 0);
@@ -338,7 +319,7 @@ export function CertificateGenerator() {
       doc.setLineWidth(0.3);
       doc.line(xOffset + baseWidth / 2 - 60, yOffset + 100, xOffset + baseWidth / 2 + 60, yOffset + 100);
 
-      doc.setFont(fontGaramondItalic, "italic");
+      doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
       doc.setFontSize(11);
       if (isNavy) {
         setTextColorCMYK(0, 4, 11, 4);
@@ -356,7 +337,7 @@ export function CertificateGenerator() {
       const footerY = yOffset + baseHeight - 32;
 
       if (isSingleSig) {
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(8.5);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
@@ -365,7 +346,7 @@ export function CertificateGenerator() {
         }
         doc.text(dateText, xOffset + 40, footerY + 12, { align: "center" });
 
-        doc.setFont(fontGreatVibes, "normal");
+        doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(22);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
@@ -382,7 +363,7 @@ export function CertificateGenerator() {
         doc.setLineWidth(0.25);
         doc.line(xOffset + baseWidth / 2 - 25, footerY + 5, xOffset + baseWidth / 2 + 25, footerY + 5);
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(8.5);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 0);
@@ -391,7 +372,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 9, { align: "center" });
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(7);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 40);
@@ -402,7 +383,7 @@ export function CertificateGenerator() {
 
         drawEmblemSeal(doc, xOffset + baseWidth - 40 - 15, footerY - 2, 15);
       } else {
-        doc.setFont(fontGreatVibes, "normal");
+        doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(22);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
@@ -419,7 +400,7 @@ export function CertificateGenerator() {
         doc.setLineWidth(0.25);
         doc.line(xOffset + 25, footerY + 5, xOffset + 75, footerY + 5);
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(8.5);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 0);
@@ -428,7 +409,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig1Name, xOffset + 50, footerY + 9, { align: "center" });
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(7);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 40);
@@ -439,7 +420,7 @@ export function CertificateGenerator() {
 
         drawEmblemSeal(doc, xOffset + (baseWidth - 15) / 2, footerY - 5, 15);
 
-        doc.setFont(fontGreatVibes, "normal");
+        doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(22);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
@@ -456,7 +437,7 @@ export function CertificateGenerator() {
         doc.setLineWidth(0.25);
         doc.line(xOffset + baseWidth - 75, footerY + 5, xOffset + baseWidth - 25, footerY + 5);
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(8.5);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 0);
@@ -465,7 +446,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig2Name, xOffset + baseWidth - 50, footerY + 9, { align: "center" });
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(7);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 40);
@@ -474,7 +455,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig2Role, xOffset + baseWidth - 50, footerY + 13, { align: "center" });
 
-        doc.setFont(fontGaramond, "normal");
+        doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(8.5);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
