@@ -35,7 +35,7 @@ const CATEGORY_PRESETS: Record<CertificateCategory, CategoryPreset> = {
   },
   fundacao: {
     title: "Apoio na Fundação",
-    defaultText: "Em reconhecimento à sua valiosa colaboração e empenho de fundamental importância nas etapas de estruturação e realização que culminaram na fundação da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo apoio e dedicação oferecidos a este projeto.",
+    defaultText: "Em reconhecimento e profunda gratidão pelo seu precioso trabalho voluntário prestado durante o processo de realização e estruturação que viabilizou o surgimento da Banda Sinfônica Nacional, expressando nossa sincera admiração pelo engajamento, dedicação e generosidade ofertados a este projeto musical.",
   },
   custom: {
     title: "Texto Customizado",
