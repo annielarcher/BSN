@@ -172,19 +172,16 @@ export function CertificateGenerator() {
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
           }
           
-          /* The inner certificate canvas — force base text color so 
-             elements using 'inherit' or no explicit color get the right value */
+          /* The inner certificate canvas — sets the base text color for 
+             elements that have no explicit inline color of their own.
+             Elements with explicit colors (gold, off-white) keep their own values
+             because print-color-adjust: exact preserves them. */
           .certificate-inner-canvas {
             width: 100% !important;
             height: 100% !important;
             border-radius: 0 !important;
             color: ${isNavy ? "#ffffff" : "#031529"} !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
-          }
-
-          /* All descendants must inherit and not get overridden to black */
-          .certificate-inner-canvas * {
-            color: inherit;
           }
 
           .certificate-canvas-content {
