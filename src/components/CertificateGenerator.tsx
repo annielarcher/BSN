@@ -23,15 +23,15 @@ interface CategoryPreset {
 const CATEGORY_PRESETS: Record<CertificateCategory, CategoryPreset> = {
   musico: {
     title: "Músico Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo seu talento, virtuosismo e dedicação exemplar apresentados no decorrer deste primeiro ano de história e conquistas.",
+    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional e ao seu precioso trabalho voluntário prestado durante o processo de estruturação e fundação desta instituição, expressando nossa profunda gratidão pelo talento, virtuosismo e dedicação exemplar demonstrados ao longo deste primeiro ano de história e conquistas.",
   },
   apoiador: {
     title: "Apoiador Homenageado",
-    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais da Banda Sinfônica Nacional em seu primeiro aniversário de fundação.",
+    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional e ao precioso trabalho voluntário prestado durante o processo de realização e fundação da Banda Sinfônica Nacional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais desta instituição em seu primeiro aniversário.",
   },
   colaborador: {
     title: "Colaborador Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos da Banda Sinfônica Nacional no ano de seu primeiro aniversário.",
+    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional e ao precioso trabalho voluntário prestado durante o processo de estruturação e fundação da Banda Sinfônica Nacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos desta instituição em seu primeiro aniversário.",
   },
   fundacao: {
     title: "Apoio na Fundação",
