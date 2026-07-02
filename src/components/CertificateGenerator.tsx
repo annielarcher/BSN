@@ -172,10 +172,7 @@ export function CertificateGenerator() {
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
           }
           
-          /* The inner certificate canvas — sets the base text color for 
-             elements that have no explicit inline color of their own.
-             Elements with explicit colors (gold, off-white) keep their own values
-             because print-color-adjust: exact preserves them. */
+          /* Inner canvas base */
           .certificate-inner-canvas {
             width: 100% !important;
             height: 100% !important;
@@ -183,6 +180,14 @@ export function CertificateGenerator() {
             color: ${isNavy ? "#ffffff" : "#031529"} !important;
             background-color: ${isNavy ? BSN_NAVY : "#faf6ee"} !important;
           }
+
+          /* Explicit color classes — these override everything in print */
+          .cert-gold        { color: ${isNavy ? "#e0a020" : "#5c4008"} !important; }
+          .cert-gold-light  { color: ${isNavy ? "#f5c842" : "#8b6508"} !important; }
+          .cert-cream       { color: ${isNavy ? "#f5ead8" : "#1e293b"} !important; }
+          .cert-white       { color: ${isNavy ? "#ffffff" : "#031529"} !important; }
+          .cert-dim-white   { color: ${isNavy ? "rgba(255,255,255,0.7)" : "#475569"} !important; }
+          .cert-muted-white { color: ${isNavy ? "rgba(255,255,255,0.4)" : "#64748b"} !important; }
 
           .certificate-canvas-content {
             padding: 18mm !important;
@@ -527,7 +532,7 @@ export function CertificateGenerator() {
               style={{ filter: isNavy ? `drop-shadow(0 0 5px ${BSN_GOLD}55)` : `drop-shadow(0 2px 4px rgba(0,0,0,0.15))` }}
             />
             <span 
-              className="text-[10px] font-black tracking-[0.3em] uppercase leading-none"
+              className="cert-cream text-[10px] font-black tracking-[0.3em] uppercase leading-none"
               style={{ color: isNavy ? BSN_CREAM : "#0a2240" }}
             >
               BANDA SINFÔNICA NACIONAL
@@ -540,7 +545,7 @@ export function CertificateGenerator() {
             
             {/* Main Certificate Title using Cinzel serif font */}
             <h2 
-              className="text-[36px] font-black tracking-[0.25em] uppercase font-serif"
+              className="cert-gold-light text-[36px] font-black tracking-[0.25em] uppercase font-serif"
               style={{ 
                 color: isNavy ? BSN_GOLD_LIGHT : "#8b6508",
                 fontFamily: "'Cinzel', serif"
@@ -549,7 +554,7 @@ export function CertificateGenerator() {
               CERTIFICADO
             </h2>
             
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
+            <p className="cert-gold text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
                style={{ 
                  color: isNavy ? BSN_GOLD : "#5c4008",
                  fontFamily: "'Cinzel', serif"
@@ -557,7 +562,7 @@ export function CertificateGenerator() {
               Homenagem Comemorativa de 1º Ano
             </p>
 
-            <span className="text-[14px] font-medium italic mt-5 block"
+            <span className="cert-dim-white text-[14px] font-medium italic mt-5 block"
                   style={{ 
                     color: isNavy ? "rgba(255,255,255,0.7)" : "#475569",
                     fontFamily: "'Cormorant Garamond', serif"
@@ -580,7 +585,7 @@ export function CertificateGenerator() {
 
             {/* Certificate description text */}
             <p 
-              className="text-[13.5px] font-medium leading-relaxed max-w-[82%] mx-auto mt-3 font-serif"
+              className="cert-cream text-[13.5px] font-medium leading-relaxed max-w-[82%] mx-auto mt-3 font-serif"
               style={{ 
                 color: isNavy ? BSN_CREAM : "#1e293b",
                 fontFamily: "'Cormorant Garamond', serif",
@@ -598,7 +603,7 @@ export function CertificateGenerator() {
               <>
                 {/* Left side: Date Text */}
                 <div className="flex flex-col items-center justify-center pb-2">
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-center" 
+                  <span className="cert-gold-light text-[10px] font-bold tracking-wider uppercase text-center" 
                         style={{ 
                           color: isNavy ? BSN_GOLD_LIGHT : "#5c4008",
                           fontFamily: "'Cormorant Garamond', serif"
@@ -610,7 +615,7 @@ export function CertificateGenerator() {
                 {/* Center: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
+                    className="cert-gold-light h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -621,14 +626,14 @@ export function CertificateGenerator() {
                   </div>
                   <div className="w-[160px] h-[1px] bg-gradient-to-r from-transparent via-current to-transparent opacity-30" 
                        style={{ color: isNavy ? "#ffffff" : "#031529" }} />
-                  <span className="text-[9px] font-bold uppercase tracking-wider mt-1"
+                  <span className="cert-white text-[9px] font-bold uppercase tracking-wider mt-1"
                         style={{ 
                           color: isNavy ? "#ffffff" : "#031529",
                           fontFamily: "'Cormorant Garamond', serif"
                         }}>
                     {sig1Name}
                   </span>
-                  <span className="text-[7.5px] font-semibold text-white/50 uppercase tracking-widest mt-0.5"
+                  <span className="cert-muted-white text-[7.5px] font-semibold text-white/50 uppercase tracking-widest mt-0.5"
                         style={{ 
                           color: isNavy ? "rgba(255,255,255,0.4)" : "#64748b",
                           fontFamily: "'Cormorant Garamond', serif"
@@ -648,10 +653,10 @@ export function CertificateGenerator() {
                     }}
                   >
                     <div className="absolute inset-0.5 rounded-full border border-dashed opacity-40" style={{ borderColor: BSN_GOLD }} />
-                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
+                    <span className="cert-gold-light text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
                       BSN
                     </span>
-                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
+                    <span className="cert-gold text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
                       1º Ano
                     </span>
                     <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: BSN_GOLD_LIGHT }}>
