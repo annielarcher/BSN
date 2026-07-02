@@ -12,7 +12,7 @@ const BSN_GOLD_LIGHT = "#f5c842";
 const BSN_CREAM = "#f5ead8";
 const BSN_LOGO = "https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png";
 
-type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
+type CertificateCategory = "musico" | "apoiador" | "colaborador" | "fundacao" | "custom";
 type CertificateTheme = "navy" | "saver";
 
 interface CategoryPreset {
@@ -32,6 +32,10 @@ const CATEGORY_PRESETS: Record<CertificateCategory, CategoryPreset> = {
   colaborador: {
     title: "Colaborador Homenageado",
     defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos da Banda Sinfônica Nacional no ano de seu primeiro aniversário.",
+  },
+  fundacao: {
+    title: "Apoio na Fundação",
+    defaultText: "Em reconhecimento à sua valiosa colaboração e empenho de fundamental importância nas etapas de estruturação e realização que culminaram na fundação da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo apoio e dedicação oferecidos a este projeto.",
   },
   custom: {
     title: "Texto Customizado",
@@ -270,6 +274,7 @@ export function CertificateGenerator() {
               <option value="musico" className="bg-slate-900 text-white">Músico Homenageado</option>
               <option value="apoiador" className="bg-slate-900 text-white">Apoiador Institucional</option>
               <option value="colaborador" className="bg-slate-900 text-white">Colaborador Técnico</option>
+              <option value="fundacao" className="bg-slate-900 text-white">Apoio na Fundação</option>
               <option value="custom" className="bg-slate-900 text-white">Texto Customizado</option>
             </select>
           </div>
