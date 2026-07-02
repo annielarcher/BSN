@@ -182,8 +182,8 @@ export function CertificateGenerator() {
           }
 
           /* Explicit color classes — these override everything in print */
-          .cert-gold        { color: ${isNavy ? "#e0a020" : "#5c4008"} !important; }
-          .cert-gold-light  { color: ${isNavy ? "#f5c842" : "#8b6508"} !important; }
+          .cert-gold        { color: ${isNavy ? "#e0a020" : "#9a7510"} !important; }
+          .cert-gold-light  { color: ${isNavy ? "#f5c842" : "#c8920f"} !important; }
           .cert-cream       { color: ${isNavy ? "#f5ead8" : "#1e293b"} !important; }
           .cert-white       { color: ${isNavy ? "#ffffff" : "#031529"} !important; }
           .cert-dim-white   { color: ${isNavy ? "rgba(255,255,255,0.7)" : "#475569"} !important; }
@@ -547,7 +547,7 @@ export function CertificateGenerator() {
             <h2 
               className="cert-gold-light text-[36px] font-black tracking-[0.25em] uppercase font-serif"
               style={{ 
-                color: isNavy ? BSN_GOLD_LIGHT : "#8b6508",
+                color: isNavy ? BSN_GOLD_LIGHT : "#c8920f",
                 fontFamily: "'Cinzel', serif"
               }}
             >
@@ -556,7 +556,7 @@ export function CertificateGenerator() {
             
             <p className="cert-gold text-[10px] font-bold tracking-[0.2em] uppercase mt-1.5"
                style={{ 
-                 color: isNavy ? BSN_GOLD : "#5c4008",
+                 color: isNavy ? BSN_GOLD : "#9a7510",
                  fontFamily: "'Cinzel', serif"
                }}>
               Homenagem Comemorativa de 1º Ano
