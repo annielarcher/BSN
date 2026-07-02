@@ -390,6 +390,10 @@ export function CertificateGenerator() {
             >
               <RotateCcw className="w-3.5 h-3.5" /> Restaurar Padrões
             </button>
+            
+            <p className="text-[9px] text-slate-450 mt-2 leading-relaxed text-center px-1">
+              💡 <strong>Dica de Impressão:</strong> Ao salvar como PDF nas configurações do seu navegador, o arquivo gerado é <strong>vetorizado (DPI infinito)</strong>, atendendo com perfeição aos padrões de 300 DPI exigidos pelas gráficas.
+            </p>
           </div>
 
         </div>
