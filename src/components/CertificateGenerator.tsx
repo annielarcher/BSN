@@ -37,8 +37,8 @@ const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): strin
   return canvas.toDataURL("image/png");
 };
 
-// Helper to fetch custom fonts and convert to binary string for PDF embedding
-const fetchFontBinary = async (url: string): Promise<string> => {
+// Helper to fetch custom fonts and convert to base64 for PDF embedding
+const fetchFontBase64 = async (url: string): Promise<string> => {
   const resp = await fetch(url);
   const buffer = await resp.arrayBuffer();
   let binary = "";
@@ -46,7 +46,7 @@ const fetchFontBinary = async (url: string): Promise<string> => {
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return binary;
+  return window.btoa(binary);
 };
 
 type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
@@ -164,10 +164,10 @@ export function CertificateGenerator() {
       let hasCustomFonts = false;
       try {
         const [cinzelData, garamondData, garamondItalicData, greatVibesData] = await Promise.all([
-          fetchFontBinary("https://fonts.gstatic.com/s/cinzel/v22/8UhDycjLQ8COyeg3rN6oUG4.ttf"),
-          fetchFontBinary("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3fW5289_iN9aPChU45cR67fTfFhNqYyyd_81G4.ttf"),
-          fetchFontBinary("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3gW5289_iN9aPChU45cR67fTfFhNqYyyd_82W_N02a.ttf"),
-          fetchFontBinary("https://fonts.gstatic.com/s/greatvibes/v18/RWzc3v3L_5XZO8yA3ifW-6yA.ttf")
+          fetchFontBase64("/fonts/Cinzel.ttf"),
+          fetchFontBase64("/fonts/Garamond.ttf"),
+          fetchFontBase64("/fonts/Garamond-Italic.ttf"),
+          fetchFontBase64("/fonts/GreatVibes.ttf")
         ]);
 
         doc.addFileToVFS("Cinzel.ttf", cinzelData);
