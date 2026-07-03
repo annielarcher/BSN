@@ -213,8 +213,8 @@ export function CertificateGenerator() {
       // 2. Watermark Logo
       try {
         const logoImg = await loadImage(BSN_LOGO);
-        const transparentLogoDataUrl = getTransparentLogoBase64(logoImg, isNavy ? 0.1 : 0.08);
-        const watermarkSize = 200;
+        const transparentLogoDataUrl = getTransparentLogoBase64(logoImg, isNavy ? 0.035 : 0.025);
+        const watermarkSize = 180;
         const wx = xOffset + (baseWidth - watermarkSize) / 2;
         const wy = yOffset + (baseHeight - watermarkSize) / 2;
         doc.addImage(transparentLogoDataUrl, "PNG", wx, wy, watermarkSize, watermarkSize);
@@ -260,9 +260,9 @@ export function CertificateGenerator() {
       // 4. Header Logo
       try {
         const logoImg = await loadImage(BSN_LOGO);
-        const logoSize = 24;
+        const logoSize = 30;
         const lx = xOffset + (baseWidth - logoSize) / 2;
-        const ly = yOffset + 14;
+        const ly = yOffset + 17;
         doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize);
       } catch (err) {
         console.warn("Could not draw header logo in PDF:", err);
@@ -275,7 +275,7 @@ export function CertificateGenerator() {
       } else {
         setTextColorCMYK(93, 49, 0, 84);
       }
-      doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 43, { align: "center" });
+      doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 53, { align: "center" });
 
       if (isNavy) {
         setDrawColorCMYK(0, 29, 86, 12);
@@ -283,7 +283,7 @@ export function CertificateGenerator() {
         setDrawColorCMYK(0, 35, 90, 45);
       }
       doc.setLineWidth(0.4);
-      doc.line(xOffset + baseWidth / 2 - 25, yOffset + 48, xOffset + baseWidth / 2 + 25, yOffset + 48);
+      doc.line(xOffset + baseWidth / 2 - 25, yOffset + 58, xOffset + baseWidth / 2 + 25, yOffset + 58);
 
       // 5. Titles & Content
       doc.setFont(fontCinzel, fontCinzelStyle);
@@ -293,7 +293,7 @@ export function CertificateGenerator() {
       } else {
         setTextColorCMYK(0, 35, 90, 45);
       }
-      doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 68, { align: "center" });
+      doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 78, { align: "center" });
 
       doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(13);
@@ -302,7 +302,7 @@ export function CertificateGenerator() {
       } else {
         setTextColorCMYK(0, 45, 90, 45);
       }
-      doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 76, { align: "center" });
+      doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 86, { align: "center" });
 
       doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
       doc.setFontSize(16);
@@ -311,7 +311,7 @@ export function CertificateGenerator() {
       } else {
         setTextColorCMYK(0, 0, 0, 70); // Slate Gray
       }
-      doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 94, { align: "center" });
+      doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 104, { align: "center" });
 
       doc.setFont(fontCinzel, fontCinzelStyle);
       doc.setFontSize(40);
@@ -320,7 +320,7 @@ export function CertificateGenerator() {
       } else {
         setTextColorCMYK(93, 49, 0, 84); // BSN Deep Navy
       }
-      doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 114, { align: "center" });
+      doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 122, { align: "center" });
 
       if (isNavy) {
         setDrawColorCMYK(0, 29, 86, 25);
@@ -328,7 +328,7 @@ export function CertificateGenerator() {
         setDrawColorCMYK(0, 35, 90, 45);
       }
       doc.setLineWidth(0.3);
-      doc.line(xOffset + baseWidth / 2 - 80, yOffset + 120, xOffset + baseWidth / 2 + 80, yOffset + 120);
+      doc.line(xOffset + baseWidth / 2 - 80, yOffset + 128, xOffset + baseWidth / 2 + 80, yOffset + 128);
 
       doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
       doc.setFontSize(17);
@@ -338,14 +338,14 @@ export function CertificateGenerator() {
         setTextColorCMYK(0, 0, 0, 85);
       }
       const wrappedTextLines = doc.splitTextToSize(customText, 230);
-      let descY = yOffset + 132;
+      let descY = yOffset + 138;
       wrappedTextLines.forEach((line: string) => {
         doc.text(line, xOffset + baseWidth / 2, descY, { align: "center" });
         descY += 8.5;
       });
 
       // 6. Signatures Footer
-      const footerY = yOffset + baseHeight - 44;
+      const footerY = yOffset + baseHeight - 38; // Shifted footer down slightly for layout balance
 
       if (isSingleSig) {
         doc.setFont(fontGaramond, fontGaramondStyle);
@@ -355,7 +355,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 35, 90, 45);
         }
-        doc.text(dateText, xOffset + 40, footerY + 18, { align: "center" });
+        doc.text(dateText, xOffset + 40, footerY + 13.5, { align: "center" });
 
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(36);
@@ -364,7 +364,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 2, { align: "center" });
+        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 3, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -381,7 +381,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(93, 49, 0, 84);
         }
-        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 12, { align: "center" });
+        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 9.5, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(10.5);
@@ -390,9 +390,9 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 60);
         }
-        doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 18, { align: "center" });
+        doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 13.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 4, 22);
+        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY + 1, 22);
       } else {
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(36);
@@ -401,7 +401,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig1Name, xOffset + 55, footerY + 2, { align: "center" });
+        doc.text(sig1Name, xOffset + 55, footerY + 3, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -418,7 +418,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(93, 49, 0, 84);
         }
-        doc.text(sig1Name, xOffset + 55, footerY + 12, { align: "center" });
+        doc.text(sig1Name, xOffset + 55, footerY + 9.5, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(10.5);
@@ -427,9 +427,9 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 60);
         }
-        doc.text(sig1Role, xOffset + 55, footerY + 18, { align: "center" });
+        doc.text(sig1Role, xOffset + 55, footerY + 13.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY - 6, 22);
+        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY - 1, 22);
 
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(36);
@@ -438,7 +438,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 2, { align: "center" });
+        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 3, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -455,7 +455,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(93, 49, 0, 84);
         }
-        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 12, { align: "center" });
+        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 9.5, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(10.5);
@@ -464,7 +464,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 60);
         }
-        doc.text(sig2Role, xOffset + baseWidth - 55, footerY + 18, { align: "center" });
+        doc.text(sig2Role, xOffset + baseWidth - 55, footerY + 13.5, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
         doc.setFontSize(13);
@@ -473,7 +473,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 35, 90, 45);
         }
-        doc.text(dateText, xOffset + baseWidth / 2, footerY + 28, { align: "center" });
+        doc.text(dateText, xOffset + baseWidth / 2, footerY + 22, { align: "center" });
       }
 
       // 7. Crop Marks
@@ -916,9 +916,9 @@ export function CertificateGenerator() {
           {/* Centered faint watermark BSN logo */}
           <div 
             className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-            style={{ opacity: isNavy ? 0.1 : 0.08 }}
+            style={{ opacity: isNavy ? 0.035 : 0.025 }}
           >
-            <img src={BSN_LOGO} alt="Watermark BSN" className="w-[700px] h-[700px] object-contain" />
+            <img src={BSN_LOGO} alt="Watermark BSN" className="w-[580px] h-[580px] object-contain" />
           </div>
 
           {/* ── BORDERS & MARGINS ── */}
@@ -946,11 +946,11 @@ export function CertificateGenerator() {
           <div className="absolute bottom-8 right-8 w-6 h-6 border-b-2 border-r-2 pointer-events-none" style={{ borderColor: BSN_GOLD }} />
 
           {/* ── CERTIFICATE HEADER ── */}
-          <div className="flex flex-col items-center text-center mt-1 z-10">
+          <div className="flex flex-col items-center text-center mt-6 z-10">
             <img
               src={BSN_LOGO}
               alt="BSN Logo"
-              className="h-40 object-contain mb-2.5"
+              className="h-44 object-contain mb-1.5"
               style={{ filter: isNavy ? `drop-shadow(0 0 5px ${BSN_GOLD}55)` : `drop-shadow(0 2px 4px rgba(0,0,0,0.15))` }}
             />
             <span 
@@ -1037,7 +1037,7 @@ export function CertificateGenerator() {
                 {/* Center: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
+                    className="h-6 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -1092,7 +1092,7 @@ export function CertificateGenerator() {
                 {/* Left side: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
+                    className="h-6 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -1152,7 +1152,7 @@ export function CertificateGenerator() {
                 {/* Right side: Signature 2 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-10 text-[22px] font-normal leading-none mb-1 flex items-center justify-center select-none"
+                    className="h-6 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
