@@ -392,7 +392,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 13.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY + 1, 22);
+        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 1, 22);
       } else {
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(36);
@@ -1037,7 +1037,7 @@ export function CertificateGenerator() {
                 {/* Center: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-6 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
+                    className="h-13 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -1092,7 +1092,7 @@ export function CertificateGenerator() {
                 {/* Left side: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-6 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
+                    className="h-13 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
@@ -1152,7 +1152,7 @@ export function CertificateGenerator() {
                 {/* Right side: Signature 2 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-6 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
+                    className="h-13 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
