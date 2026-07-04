@@ -647,43 +647,32 @@ export function CertificateGenerator() {
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#f5c842]">Formato do Papel</span>
             <div className="grid grid-cols-2 gap-2 mt-1">
               <button
-                onClick={() => setAspectRatioMode("a4")}
+                onClick={() => {
+                  setAspectRatioMode("a4");
+                  setIsCropMarks(true);
+                }}
                 className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all ${
                   aspectRatioMode === "a4"
                     ? "bg-[#e0a020] border-[#e0a020] text-slate-950 shadow" 
                     : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-800"
                 }`}
               >
-                A4 Paisagem
+                PDF Gráfica (A4)
               </button>
               <button
-                onClick={() => setAspectRatioMode("16_9")}
+                onClick={() => {
+                  setAspectRatioMode("16_9");
+                  setIsCropMarks(false);
+                }}
                 className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all ${
                   aspectRatioMode === "16_9"
                     ? "bg-[#e0a020] border-[#e0a020] text-slate-950 shadow" 
                     : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-800"
                 }`}
               >
-                Digital 16:9
+                Modo Digital (16:9)
               </button>
             </div>
-          </div>
-
-          {/* Prepress (Crop Marks and Bleed) */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#f5c842]">Preparo Gráfico (Prepress)</span>
-            <label className="flex items-center gap-2.5 mt-1 cursor-pointer bg-slate-800/40 p-2.5 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-all select-none">
-              <input
-                type="checkbox"
-                checked={isCropMarks}
-                onChange={(e) => setIsCropMarks(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-700 text-[#e0a020] focus:ring-[#e0a020] bg-slate-900"
-              />
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-200">Marcas de Corte & Sangria</span>
-                <span className="text-[9px] text-slate-450 mt-0.5">Adiciona 3mm e guias de impressão</span>
-              </div>
-            </label>
           </div>
 
           {/* Recipient Name */}
@@ -820,12 +809,6 @@ export function CertificateGenerator() {
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-2 mt-4">
-            <button
-              onClick={handlePrint}
-              className="w-full bg-[#e0a020] text-slate-950 font-extrabold hover:bg-[#f5c842] active:scale-95 transition-all py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg shadow-[#e0a020]/10"
-            >
-              <Printer className="w-4 h-4" /> Imprimir A4 (Navegador)
-            </button>
 
             <button
               onClick={handleExportPDF}
@@ -946,11 +929,11 @@ export function CertificateGenerator() {
           <div className="absolute bottom-8 right-8 w-6 h-6 border-b-2 border-r-2 pointer-events-none" style={{ borderColor: BSN_GOLD }} />
 
           {/* ── CERTIFICATE HEADER ── */}
-          <div className="flex flex-col items-center text-center mt-6 z-10">
+          <div className="flex flex-col items-center text-center mt-2 z-10">
             <img
               src={BSN_LOGO}
               alt="BSN Logo"
-              className="h-44 object-contain mb-1.5"
+              className="h-28 object-contain mb-1"
               style={{ filter: isNavy ? `drop-shadow(0 0 5px ${BSN_GOLD}55)` : `drop-shadow(0 2px 4px rgba(0,0,0,0.15))` }}
             />
             <span 
@@ -1037,7 +1020,7 @@ export function CertificateGenerator() {
                 {/* Center: Signature 1 */}
                 <div className="flex flex-col items-center text-center">
                   <div 
-                    className="h-13 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
+                    className="h-5 text-[22px] font-normal leading-none mb-0 flex items-center justify-center select-none"
                     style={{ 
                       fontFamily: "'Great Vibes', cursive", 
                       color: isNavy ? BSN_GOLD_LIGHT : "#1e293b",
