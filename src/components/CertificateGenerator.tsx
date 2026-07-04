@@ -260,22 +260,22 @@ export function CertificateGenerator() {
       // 4. Header Logo
       try {
         const logoImg = await loadImage(BSN_LOGO);
-        const logoSize = 30;
+        const logoSize = 38;
         const lx = xOffset + (baseWidth - logoSize) / 2;
-        const ly = yOffset + 17;
+        const ly = yOffset + 12;
         doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize);
       } catch (err) {
         console.warn("Could not draw header logo in PDF:", err);
       }
 
       doc.setFont(fontCinzel, fontCinzelStyle);
-      doc.setFontSize(11);
+      doc.setFontSize(10);
       if (isNavy) {
         setTextColorCMYK(0, 4, 11, 4);
       } else {
         setTextColorCMYK(93, 49, 0, 84);
       }
-      doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 53, { align: "center" });
+      doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 50, { align: "center" });
 
       if (isNavy) {
         setDrawColorCMYK(0, 29, 86, 12);
@@ -283,44 +283,44 @@ export function CertificateGenerator() {
         setDrawColorCMYK(0, 35, 90, 45);
       }
       doc.setLineWidth(0.4);
-      doc.line(xOffset + baseWidth / 2 - 25, yOffset + 58, xOffset + baseWidth / 2 + 25, yOffset + 58);
+      doc.line(xOffset + baseWidth / 2 - 25, yOffset + 54, xOffset + baseWidth / 2 + 25, yOffset + 54);
 
       // 5. Titles & Content
       doc.setFont(fontCinzel, fontCinzelStyle);
-      doc.setFontSize(42);
+      doc.setFontSize(36);
       if (isNavy) {
         setTextColorCMYK(0, 18, 73, 4);
       } else {
         setTextColorCMYK(0, 35, 90, 45);
       }
-      doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 78, { align: "center" });
+      doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 71, { align: "center" });
 
       doc.setFont(fontCinzel, fontCinzelStyle);
-      doc.setFontSize(13);
+      doc.setFontSize(10);
       if (isNavy) {
         setTextColorCMYK(0, 29, 86, 12);
       } else {
         setTextColorCMYK(0, 45, 90, 45);
       }
-      doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 86, { align: "center" });
+      doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 78.5, { align: "center" });
 
       doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
-      doc.setFontSize(16);
+      doc.setFontSize(14);
       if (isNavy) {
         setTextColorCMYK(0, 4, 11, 20); // Dim Cream
       } else {
         setTextColorCMYK(0, 0, 0, 70); // Slate Gray
       }
-      doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 104, { align: "center" });
+      doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 97.5, { align: "center" });
 
       doc.setFont(fontCinzel, fontCinzelStyle);
-      doc.setFontSize(40);
+      doc.setFontSize(32);
       if (isNavy) {
         setTextColorCMYK(0, 0, 0, 0); // Pure unprinted white paper color
       } else {
         setTextColorCMYK(93, 49, 0, 84); // BSN Deep Navy
       }
-      doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 122, { align: "center" });
+      doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 116, { align: "center" });
 
       if (isNavy) {
         setDrawColorCMYK(0, 29, 86, 25);
@@ -328,43 +328,43 @@ export function CertificateGenerator() {
         setDrawColorCMYK(0, 35, 90, 45);
       }
       doc.setLineWidth(0.3);
-      doc.line(xOffset + baseWidth / 2 - 80, yOffset + 128, xOffset + baseWidth / 2 + 80, yOffset + 128);
+      doc.line(xOffset + baseWidth / 2 - 80, yOffset + 122.5, xOffset + baseWidth / 2 + 80, yOffset + 122.5);
 
       doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
-      doc.setFontSize(17);
+      doc.setFontSize(13.5);
       if (isNavy) {
         setTextColorCMYK(0, 4, 11, 4);
       } else {
         setTextColorCMYK(0, 0, 0, 85);
       }
       const wrappedTextLines = doc.splitTextToSize(customText, 230);
-      let descY = yOffset + 138;
+      let descY = yOffset + 134;
       wrappedTextLines.forEach((line: string) => {
         doc.text(line, xOffset + baseWidth / 2, descY, { align: "center" });
-        descY += 8.5;
+        descY += 7;
       });
 
       // 6. Signatures Footer
-      const footerY = yOffset + baseHeight - 38; // Shifted footer down slightly for layout balance
+      const footerY = yOffset + baseHeight - 43.5;
 
       if (isSingleSig) {
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(13);
+        doc.setFontSize(10);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
         } else {
           setTextColorCMYK(0, 35, 90, 45);
         }
-        doc.text(dateText, xOffset + 40, footerY + 13.5, { align: "center" });
+        doc.text(dateText, xOffset + 40, footerY + 14.5, { align: "center" });
 
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
-        doc.setFontSize(36);
+        doc.setFontSize(22);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 3, { align: "center" });
+        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 5, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -372,36 +372,36 @@ export function CertificateGenerator() {
           setDrawColorCMYK(93, 49, 0, 84);
         }
         doc.setLineWidth(0.25);
-        doc.line(xOffset + baseWidth / 2 - 30, footerY + 5, xOffset + baseWidth / 2 + 30, footerY + 5);
+        doc.line(xOffset + baseWidth / 2 - 30, footerY + 7, xOffset + baseWidth / 2 + 30, footerY + 7);
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(13);
+        doc.setFontSize(9);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 0);
         } else {
           setTextColorCMYK(93, 49, 0, 84);
         }
-        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 9.5, { align: "center" });
+        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 11, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(10.5);
+        doc.setFontSize(7.5);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 40);
         } else {
           setTextColorCMYK(0, 0, 0, 60);
         }
-        doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 13.5, { align: "center" });
+        doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 14.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 1, 22);
+        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY + 1.5, 22);
       } else {
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
-        doc.setFontSize(36);
+        doc.setFontSize(22);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig1Name, xOffset + 55, footerY + 3, { align: "center" });
+        doc.text(sig1Name, xOffset + 55, footerY + 5, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -409,36 +409,36 @@ export function CertificateGenerator() {
           setDrawColorCMYK(93, 49, 0, 84);
         }
         doc.setLineWidth(0.25);
-        doc.line(xOffset + 25, footerY + 5, xOffset + 85, footerY + 5);
+        doc.line(xOffset + 25, footerY + 7, xOffset + 85, footerY + 7);
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(13);
+        doc.setFontSize(9);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 0);
         } else {
           setTextColorCMYK(93, 49, 0, 84);
         }
-        doc.text(sig1Name, xOffset + 55, footerY + 9.5, { align: "center" });
+        doc.text(sig1Name, xOffset + 55, footerY + 11, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(10.5);
+        doc.setFontSize(7.5);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 40);
         } else {
           setTextColorCMYK(0, 0, 0, 60);
         }
-        doc.text(sig1Role, xOffset + 55, footerY + 13.5, { align: "center" });
+        doc.text(sig1Role, xOffset + 55, footerY + 14.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY - 1, 22);
+        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY + 1.5, 22);
 
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
-        doc.setFontSize(36);
+        doc.setFontSize(22);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 3, { align: "center" });
+        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 5, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -446,28 +446,28 @@ export function CertificateGenerator() {
           setDrawColorCMYK(93, 49, 0, 84);
         }
         doc.setLineWidth(0.25);
-        doc.line(xOffset + baseWidth - 85, footerY + 5, xOffset + baseWidth - 25, footerY + 5);
+        doc.line(xOffset + baseWidth - 85, footerY + 7, xOffset + baseWidth - 25, footerY + 7);
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(13);
+        doc.setFontSize(9);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 0);
         } else {
           setTextColorCMYK(93, 49, 0, 84);
         }
-        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 9.5, { align: "center" });
+        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 11, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(10.5);
+        doc.setFontSize(7.5);
         if (isNavy) {
           setTextColorCMYK(0, 0, 0, 40);
         } else {
           setTextColorCMYK(0, 0, 0, 60);
         }
-        doc.text(sig2Role, xOffset + baseWidth - 55, footerY + 13.5, { align: "center" });
+        doc.text(sig2Role, xOffset + baseWidth - 55, footerY + 14.5, { align: "center" });
 
         doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(13);
+        doc.setFontSize(10);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
         } else {
@@ -848,7 +848,7 @@ export function CertificateGenerator() {
             width: outerWidth,
             height: outerHeight,
             padding: bleedPadding,
-            background: isCropMarks ? (isNavy ? BSN_DARK_BLUE : "#faf6ee") : "transparent",
+            background: isCropMarks ? (isNavy ? BSN_DARK_BLUE : BSN_CREAM) : "transparent",
             boxShadow: isCropMarks ? "0 25px 65px rgba(0,0,0,0.65)" : "none",
             transition: "all 0.3s ease",
           }}
@@ -878,7 +878,7 @@ export function CertificateGenerator() {
           <div
             className="relative overflow-hidden w-full h-full flex flex-col justify-between"
             style={{
-              background: isNavy ? BSN_NAVY : "#faf6ee",
+              background: isNavy ? BSN_NAVY : BSN_CREAM,
               border: isNavy ? `1px solid ${BSN_GOLD}33` : "1px solid #cfb53b55",
               boxShadow: isCropMarks ? "none" : "0 25px 65px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.03)",
               color: isNavy ? "#ffffff" : "#031529",
@@ -1053,7 +1053,7 @@ export function CertificateGenerator() {
                     className="w-16 h-16 rounded-full flex flex-col items-center justify-center border relative"
                     style={{
                       borderColor: isNavy ? BSN_GOLD : "#b8860b",
-                      background: isNavy ? `radial-gradient(circle, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)` : "#faf6ee",
+                      background: isNavy ? `radial-gradient(circle, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)` : BSN_CREAM,
                       boxShadow: isNavy ? `0 4px 15px rgba(0,0,0,0.3), inset 0 0 8px ${BSN_GOLD}33` : "0 2px 6px rgba(0,0,0,0.1)"
                     }}
                   >
@@ -1108,7 +1108,7 @@ export function CertificateGenerator() {
                     className="w-16 h-16 rounded-full flex flex-col items-center justify-center border relative"
                     style={{
                       borderColor: isNavy ? BSN_GOLD : "#b8860b",
-                      background: isNavy ? `radial-gradient(circle, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)` : "#faf6ee",
+                      background: isNavy ? `radial-gradient(circle, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)` : BSN_CREAM,
                       boxShadow: isNavy ? `0 4px 15px rgba(0,0,0,0.3), inset 0 0 8px ${BSN_GOLD}33` : "0 2px 6px rgba(0,0,0,0.1)"
                     }}
                   >
