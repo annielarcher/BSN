@@ -37,16 +37,20 @@ const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): strin
   return canvas.toDataURL("image/png");
 };
 
-// Helper to fetch custom fonts and convert to base64 for PDF embedding
+// Helper to fetch custom fonts and convert to base64 for PDF embedding natively and fast using FileReader
 const fetchFontBase64 = async (url: string): Promise<string> => {
   const resp = await fetch(url);
-  const buffer = await resp.arrayBuffer();
-  let binary = "";
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
+  const blob = await resp.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64data = reader.result as string;
+      const base64 = base64data.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 };
 
 type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
