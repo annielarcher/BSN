@@ -122,7 +122,7 @@ export function CertificateGenerator() {
     // Inner thin border
     doc.ellipse(cx, cy, r - 0.8, r - 0.8, "S");
 
-    doc.setFont("Times-Roman", "bold");
+    doc.setFont("times", "bold");
     
     // BSN text inside seal
     doc.setFontSize(6.5);
