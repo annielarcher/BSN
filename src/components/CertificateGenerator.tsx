@@ -346,8 +346,8 @@ export function CertificateGenerator() {
         descY += 7;
       });
 
-      // 6. Signatures Footer
-      const footerY = yOffset + baseHeight - 43.5;
+      // 6. Signatures Footer (positioned closer to the bottom border)
+      const footerY = yOffset + baseHeight - 33.5;
 
       if (isSingleSig) {
         doc.setFont(fontGaramond, fontGaramondStyle);
@@ -923,7 +923,7 @@ export function CertificateGenerator() {
               boxShadow: isCropMarks ? "none" : "0 25px 65px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.03)",
               color: isNavy ? "#ffffff" : "#031529",
               transition: "all 0.3s ease",
-              padding: is169 ? "32px 48px" : "48px",
+              padding: is169 ? "28px 48px 20px" : "40px 48px 24px",
             }}
           >
           {/* Subtle watermark background lines */}
