@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather, Download } from "lucide-react";
+import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather, Download, Users, ChevronLeft, ChevronRight, Layers, ListFilter } from "lucide-react";
 import { jsPDF } from "jspdf";
 import {
   cinzelNormalBase64,
@@ -78,8 +78,13 @@ export function CertificateGenerator() {
   const [category, setCategory] = useState<CertificateCategory>("musico");
   const [customText, setCustomText] = useState("");
   const [dateText, setDateText] = useState("Rio de Janeiro, 17 de julho de 2026");
-  const [theme, setTheme] = useState<CertificateTheme>("saver"); // default to cream/papiro classic
-  
+  // Batch / Lote Generation State
+  const [generationMode, setGenerationMode] = useState<"single" | "batch">("single");
+  const [batchNamesText, setBatchNamesText] = useState(
+    "Carolyn R. Luthier\nGabriel Santos Silva\nMariana Costa e Silva\nLucas Oliveira Mello\nBeatriz Fernandes Lima"
+  );
+  const [batchPreviewIndex, setBatchPreviewIndex] = useState(0);
+
   const [sig1Name, setSig1Name] = useState("Geyzi Moreira");
   const [sig1Rubric, setSig1Rubric] = useState("Geyzi Moreira");
   const [sig1Role, setSig1Role] = useState("Diretora Artística");
@@ -93,6 +98,17 @@ export function CertificateGenerator() {
   const [aspectRatioMode, setAspectRatioMode] = useState<"a4" | "16_9">("a4");
 
   const [isExporting, setIsExporting] = useState(false);
+
+  // Derived batch list
+  const batchNames = batchNamesText
+    .split("\n")
+    .map((n) => n.trim())
+    .filter((n) => n.length > 0);
+
+  const safeBatchIndex = Math.max(0, Math.min(batchPreviewIndex, Math.max(0, batchNames.length - 1)));
+  const activeRecipientName = generationMode === "batch"
+    ? (batchNames[safeBatchIndex] || "Nome do Homenageado")
+    : (recipientName || "Nome do Homenageado");
 
   const drawEmblemSeal = (doc: jsPDF, sx: number, sy: number, size: number, isNavyTheme: boolean) => {
     const setDrawCMYK = (c: number, m: number, y: number, k: number) => {
@@ -143,6 +159,15 @@ export function CertificateGenerator() {
   };
 
   const handleExportPDF = async () => {
+    const namesToExport = generationMode === "batch"
+      ? (batchNames.length > 0 ? batchNames : [recipientName])
+      : [recipientName];
+
+    if (namesToExport.length === 0) {
+      alert("Por favor, insira ao menos um nome na lista.");
+      return;
+    }
+
     setIsExporting(true);
     try {
       const doc = new jsPDF({
@@ -151,7 +176,6 @@ export function CertificateGenerator() {
         format: [printWidth, printHeight]
       });
 
-      // =========================================================
       // =========================================================
       // INJEÇÃO SÍNCRONA E BLINDADA DE FONTES (sem rede)
       // As strings Base64 estão embutidas diretamente no bundle JS.
@@ -207,297 +231,311 @@ export function CertificateGenerator() {
       const xOffset = isCropMarks ? 3 : 0;
       const yOffset = isCropMarks ? 3 : 0;
 
-      // 1. Background
-      if (isNavy) {
-        setFillColorCMYK(93, 49, 0, 84); // Rich BSN Navy CMYK
-      } else {
-        setFillColorCMYK(0, 4, 11, 4); // Elegant Cream CMYK
-      }
-      doc.rect(0, 0, printWidth, printHeight, "F");
+      // Preload logos once for maximum performance across batch pages
+      const logoImg = await loadImage(BSN_LOGO);
+      const transparentLogoDataUrl = getTransparentLogoBase64(logoImg, isNavy ? 0.035 : 0.025);
 
-      // 2. Watermark Logo
-      try {
-        const logoImg = await loadImage(BSN_LOGO);
-        const transparentLogoDataUrl = getTransparentLogoBase64(logoImg, isNavy ? 0.035 : 0.025);
-        const watermarkSize = 180;
-        const wx = xOffset + (baseWidth - watermarkSize) / 2;
-        const wy = yOffset + (baseHeight - watermarkSize) / 2;
-        doc.addImage(transparentLogoDataUrl, "PNG", wx, wy, watermarkSize, watermarkSize);
-      } catch (err) {
-        console.warn("Could not draw watermark logo in PDF:", err);
-      }
+      // Loop through all recipient names in batch
+      for (let i = 0; i < namesToExport.length; i++) {
+        if (i > 0) {
+          doc.addPage([printWidth, printHeight], "landscape");
+        }
 
-      // 3. Borders & Margins
-      if (isNavy) {
-        setDrawColorCMYK(0, 29, 86, 12); // BSN Gold
-      } else {
-        setDrawColorCMYK(0, 45, 90, 45); // Darker Amber Gold
-      }
-      doc.setLineWidth(1.2);
-      doc.rect(xOffset + 4, yOffset + 4, baseWidth - 8, baseHeight - 8, "S");
-      doc.setLineWidth(0.4);
-      doc.rect(xOffset + 5.5, yOffset + 5.5, baseWidth - 11, baseHeight - 11, "S");
+        const nameToPrint = namesToExport[i];
 
-      if (isNavy) {
-        setDrawColorCMYK(0, 18, 73, 4); // BSN Gold Light
-      } else {
-        setDrawColorCMYK(0, 35, 90, 25); // Amber Gold
-      }
-      doc.setLineWidth(0.3);
-      doc.rect(xOffset + 7.5, yOffset + 7.5, baseWidth - 15, baseHeight - 15, "S");
+        // 1. Background
+        if (isNavy) {
+          setFillColorCMYK(93, 49, 0, 84); // Rich BSN Navy CMYK
+        } else {
+          setFillColorCMYK(0, 4, 11, 4); // Elegant Cream CMYK
+        }
+        doc.rect(0, 0, printWidth, printHeight, "F");
 
-      const flOffset = 8.5;
-      const flSize = 6;
-      doc.setLineWidth(0.8);
-      // Top-Left
-      doc.line(xOffset + flOffset, yOffset + flOffset, xOffset + flOffset + flSize, yOffset + flOffset);
-      doc.line(xOffset + flOffset, yOffset + flOffset, xOffset + flOffset, yOffset + flOffset + flSize);
-      // Top-Right
-      doc.line(xOffset + baseWidth - flOffset, yOffset + flOffset, xOffset + baseWidth - flOffset - flSize, yOffset + flOffset);
-      doc.line(xOffset + baseWidth - flOffset, yOffset + flOffset, xOffset + baseWidth - flOffset, yOffset + flOffset + flSize);
-      // Bottom-Left
-      doc.line(xOffset + flOffset, yOffset + baseHeight - flOffset, xOffset + flOffset + flSize, yOffset + baseHeight - flOffset);
-      doc.line(xOffset + flOffset, yOffset + baseHeight - flOffset, xOffset + flOffset, yOffset + baseHeight - flOffset - flSize);
-      // Bottom-Right
-      doc.line(xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset, xOffset + baseWidth - flOffset - flSize, yOffset + baseHeight - flOffset);
-      doc.line(xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset, xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset - flSize);
+        // 2. Watermark Logo
+        try {
+          const watermarkSize = 180;
+          const wx = xOffset + (baseWidth - watermarkSize) / 2;
+          const wy = yOffset + (baseHeight - watermarkSize) / 2;
+          doc.addImage(transparentLogoDataUrl, "PNG", wx, wy, watermarkSize, watermarkSize);
+        } catch (err) {
+          console.warn("Could not draw watermark logo in PDF:", err);
+        }
 
-      // 4. Header Logo
-      try {
-        const logoImg = await loadImage(BSN_LOGO);
-        const logoSize = 38;
-        const lx = xOffset + (baseWidth - logoSize) / 2;
-        const ly = yOffset + 12;
-        doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize);
-      } catch (err) {
-        console.warn("Could not draw header logo in PDF:", err);
-      }
+        // 3. Borders & Margins
+        if (isNavy) {
+          setDrawColorCMYK(0, 29, 86, 12); // BSN Gold
+        } else {
+          setDrawColorCMYK(0, 45, 90, 45); // Darker Amber Gold
+        }
+        doc.setLineWidth(1.2);
+        doc.rect(xOffset + 4, yOffset + 4, baseWidth - 8, baseHeight - 8, "S");
+        doc.setLineWidth(0.4);
+        doc.rect(xOffset + 5.5, yOffset + 5.5, baseWidth - 11, baseHeight - 11, "S");
 
-      doc.setFont(fontCinzel, fontCinzelBoldStyle);
-      doc.setFontSize(10);
-      if (isNavy) {
-        setTextColorCMYK(0, 4, 11, 4);
-      } else {
-        setTextColorCMYK(93, 49, 0, 84);
-      }
-      doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 50, { align: "center" });
+        if (isNavy) {
+          setDrawColorCMYK(0, 18, 73, 4); // BSN Gold Light
+        } else {
+          setDrawColorCMYK(0, 35, 90, 25); // Amber Gold
+        }
+        doc.setLineWidth(0.3);
+        doc.rect(xOffset + 7.5, yOffset + 7.5, baseWidth - 15, baseHeight - 15, "S");
 
-      if (isNavy) {
-        setDrawColorCMYK(0, 29, 86, 12);
-      } else {
-        setDrawColorCMYK(0, 35, 90, 45);
-      }
-      doc.setLineWidth(0.4);
-      doc.line(xOffset + baseWidth / 2 - 25, yOffset + 54, xOffset + baseWidth / 2 + 25, yOffset + 54);
+        const flOffset = 8.5;
+        const flSize = 6;
+        doc.setLineWidth(0.8);
+        // Top-Left
+        doc.line(xOffset + flOffset, yOffset + flOffset, xOffset + flOffset + flSize, yOffset + flOffset);
+        doc.line(xOffset + flOffset, yOffset + flOffset, xOffset + flOffset, yOffset + flOffset + flSize);
+        // Top-Right
+        doc.line(xOffset + baseWidth - flOffset, yOffset + flOffset, xOffset + baseWidth - flOffset - flSize, yOffset + flOffset);
+        doc.line(xOffset + baseWidth - flOffset, yOffset + flOffset, xOffset + baseWidth - flOffset, yOffset + flOffset + flSize);
+        // Bottom-Left
+        doc.line(xOffset + flOffset, yOffset + baseHeight - flOffset, xOffset + flOffset + flSize, yOffset + baseHeight - flOffset);
+        doc.line(xOffset + flOffset, yOffset + baseHeight - flOffset, xOffset + flOffset, yOffset + baseHeight - flOffset - flSize);
+        // Bottom-Right
+        doc.line(xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset, xOffset + baseWidth - flOffset - flSize, yOffset + baseHeight - flOffset);
+        doc.line(xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset, xOffset + baseWidth - flOffset, yOffset + baseHeight - flOffset - flSize);
 
-      // 5. Titles & Content
-      doc.setFont(fontCinzel, fontCinzelBoldStyle);
-      doc.setFontSize(36);
-      if (isNavy) {
-        setTextColorCMYK(0, 18, 73, 4);
-      } else {
-        setTextColorCMYK(0, 35, 90, 45);
-      }
-      doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 71, { align: "center" });
+        // 4. Header Logo
+        try {
+          const logoSize = 38;
+          const lx = xOffset + (baseWidth - logoSize) / 2;
+          const ly = yOffset + 12;
+          doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize);
+        } catch (err) {
+          console.warn("Could not draw header logo in PDF:", err);
+        }
 
-      doc.setFont(fontCinzel, fontCinzelStyle);
-      doc.setFontSize(10);
-      if (isNavy) {
-        setTextColorCMYK(0, 29, 86, 12);
-      } else {
-        setTextColorCMYK(0, 45, 90, 45);
-      }
-      doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 78.5, { align: "center" });
-
-      doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
-      doc.setFontSize(14);
-      if (isNavy) {
-        setTextColorCMYK(0, 4, 11, 20); // Dim Cream
-      } else {
-        setTextColorCMYK(0, 0, 0, 70); // Slate Gray
-      }
-      doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 97.5, { align: "center" });
-
-      doc.setFont(fontCinzel, fontCinzelBoldStyle);
-      doc.setFontSize(32);
-      if (isNavy) {
-        setTextColorCMYK(0, 0, 0, 0); // Pure unprinted white paper color
-      } else {
-        setTextColorCMYK(93, 49, 0, 84); // BSN Deep Navy
-      }
-      doc.text(recipientName || "Nome do Homenageado", xOffset + baseWidth / 2, yOffset + 116, { align: "center" });
-
-      if (isNavy) {
-        setDrawColorCMYK(0, 29, 86, 25);
-      } else {
-        setDrawColorCMYK(0, 35, 90, 45);
-      }
-      doc.setLineWidth(0.3);
-      doc.line(xOffset + baseWidth / 2 - 80, yOffset + 122.5, xOffset + baseWidth / 2 + 80, yOffset + 122.5);
-
-      doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
-      doc.setFontSize(13.5);
-      if (isNavy) {
-        setTextColorCMYK(0, 4, 11, 4);
-      } else {
-        setTextColorCMYK(0, 0, 0, 85);
-      }
-      const wrappedTextLines = doc.splitTextToSize(customText, 230);
-      let descY = yOffset + 134;
-      wrappedTextLines.forEach((line: string) => {
-        doc.text(line, xOffset + baseWidth / 2, descY, { align: "center" });
-        descY += 7;
-      });
-
-      // 6. Signatures Footer (positioned closer to the bottom border)
-      const footerY = yOffset + baseHeight - 33.5;
-
-      if (isSingleSig) {
-        doc.setFont(fontGaramond, fontGaramondStyle);
+        doc.setFont(fontCinzel, fontCinzelBoldStyle);
         doc.setFontSize(10);
+        if (isNavy) {
+          setTextColorCMYK(0, 4, 11, 4);
+        } else {
+          setTextColorCMYK(93, 49, 0, 84);
+        }
+        doc.text("BANDA SINFÔNICA NACIONAL", xOffset + baseWidth / 2, yOffset + 50, { align: "center" });
+
+        if (isNavy) {
+          setDrawColorCMYK(0, 29, 86, 12);
+        } else {
+          setDrawColorCMYK(0, 35, 90, 45);
+        }
+        doc.setLineWidth(0.4);
+        doc.line(xOffset + baseWidth / 2 - 25, yOffset + 54, xOffset + baseWidth / 2 + 25, yOffset + 54);
+
+        // 5. Titles & Content
+        doc.setFont(fontCinzel, fontCinzelBoldStyle);
+        doc.setFontSize(36);
         if (isNavy) {
           setTextColorCMYK(0, 18, 73, 4);
         } else {
           setTextColorCMYK(0, 35, 90, 45);
         }
-        doc.text(dateText, xOffset + 40, footerY + 14.5, { align: "center" });
+        doc.text("CERTIFICADO", xOffset + baseWidth / 2, yOffset + 71, { align: "center" });
 
-        doc.setFont(fontGreatVibes, fontGreatVibesStyle);
-        doc.setFontSize(22);
-        if (isNavy) {
-          setTextColorCMYK(0, 18, 73, 4);
-        } else {
-          setTextColorCMYK(0, 0, 0, 85);
-        }
-        doc.text(sig1Rubric, xOffset + baseWidth / 2, footerY + 5, { align: "center" });
-
-        if (isNavy) {
-          setDrawColorCMYK(0, 0, 0, 0);
-        } else {
-          setDrawColorCMYK(93, 49, 0, 84);
-        }
-        doc.setLineWidth(0.25);
-        doc.line(xOffset + baseWidth / 2 - 30, footerY + 7, xOffset + baseWidth / 2 + 30, footerY + 7);
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(9);
-        if (isNavy) {
-          setTextColorCMYK(0, 0, 0, 0);
-        } else {
-          setTextColorCMYK(93, 49, 0, 84);
-        }
-        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 11, { align: "center" });
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(7.5);
-        if (isNavy) {
-          setTextColorCMYK(0, 0, 0, 40);
-        } else {
-          setTextColorCMYK(0, 0, 0, 60);
-        }
-        doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 14.5, { align: "center" });
-
-        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 10, 22, isNavy);
-      } else {
-        doc.setFont(fontGreatVibes, fontGreatVibesStyle);
-        doc.setFontSize(22);
-        if (isNavy) {
-          setTextColorCMYK(0, 18, 73, 4);
-        } else {
-          setTextColorCMYK(0, 0, 0, 85);
-        }
-        doc.text(sig1Rubric, xOffset + 55, footerY + 5, { align: "center" });
-
-        if (isNavy) {
-          setDrawColorCMYK(0, 0, 0, 0);
-        } else {
-          setDrawColorCMYK(93, 49, 0, 84);
-        }
-        doc.setLineWidth(0.25);
-        doc.line(xOffset + 25, footerY + 7, xOffset + 85, footerY + 7);
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(9);
-        if (isNavy) {
-          setTextColorCMYK(0, 0, 0, 0);
-        } else {
-          setTextColorCMYK(93, 49, 0, 84);
-        }
-        doc.text(sig1Name, xOffset + 55, footerY + 11, { align: "center" });
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(7.5);
-        if (isNavy) {
-          setTextColorCMYK(0, 0, 0, 40);
-        } else {
-          setTextColorCMYK(0, 0, 0, 60);
-        }
-        doc.text(sig1Role, xOffset + 55, footerY + 14.5, { align: "center" });
-
-        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY - 10, 22, isNavy);
-
-        doc.setFont(fontGreatVibes, fontGreatVibesStyle);
-        doc.setFontSize(22);
-        if (isNavy) {
-          setTextColorCMYK(0, 18, 73, 4);
-        } else {
-          setTextColorCMYK(0, 0, 0, 85);
-        }
-        doc.text(sig2Rubric, xOffset + baseWidth - 55, footerY + 5, { align: "center" });
-
-        if (isNavy) {
-          setDrawColorCMYK(0, 0, 0, 0);
-        } else {
-          setDrawColorCMYK(93, 49, 0, 84);
-        }
-        doc.setLineWidth(0.25);
-        doc.line(xOffset + baseWidth - 85, footerY + 7, xOffset + baseWidth - 25, footerY + 7);
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(9);
-        if (isNavy) {
-          setTextColorCMYK(0, 0, 0, 0);
-        } else {
-          setTextColorCMYK(93, 49, 0, 84);
-        }
-        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 11, { align: "center" });
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
-        doc.setFontSize(7.5);
-        if (isNavy) {
-          setTextColorCMYK(0, 0, 0, 40);
-        } else {
-          setTextColorCMYK(0, 0, 0, 60);
-        }
-        doc.text(sig2Role, xOffset + baseWidth - 55, footerY + 14.5, { align: "center" });
-
-        doc.setFont(fontGaramond, fontGaramondStyle);
+        doc.setFont(fontCinzel, fontCinzelStyle);
         doc.setFontSize(10);
         if (isNavy) {
-          setTextColorCMYK(0, 18, 73, 4);
+          setTextColorCMYK(0, 29, 86, 12);
         } else {
-          setTextColorCMYK(0, 35, 90, 45);
+          setTextColorCMYK(0, 45, 90, 45);
         }
-        doc.text(dateText, xOffset + baseWidth / 2, footerY + 22, { align: "center" });
+        doc.text("Homenagem Comemorativa de 1º Ano", xOffset + baseWidth / 2, yOffset + 78.5, { align: "center" });
+
+        doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
+        doc.setFontSize(14);
+        if (isNavy) {
+          setTextColorCMYK(0, 4, 11, 20); // Dim Cream
+        } else {
+          setTextColorCMYK(0, 0, 0, 70); // Slate Gray
+        }
+        doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 97.5, { align: "center" });
+
+        doc.setFont(fontCinzel, fontCinzelBoldStyle);
+        doc.setFontSize(32);
+        if (isNavy) {
+          setTextColorCMYK(0, 0, 0, 0); // Pure unprinted white paper color
+        } else {
+          setTextColorCMYK(93, 49, 0, 84); // BSN Deep Navy
+        }
+        doc.text(nameToPrint, xOffset + baseWidth / 2, yOffset + 116, { align: "center" });
+
+        if (isNavy) {
+          setDrawColorCMYK(0, 29, 86, 25);
+        } else {
+          setDrawColorCMYK(0, 35, 90, 45);
+        }
+        doc.setLineWidth(0.3);
+        doc.line(xOffset + baseWidth / 2 - 80, yOffset + 122.5, xOffset + baseWidth / 2 + 80, yOffset + 122.5);
+
+        doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
+        doc.setFontSize(13.5);
+        if (isNavy) {
+          setTextColorCMYK(0, 4, 11, 4);
+        } else {
+          setTextColorCMYK(0, 0, 0, 85);
+        }
+        const wrappedTextLines = doc.splitTextToSize(customText, 230);
+        let descY = yOffset + 134;
+        wrappedTextLines.forEach((line: string) => {
+          doc.text(line, xOffset + baseWidth / 2, descY, { align: "center" });
+          descY += 7;
+        });
+
+        // 6. Signatures Footer (positioned closer to the bottom border)
+        const footerY = yOffset + baseHeight - 33.5;
+
+        if (isSingleSig) {
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(10);
+          if (isNavy) {
+            setTextColorCMYK(0, 18, 73, 4);
+          } else {
+            setTextColorCMYK(0, 35, 90, 45);
+          }
+          doc.text(dateText, xOffset + 40, footerY + 14.5, { align: "center" });
+
+          doc.setFont(fontGreatVibes, fontGreatVibesStyle);
+          doc.setFontSize(22);
+          if (isNavy) {
+            setTextColorCMYK(0, 18, 73, 4);
+          } else {
+            setTextColorCMYK(0, 0, 0, 85);
+          }
+          doc.text(sig1Rubric, xOffset + baseWidth / 2, footerY + 5, { align: "center" });
+
+          if (isNavy) {
+            setDrawColorCMYK(0, 0, 0, 0);
+          } else {
+            setDrawColorCMYK(93, 49, 0, 84);
+          }
+          doc.setLineWidth(0.25);
+          doc.line(xOffset + baseWidth / 2 - 30, footerY + 7, xOffset + baseWidth / 2 + 30, footerY + 7);
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(9);
+          if (isNavy) {
+            setTextColorCMYK(0, 0, 0, 0);
+          } else {
+            setTextColorCMYK(93, 49, 0, 84);
+          }
+          doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 11, { align: "center" });
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(7.5);
+          if (isNavy) {
+            setTextColorCMYK(0, 0, 0, 40);
+          } else {
+            setTextColorCMYK(0, 0, 0, 60);
+          }
+          doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 14.5, { align: "center" });
+
+          drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 10, 22, isNavy);
+        } else {
+          doc.setFont(fontGreatVibes, fontGreatVibesStyle);
+          doc.setFontSize(22);
+          if (isNavy) {
+            setTextColorCMYK(0, 18, 73, 4);
+          } else {
+            setTextColorCMYK(0, 0, 0, 85);
+          }
+          doc.text(sig1Rubric, xOffset + 55, footerY + 5, { align: "center" });
+
+          if (isNavy) {
+            setDrawColorCMYK(0, 0, 0, 0);
+          } else {
+            setDrawColorCMYK(93, 49, 0, 84);
+          }
+          doc.setLineWidth(0.25);
+          doc.line(xOffset + 25, footerY + 7, xOffset + 85, footerY + 7);
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(9);
+          if (isNavy) {
+            setTextColorCMYK(0, 0, 0, 0);
+          } else {
+            setTextColorCMYK(93, 49, 0, 84);
+          }
+          doc.text(sig1Name, xOffset + 55, footerY + 11, { align: "center" });
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(7.5);
+          if (isNavy) {
+            setTextColorCMYK(0, 0, 0, 40);
+          } else {
+            setTextColorCMYK(0, 0, 0, 60);
+          }
+          doc.text(sig1Role, xOffset + 55, footerY + 14.5, { align: "center" });
+
+          drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY - 10, 22, isNavy);
+
+          doc.setFont(fontGreatVibes, fontGreatVibesStyle);
+          doc.setFontSize(22);
+          if (isNavy) {
+            setTextColorCMYK(0, 18, 73, 4);
+          } else {
+            setTextColorCMYK(0, 0, 0, 85);
+          }
+          doc.text(sig2Rubric, xOffset + baseWidth - 55, footerY + 5, { align: "center" });
+
+          if (isNavy) {
+            setDrawColorCMYK(0, 0, 0, 0);
+          } else {
+            setDrawColorCMYK(93, 49, 0, 84);
+          }
+          doc.setLineWidth(0.25);
+          doc.line(xOffset + baseWidth - 85, footerY + 7, xOffset + baseWidth - 25, footerY + 7);
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(9);
+          if (isNavy) {
+            setTextColorCMYK(0, 0, 0, 0);
+          } else {
+            setTextColorCMYK(93, 49, 0, 84);
+          }
+          doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 11, { align: "center" });
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(7.5);
+          if (isNavy) {
+            setTextColorCMYK(0, 0, 0, 40);
+          } else {
+            setTextColorCMYK(0, 0, 0, 60);
+          }
+          doc.text(sig2Role, xOffset + baseWidth - 55, footerY + 14.5, { align: "center" });
+
+          doc.setFont(fontGaramond, fontGaramondStyle);
+          doc.setFontSize(10);
+          if (isNavy) {
+            setTextColorCMYK(0, 18, 73, 4);
+          } else {
+            setTextColorCMYK(0, 35, 90, 45);
+          }
+          doc.text(dateText, xOffset + baseWidth / 2, footerY + 22, { align: "center" });
+        }
+
+        // 7. Crop Marks
+        if (isCropMarks) {
+          setDrawColorCMYK(0, 0, 0, 100);
+          doc.setLineWidth(0.15);
+          const lLen = 6;
+          
+          doc.line(0, 3, lLen, 3);
+          doc.line(3, 0, 3, lLen);
+          doc.line(printWidth, 3, printWidth - lLen, 3);
+          doc.line(printWidth - 3, 0, printWidth - 3, lLen);
+          doc.line(0, printHeight - 3, lLen, printHeight - 3);
+          doc.line(3, printHeight, 3, printHeight - lLen);
+          doc.line(printWidth, printHeight - 3, printWidth - lLen, printHeight - 3);
+          doc.line(printWidth - 3, printHeight, printWidth - 3, printHeight - lLen);
+        }
       }
 
-      // 7. Crop Marks
-      if (isCropMarks) {
-        setDrawColorCMYK(0, 0, 0, 100);
-        doc.setLineWidth(0.15);
-        const lLen = 6;
-        
-        doc.line(0, 3, lLen, 3);
-        doc.line(3, 0, 3, lLen);
-        doc.line(printWidth, 3, printWidth - lLen, 3);
-        doc.line(printWidth - 3, 0, printWidth - 3, lLen);
-        doc.line(0, printHeight - 3, lLen, printHeight - 3);
-        doc.line(3, printHeight, 3, printHeight - lLen);
-        doc.line(printWidth, printHeight - 3, printWidth - lLen, printHeight - 3);
-        doc.line(printWidth - 3, printHeight, printWidth - 3, printHeight - lLen);
-      }
+      const fileName = generationMode === "batch"
+        ? `certificados-lote-${category}-${namesToExport.length}-homenageados.pdf`
+        : `certificado-${namesToExport[0].toLowerCase().replace(/\s+/g, "-")}.pdf`;
 
-      doc.save(`certificado-${recipientName.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+      doc.save(fileName);
     } catch (error) {
       console.error("Error generating CMYK PDF:", error);
     } finally {
@@ -682,19 +720,120 @@ export function CertificateGenerator() {
             </div>
           </div>
 
-          {/* Recipient Name */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-extrabold uppercase tracking-widest text-[#f5c842] flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5" /> Nome do Homenageado
-            </label>
-            <input
-              type="text"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#e0a020] placeholder-slate-500"
-              placeholder="Digite o nome completo..."
-            />
+          {/* Mode Switcher (Individual vs Lote) */}
+          <div className="flex flex-col gap-1.5 border-b border-slate-800 pb-3">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#f5c842] flex items-center justify-between">
+              Modo de Emissão
+              {generationMode === "batch" && (
+                <span className="bg-[#e0a020]/20 text-[#f5c842] text-[9px] px-2 py-0.5 rounded font-mono font-bold">
+                  {batchNames.length} {batchNames.length === 1 ? "nome" : "nomes"}
+                </span>
+              )}
+            </span>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => setGenerationMode("single")}
+                className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+                  generationMode === "single"
+                    ? "bg-[#e0a020] border-[#e0a020] text-slate-950 shadow" 
+                    : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700"
+                }`}
+              >
+                <User className="w-3.5 h-3.5" /> Individual
+              </button>
+              <button
+                type="button"
+                onClick={() => setGenerationMode("batch")}
+                className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+                  generationMode === "batch"
+                    ? "bg-[#e0a020] border-[#e0a020] text-slate-950 shadow" 
+                    : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" /> Em Lote
+              </button>
+            </div>
           </div>
+
+          {/* Recipient Name or Batch Input */}
+          {generationMode === "single" ? (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-extrabold uppercase tracking-widest text-[#f5c842] flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" /> Nome do Homenageado
+              </label>
+              <input
+                type="text"
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#e0a020] placeholder-slate-500"
+                placeholder="Digite o nome completo..."
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-extrabold uppercase tracking-widest text-[#f5c842] flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5" /> Lista de Homenageados
+                </label>
+                <span className="text-[9px] text-slate-400">1 nome por linha</span>
+              </div>
+              <textarea
+                rows={5}
+                value={batchNamesText}
+                onChange={(e) => setBatchNamesText(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#e0a020] font-mono leading-relaxed placeholder-slate-500 resize-none"
+                placeholder="Digite ou cole um nome por linha:&#10;Carolyn R. Luthier&#10;Gabriel Santos Silva&#10;Mariana Costa..."
+              />
+              <div className="flex items-center justify-between text-[9px] text-slate-400">
+                <span>Carregados: <strong className="text-white">{batchNames.length}</strong></span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBatchNamesText("Carolyn R. Luthier\nGabriel Santos Silva\nMariana Costa e Silva\nLucas Oliveira Mello\nBeatriz Fernandes Lima")}
+                    className="text-[#f5c842] hover:underline"
+                  >
+                    Exemplo
+                  </button>
+                  <span>•</span>
+                  <button
+                    type="button"
+                    onClick={() => setBatchNamesText("")}
+                    className="text-red-400 hover:underline"
+                  >
+                    Limpar
+                  </button>
+                </div>
+              </div>
+
+              {/* Batch Navigation */}
+              {batchNames.length > 0 && (
+                <div className="flex items-center justify-between bg-slate-950/60 p-2 rounded-lg border border-slate-800 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setBatchPreviewIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={safeBatchIndex === 0}
+                    className="p-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-all"
+                    title="Anterior"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-[10px] text-slate-300 font-semibold truncate px-2 text-center">
+                    Ver: <strong className="text-[#f5c842]">{safeBatchIndex + 1}/{batchNames.length}</strong> — {activeRecipientName}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setBatchPreviewIndex((prev) => Math.min(batchNames.length - 1, prev + 1))}
+                    disabled={safeBatchIndex >= batchNames.length - 1}
+                    className="p-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-all"
+                    title="Próximo"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Category Selector */}
           <div className="flex flex-col gap-1.5">
@@ -855,14 +994,17 @@ export function CertificateGenerator() {
 
             <button
               onClick={handleExportPDF}
-              disabled={isExporting}
+              disabled={isExporting || (generationMode === "batch" && batchNames.length === 0)}
               className="w-full bg-blue-600 text-white font-extrabold hover:bg-blue-500 disabled:bg-blue-800 disabled:opacity-50 active:scale-95 transition-all py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-600/10"
             >
               {isExporting ? (
                 <>Gerando PDF CMYK...</>
               ) : (
                 <>
-                  <Download className="w-4 h-4" /> Baixar PDF Gráfica (CMYK)
+                  <Download className="w-4 h-4" />
+                  {generationMode === "batch"
+                    ? `Baixar Lote em PDF (${batchNames.length} ${batchNames.length === 1 ? "Página" : "Páginas"} CMYK)`
+                    : "Baixar PDF Gráfica (CMYK)"}
                 </>
               )}
             </button>
@@ -882,7 +1024,40 @@ export function CertificateGenerator() {
         </div>
 
       {/* 3. CERTIFICATE CANVAS WRAPPER (Landscape Preview) */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950 overflow-auto print:p-0 print:bg-transparent relative">
+        
+        {/* Floating Batch Mode Indicator & Nav Bar */}
+        {generationMode === "batch" && batchNames.length > 0 && (
+          <div className="mb-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-4 py-2 rounded-xl text-xs text-white shadow-2xl flex items-center gap-3 z-30 animate-in fade-in slide-in-from-top-2 duration-300">
+            <span className="flex items-center gap-1.5 font-bold text-[#f5c842]">
+              <Users className="w-4 h-4 text-[#e0a020]" /> Lote ({batchNames.length} Homenageados):
+            </span>
+            <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1 rounded-lg border border-slate-800 font-medium">
+              <button
+                type="button"
+                onClick={() => setBatchPreviewIndex((prev) => Math.max(0, prev - 1))}
+                disabled={safeBatchIndex === 0}
+                className="text-slate-400 hover:text-white disabled:opacity-30 transition-all p-0.5"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="font-mono text-[11px] px-1 text-amber-200">
+                {safeBatchIndex + 1} de {batchNames.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => setBatchPreviewIndex((prev) => Math.min(batchNames.length - 1, prev + 1))}
+                disabled={safeBatchIndex >= batchNames.length - 1}
+                className="text-slate-400 hover:text-white disabled:opacity-30 transition-all p-0.5"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <span className="text-slate-300 font-bold truncate max-w-[220px]">
+              {activeRecipientName}
+            </span>
+          </div>
+        )}
         
         {/* Prepress Outer Wrapper with Crop Marks if active */}
         <div
@@ -1028,7 +1203,7 @@ export function CertificateGenerator() {
                 textShadow: isNavy ? `0 0 10px ${BSN_GOLD}22` : "none"
               }}
             >
-              {recipientName || "Nome do Homenageado"}
+              {activeRecipientName}
             </h3>
 
             {/* Certificate description text */}
