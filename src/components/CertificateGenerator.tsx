@@ -94,12 +94,9 @@ export function CertificateGenerator() {
 
   const [isExporting, setIsExporting] = useState(false);
 
-  const drawEmblemSeal = (doc: jsPDF, sx: number, sy: number, size: number) => {
+  const drawEmblemSeal = (doc: jsPDF, sx: number, sy: number, size: number, isNavyTheme: boolean) => {
     const setDrawCMYK = (c: number, m: number, y: number, k: number) => {
       doc.setDrawColor(c / 100, m / 100, y / 100, k / 100);
-    };
-    const setFillCMYK = (c: number, m: number, y: number, k: number) => {
-      doc.setFillColor(c / 100, m / 100, y / 100, k / 100);
     };
     const setTextCMYK = (c: number, m: number, y: number, k: number) => {
       doc.setTextColor(c / 100, m / 100, y / 100, k / 100);
@@ -109,33 +106,39 @@ export function CertificateGenerator() {
     const cy = sy + size / 2;
     const r = size / 2;
 
-    // Solid Gold background circle for the seal
-    setFillCMYK(0, 29, 86, 12); // BSN Gold CMYK
-    doc.ellipse(cx, cy, r, r, "F");
+    // VAZADO: Sem preenchimento de fundo (background transparente)
 
-    // Gold Light outer border of the seal
-    setDrawCMYK(0, 18, 73, 4); // BSN Gold Light CMYK
+    // Outer Gold border of the seal
+    if (isNavyTheme) {
+      setDrawCMYK(0, 18, 73, 4); // BSN Gold Light
+    } else {
+      setDrawCMYK(0, 45, 90, 45); // Dark Amber Gold
+    }
     doc.setLineWidth(0.4);
     doc.ellipse(cx, cy, r, r, "S");
 
     // Inner thin border
+    doc.setLineWidth(0.25);
     doc.ellipse(cx, cy, r - 0.8, r - 0.8, "S");
 
     doc.setFont("Cinzel", "bold");
     
+    if (isNavyTheme) {
+      setTextCMYK(0, 18, 73, 4); // BSN Gold Light
+    } else {
+      setTextCMYK(0, 45, 90, 45); // Dark Amber Gold
+    }
+
     // BSN text inside seal
     doc.setFontSize(6.5);
-    setTextCMYK(93, 49, 0, 84); // BSN Deep Navy (high contrast on gold)
     doc.text("BSN", cx, cy - 2.5, { align: "center" });
 
     // 1º ANO text
     doc.setFontSize(9.5);
-    setTextCMYK(93, 49, 0, 84);
     doc.text("1º Ano", cx, cy + 1, { align: "center" });
 
     // 2025-2026 text
     doc.setFontSize(5.5);
-    setTextCMYK(93, 49, 0, 84);
     doc.text("2025-2026", cx, cy + 4, { align: "center" });
   };
 
@@ -394,7 +397,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 14.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY + 1.5, 22);
+        drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 10, 22, isNavy);
       } else {
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(22);
@@ -431,7 +434,7 @@ export function CertificateGenerator() {
         }
         doc.text(sig1Role, xOffset + 55, footerY + 14.5, { align: "center" });
 
-        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY + 1.5, 22);
+        drawEmblemSeal(doc, xOffset + (baseWidth - 22) / 2, footerY - 10, 22, isNavy);
 
         doc.setFont(fontGreatVibes, fontGreatVibesStyle);
         doc.setFontSize(22);
@@ -1087,24 +1090,25 @@ export function CertificateGenerator() {
                   </span>
                 </div>
 
-                {/* Right side: 1-Year Anniversary Gold Emblem */}
-                <div className="flex flex-col items-center justify-center mb-1">
+                {/* Right side: 1-Year Anniversary Gold Emblem (Vazado & mais alto) */}
+                <div className="flex flex-col items-center justify-center -mt-8 mb-2">
                   <div 
                     className="w-16 h-16 rounded-full flex flex-col items-center justify-center border relative"
                     style={{
                       borderColor: isNavy ? BSN_GOLD : "#b8860b",
-                      background: isNavy ? `radial-gradient(circle, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)` : BSN_CREAM,
-                      boxShadow: isNavy ? `0 4px 15px rgba(0,0,0,0.3), inset 0 0 8px ${BSN_GOLD}33` : "0 2px 6px rgba(0,0,0,0.1)"
+                      borderWidth: "1.5px",
+                      background: "transparent",
+                      boxShadow: isNavy ? `0 0 12px ${BSN_GOLD}22` : "none"
                     }}
                   >
-                    <div className="absolute inset-0.5 rounded-full border border-dashed opacity-40" style={{ borderColor: BSN_GOLD }} />
-                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
+                    <div className="absolute inset-0.5 rounded-full border border-dashed opacity-50" style={{ borderColor: isNavy ? BSN_GOLD : "#b8860b" }} />
+                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: isNavy ? BSN_GOLD_LIGHT : "#5c4008" }}>
                       BSN
                     </span>
-                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
+                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: isNavy ? BSN_GOLD : "#8b6508" }}>
                       1º Ano
                     </span>
-                    <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: BSN_GOLD_LIGHT }}>
+                    <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: isNavy ? BSN_GOLD_LIGHT : "#5c4008" }}>
                       2025-2026
                     </span>
                   </div>
@@ -1142,24 +1146,25 @@ export function CertificateGenerator() {
                   </span>
                 </div>
 
-                {/* Center: Gold Emblem + Date */}
-                <div className="flex flex-col items-center justify-center mb-1">
+                {/* Center: Gold Emblem (Vazado & mais alto) + Date */}
+                <div className="flex flex-col items-center justify-center -mt-8 mb-1">
                   <div 
                     className="w-16 h-16 rounded-full flex flex-col items-center justify-center border relative"
                     style={{
                       borderColor: isNavy ? BSN_GOLD : "#b8860b",
-                      background: isNavy ? `radial-gradient(circle, ${BSN_LIGHT_NAVY} 0%, ${BSN_DARK_BLUE} 100%)` : BSN_CREAM,
-                      boxShadow: isNavy ? `0 4px 15px rgba(0,0,0,0.3), inset 0 0 8px ${BSN_GOLD}33` : "0 2px 6px rgba(0,0,0,0.1)"
+                      borderWidth: "1.5px",
+                      background: "transparent",
+                      boxShadow: isNavy ? `0 0 12px ${BSN_GOLD}22` : "none"
                     }}
                   >
-                    <div className="absolute inset-0.5 rounded-full border border-dashed opacity-40" style={{ borderColor: BSN_GOLD }} />
-                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: BSN_GOLD_LIGHT }}>
+                    <div className="absolute inset-0.5 rounded-full border border-dashed opacity-50" style={{ borderColor: isNavy ? BSN_GOLD : "#b8860b" }} />
+                    <span className="text-[5.5px] font-black uppercase tracking-widest" style={{ color: isNavy ? BSN_GOLD_LIGHT : "#5c4008" }}>
                       BSN
                     </span>
-                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: BSN_GOLD }}>
+                    <span className="text-[12px] font-extrabold uppercase tracking-tighter leading-none" style={{ color: isNavy ? BSN_GOLD : "#8b6508" }}>
                       1º Ano
                     </span>
-                    <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: BSN_GOLD_LIGHT }}>
+                    <span className="text-[5px] font-black tracking-widest uppercase leading-none mt-0.5" style={{ color: isNavy ? BSN_GOLD_LIGHT : "#5c4008" }}>
                       2025-2026
                     </span>
                   </div>
