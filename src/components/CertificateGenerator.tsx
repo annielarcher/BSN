@@ -4,6 +4,12 @@ import React, { useState, useEffect } from "react";
 import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 
+// Import custom ES font modules generated for jsPDF
+import "@/lib/fonts/Cinzel-normal";
+import "@/lib/fonts/Garamond-normal";
+import "@/lib/fonts/Garamond-italic";
+import "@/lib/fonts/GreatVibes-normal";
+
 // BSN Brand Colors
 const BSN_NAVY = "#031529";
 const BSN_DARK_BLUE = "#020d1a";
@@ -165,43 +171,17 @@ export function CertificateGenerator() {
         doc.setDrawColor(c / 100, m / 100, y / 100, k / 100);
       };
 
-      let hasCustomFonts = false;
-      try {
-        const [cinzelData, garamondData, garamondItalicData, greatVibesData] = await Promise.all([
-          fetchFontBase64("/fonts/Cinzel.ttf"),
-          fetchFontBase64("/fonts/Garamond.ttf"),
-          fetchFontBase64("/fonts/Garamond-Italic.ttf"),
-          fetchFontBase64("/fonts/GreatVibes.ttf")
-        ]);
+      const fontCinzel = "Cinzel";
+      const fontCinzelStyle = "normal";
 
-        doc.addFileToVFS("Cinzel.ttf", cinzelData);
-        doc.addFont("Cinzel.ttf", "Cinzel", "normal");
-
-        doc.addFileToVFS("Garamond.ttf", garamondData);
-        doc.addFont("Garamond.ttf", "Garamond", "normal");
-
-        doc.addFileToVFS("Garamond-Italic.ttf", garamondItalicData);
-        doc.addFont("Garamond-Italic.ttf", "Garamond", "italic");
-
-        doc.addFileToVFS("GreatVibes.ttf", greatVibesData);
-        doc.addFont("GreatVibes.ttf", "GreatVibes", "normal");
-
-        hasCustomFonts = true;
-      } catch (err) {
-        console.warn("Failed to load Google Fonts, falling back to standard fonts:", err);
-      }
-
-      const fontCinzel = hasCustomFonts ? "Cinzel" : "times";
-      const fontCinzelStyle = hasCustomFonts ? "normal" : "bold";
-
-      const fontGaramond = hasCustomFonts ? "Garamond" : "times";
+      const fontGaramond = "Garamond";
       const fontGaramondStyle = "normal";
 
-      const fontGaramondItalic = hasCustomFonts ? "Garamond" : "times";
+      const fontGaramondItalic = "Garamond";
       const fontGaramondItalicStyle = "italic";
 
-      const fontGreatVibes = hasCustomFonts ? "GreatVibes" : "times";
-      const fontGreatVibesStyle = hasCustomFonts ? "normal" : "italic";
+      const fontGreatVibes = "GreatVibes";
+      const fontGreatVibesStyle = "normal";
 
       const xOffset = isCropMarks ? 3 : 0;
       const yOffset = isCropMarks ? 3 : 0;
