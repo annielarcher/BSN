@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 
 // Import custom ES font modules generated for jsPDF
 import "@/lib/fonts/Cinzel-normal";
+import "@/lib/fonts/Cinzel-bold";
 import "@/lib/fonts/Garamond-normal";
 import "@/lib/fonts/Garamond-italic";
 import "@/lib/fonts/GreatVibes-normal";
@@ -132,7 +133,7 @@ export function CertificateGenerator() {
     // Inner thin border
     doc.ellipse(cx, cy, r - 0.8, r - 0.8, "S");
 
-    doc.setFont("times", "bold");
+    doc.setFont("Cinzel", "bold");
     
     // BSN text inside seal
     doc.setFontSize(6.5);
@@ -173,6 +174,7 @@ export function CertificateGenerator() {
 
       const fontCinzel = "Cinzel";
       const fontCinzelStyle = "normal";
+      const fontCinzelBoldStyle = "bold";
 
       const fontGaramond = "Garamond";
       const fontGaramondStyle = "normal";
@@ -252,7 +254,7 @@ export function CertificateGenerator() {
         console.warn("Could not draw header logo in PDF:", err);
       }
 
-      doc.setFont(fontCinzel, fontCinzelStyle);
+      doc.setFont(fontCinzel, fontCinzelBoldStyle);
       doc.setFontSize(10);
       if (isNavy) {
         setTextColorCMYK(0, 4, 11, 4);
@@ -270,7 +272,7 @@ export function CertificateGenerator() {
       doc.line(xOffset + baseWidth / 2 - 25, yOffset + 54, xOffset + baseWidth / 2 + 25, yOffset + 54);
 
       // 5. Titles & Content
-      doc.setFont(fontCinzel, fontCinzelStyle);
+      doc.setFont(fontCinzel, fontCinzelBoldStyle);
       doc.setFontSize(36);
       if (isNavy) {
         setTextColorCMYK(0, 18, 73, 4);
@@ -297,7 +299,7 @@ export function CertificateGenerator() {
       }
       doc.text("Este certificado é concedido com honra a:", xOffset + baseWidth / 2, yOffset + 97.5, { align: "center" });
 
-      doc.setFont(fontCinzel, fontCinzelStyle);
+      doc.setFont(fontCinzel, fontCinzelBoldStyle);
       doc.setFontSize(32);
       if (isNavy) {
         setTextColorCMYK(0, 0, 0, 0); // Pure unprinted white paper color
