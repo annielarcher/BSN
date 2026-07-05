@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
+import {
+  cinzelNormalBase64,
+  cinzelBoldBase64,
+  garamondNormalBase64,
+  garamondItalicBase64,
+  greatVibesBase64,
+} from "@/lib/fontsBase64";
 
 // BSN Brand Colors
 const BSN_NAVY = "#031529";
@@ -37,24 +44,7 @@ const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): strin
   return canvas.toDataURL("image/png");
 };
 
-// Helper aprimorado: carrega e converte a fonte TTF em Base64 de forma direta e ultra-confiável
-const fetchFontBase64 = async (url: string): Promise<string> => {
-  const resp = await fetch(url);
-  
-  // TRAVA DE SEGURANÇA: Se o arquivo não existir, aborta e mostra o erro
-  if (!resp.ok) {
-    throw new Error(`Arquivo não encontrado (Erro ${resp.status}): Verifique se o caminho ${url} está exato (maiúsculas e minúsculas importam).`);
-  }
-  
-  const buffer = await resp.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunkSize)));
-  }
-  return btoa(binary);
-};
+
 
 type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
 type CertificateTheme = "navy" | "saver";
@@ -156,29 +146,25 @@ export function CertificateGenerator() {
         format: [printWidth, printHeight]
       });
 
-      // --- INJEÇÃO DINÂMICA DE FONTES ---
-      const fontsToLoad = [
-        { url: "/fonts/Cinzel-Regular.ttf", vfs: "Cinzel-normal.ttf", name: "Cinzel", style: "normal" },
-        { url: "/fonts/Cinzel-Bold.ttf", vfs: "Cinzel-bold.ttf", name: "Cinzel", style: "bold" },
-        { url: "/fonts/CormorantGaramond-Regular.ttf", vfs: "Garamond-normal.ttf", name: "Garamond", style: "normal" },
-        { url: "/fonts/CormorantGaramond-Italic.ttf", vfs: "Garamond-italic.ttf", name: "Garamond", style: "italic" },
-        { url: "/fonts/GreatVibes-Regular.ttf", vfs: "GreatVibes-normal.ttf", name: "GreatVibes", style: "normal" }
-      ];
+      // =========================================================
+      // INJEÇÃO SÍNCRONA E BLINDADA DE FONTES (sem rede)
+      // As strings Base64 estão embutidas diretamente no bundle JS.
+      // =========================================================
+      doc.addFileToVFS("Cinzel-normal.ttf", cinzelNormalBase64);
+      doc.addFont("Cinzel-normal.ttf", "Cinzel", "normal");
 
-      for (const font of fontsToLoad) {
-        try {
-          const base64 = await fetchFontBase64(font.url);
-          doc.addFileToVFS(font.vfs, base64);
-          doc.addFont(font.vfs, font.name, font.style);
-          if (font.name === "Garamond") {
-            doc.addFont(font.vfs, "Cormorant Garamond", font.style);
-            doc.addFont(font.vfs, "CormorantGaramond", font.style);
-          }
-        } catch (err) {
-          console.error(`Falha ao carregar a fonte ${font.name}:`, err);
-        }
-      }
-      // ----------------------------------------
+      doc.addFileToVFS("Cinzel-bold.ttf", cinzelBoldBase64);
+      doc.addFont("Cinzel-bold.ttf", "Cinzel", "bold");
+
+      doc.addFileToVFS("Garamond-normal.ttf", garamondNormalBase64);
+      doc.addFont("Garamond-normal.ttf", "Garamond", "normal");
+
+      doc.addFileToVFS("Garamond-italic.ttf", garamondItalicBase64);
+      doc.addFont("Garamond-italic.ttf", "Garamond", "italic");
+
+      doc.addFileToVFS("GreatVibes.ttf", greatVibesBase64);
+      doc.addFont("GreatVibes.ttf", "GreatVibes", "normal");
+      // =========================================================
 
       const setFillColorCMYK = (c: number, m: number, y: number, k: number) => {
         doc.setFillColor(c / 100, m / 100, y / 100, k / 100);
