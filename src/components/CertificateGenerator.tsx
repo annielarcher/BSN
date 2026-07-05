@@ -46,7 +46,7 @@ const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): strin
 
 
 
-type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
+type CertificateCategory = "musico" | "apoiador" | "colaborador" | "maestro" | "custom";
 type CertificateTheme = "navy" | "saver";
 
 interface CategoryPreset {
@@ -55,21 +55,25 @@ interface CategoryPreset {
 }
 
 const CATEGORY_PRESETS: Record<CertificateCategory, CategoryPreset> = {
+  maestro: {
+    title: "Maestro Homenageado",
+    defaultText: "Em reconhecimento à sua valiosa contribuição artística, liderança e trabalho voluntário como Maestro da Banda Sinfônica Nacional, expressando nossa profunda gratidão pela brilhante regência, talento e dedicação exemplar apresentados no decorrer deste primeiro ano de história e conquistas.",
+  },
   musico: {
     title: "Músico Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa contribuição artística como Músico da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo seu talento, virtuosismo e dedicação exemplar apresentados no decorrer deste primeiro ano de história e conquistas.",
+    defaultText: "Em reconhecimento à sua valiosa contribuição artística e trabalho voluntário como Músico da Banda Sinfônica Nacional, expressando nossa profunda gratidão pelo seu talento, virtuosismo e dedicação exemplar apresentados no decorrer deste primeiro ano de história e conquistas.",
   },
   apoiador: {
     title: "Apoiador Homenageado",
-    defaultText: "Em reconhecimento ao seu valioso apoio e incentivo institucional, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais da Banda Sinfônica Nacional em seu primeiro aniversário de fundação.",
+    defaultText: "Em reconhecimento ao seu valioso apoio, incentivo institucional e trabalho voluntário, expressando nossa sincera gratidão pela parceria fundamental que contribuiu para a viabilização, consolidação e sucesso das atividades culturais da Banda Sinfônica Nacional em seu primeiro aniversário de fundação.",
   },
   colaborador: {
     title: "Colaborador Homenageado",
-    defaultText: "Em reconhecimento à sua valiosa cooperação técnica e operacional, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos da Banda Sinfônica Nacional no ano de seu primeiro aniversário.",
+    defaultText: "Em reconhecimento à sua valiosa cooperação técnica, operacional e trabalho voluntário, expressando nossos sinceros agradecimentos pela parceria e dedicação que tornaram possíveis as realizações e os espetáculos da Banda Sinfônica Nacional no ano de seu primeiro aniversário.",
   },
   custom: {
     title: "Texto Customizado",
-    defaultText: "Escreva aqui o texto de homenagem personalizado para o certificado da Banda Sinfônica Nacional...",
+    defaultText: "Escreva aqui o texto de homenagem personalizado, incluindo menção ao trabalho voluntário, para o certificado da Banda Sinfônica Nacional...",
   }
 };
 
@@ -77,7 +81,7 @@ export function CertificateGenerator() {
   const [recipientName, setRecipientName] = useState("Carolyn R. Luthier");
   const [category, setCategory] = useState<CertificateCategory>("musico");
   const [customText, setCustomText] = useState("");
-  const [dateText, setDateText] = useState("Rio de Janeiro, 17 de julho de 2026");
+  const [dateText, setDateText] = useState("Rio de Janeiro, 7 de julho de 2026");
   const [theme, setTheme] = useState<CertificateTheme>("saver"); // default to cream/papiro classic
   
   // Batch / Lote Generation State
@@ -86,13 +90,14 @@ export function CertificateGenerator() {
     "Carolyn R. Luthier\nGabriel Santos Silva\nMariana Costa e Silva\nLucas Oliveira Mello\nBeatriz Fernandes Lima"
   );
   const [batchPreviewIndex, setBatchPreviewIndex] = useState(0);
+  const [selectedBatchGroup, setSelectedBatchGroup] = useState<string>("Todos");
 
-  const [sig1Name, setSig1Name] = useState("Geyzi Moreira");
+  const [sig1Name, setSig1Name] = useState("Geyzilane de Andrade Moreira");
   const [sig1Rubric, setSig1Rubric] = useState("Geyzi Moreira");
   const [sig1Role, setSig1Role] = useState("Diretora Artística");
-  const [sig2Name, setSig2Name] = useState("Roberto Weingrill Jr.");
-  const [sig2Rubric, setSig2Rubric] = useState("Roberto Weingrill Jr.");
-  const [sig2Role, setSig2Role] = useState("Presidente — Weril");
+  const [sig2Name, setSig2Name] = useState("Alexandre Alberto Serpa da Rocha");
+  const [sig2Rubric, setSig2Rubric] = useState("Alexandre Rocha");
+  const [sig2Role, setSig2Role] = useState("Maestro");
 
   // Prepress and layout controls
   const [isSingleSig, setIsSingleSig] = useState(true);
@@ -101,11 +106,45 @@ export function CertificateGenerator() {
 
   const [isExporting, setIsExporting] = useState(false);
 
-  // Derived batch list
-  const batchNames = batchNamesText
-    .split("\n")
-    .map((n) => n.trim())
-    .filter((n) => n.length > 0);
+  // Parse batch text into groups based on headers (instruments, etc)
+  const parsedGroups = React.useMemo(() => {
+    const lines = batchNamesText.split("\n").map(n => n.trim()).filter(n => n.length > 0);
+    const groups: { name: string, members: string[] }[] = [];
+    let currentGroup = { name: "Geral", members: [] as string[] };
+    
+    const knownHeaders = [
+      "Flautas", "Clarinetas", "Oboés", "Fagote", "Saxofones", "Trompa", "Trompetes", 
+      "Trombones", "Tuba", "Cello", "Contrabaixo", "Percussão", "Guitarra", "Harpa", 
+      "Cantores", "Apoio", "Colaborador Técnico"
+    ].map(h => h.toLowerCase());
+
+    lines.forEach(line => {
+      const lowerLine = line.toLowerCase();
+      // It's a header if it matches known headers or is a single word without spaces (and isn't a known name)
+      const isHeader = knownHeaders.includes(lowerLine) || (!line.includes(" ") && line.length < 15 && !knownHeaders.includes(lowerLine));
+      
+      if (isHeader) {
+        if (currentGroup.members.length > 0 || currentGroup.name !== "Geral") {
+          groups.push(currentGroup);
+        }
+        currentGroup = { name: line, members: [] };
+      } else {
+        currentGroup.members.push(line);
+      }
+    });
+    if (currentGroup.members.length > 0) {
+      groups.push(currentGroup);
+    }
+    return groups;
+  }, [batchNamesText]);
+
+  // Derived flat list for preview mode
+  const batchNames = React.useMemo(() => {
+    if (selectedBatchGroup === "Todos") {
+      return parsedGroups.flatMap(g => g.members);
+    }
+    return parsedGroups.find(g => g.name === selectedBatchGroup)?.members || [];
+  }, [parsedGroups, selectedBatchGroup]);
 
   const safeBatchIndex = Math.max(0, Math.min(batchPreviewIndex, Math.max(0, batchNames.length - 1)));
   const activeRecipientName = generationMode === "batch"
@@ -258,7 +297,7 @@ export function CertificateGenerator() {
           const watermarkSize = 180;
           const wx = xOffset + (baseWidth - watermarkSize) / 2;
           const wy = yOffset + (baseHeight - watermarkSize) / 2;
-          doc.addImage(transparentLogoDataUrl, "PNG", wx, wy, watermarkSize, watermarkSize);
+          doc.addImage(transparentLogoDataUrl, "PNG", wx, wy, watermarkSize, watermarkSize, "BSN_WATERMARK", "FAST");
         } catch (err) {
           console.warn("Could not draw watermark logo in PDF:", err);
         }
@@ -303,7 +342,7 @@ export function CertificateGenerator() {
           const logoSize = 38;
           const lx = xOffset + (baseWidth - logoSize) / 2;
           const ly = yOffset + 12;
-          doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize);
+          doc.addImage(logoImg, "PNG", lx, ly, logoSize, logoSize, "BSN_HEADER", "FAST");
         } catch (err) {
           console.warn("Could not draw header logo in PDF:", err);
         }
@@ -368,7 +407,9 @@ export function CertificateGenerator() {
           setDrawColorCMYK(0, 35, 90, 45);
         }
         doc.setLineWidth(0.3);
-        doc.line(xOffset + baseWidth / 2 - 80, yOffset + 122.5, xOffset + baseWidth / 2 + 80, yOffset + 122.5);
+        const nameWidth = doc.getTextWidth(nameToPrint);
+        const lineHalfWidth = (nameWidth / 2) + 10; // 10 units padding on each side
+        doc.line(xOffset + baseWidth / 2 - lineHalfWidth, yOffset + 122.5, xOffset + baseWidth / 2 + lineHalfWidth, yOffset + 122.5);
 
         doc.setFont(fontGaramondItalic, fontGaramondItalicStyle);
         doc.setFontSize(13.5);
@@ -395,7 +436,7 @@ export function CertificateGenerator() {
           } else {
             setTextColorCMYK(0, 35, 90, 45);
           }
-          doc.text(dateText, xOffset + 40, footerY + 14.5, { align: "center" });
+          doc.text(dateText, xOffset + 50, footerY + 6.5, { align: "center" });
 
           doc.setFont(fontGreatVibes, fontGreatVibesStyle);
           doc.setFontSize(22);
@@ -432,7 +473,7 @@ export function CertificateGenerator() {
           }
           doc.text(sig1Role, xOffset + baseWidth / 2, footerY + 14.5, { align: "center" });
 
-          drawEmblemSeal(doc, xOffset + baseWidth - 40 - 22, footerY - 10, 22, isNavy);
+          drawEmblemSeal(doc, xOffset + baseWidth - 61, footerY - 7.5, 22, isNavy);
         } else {
           doc.setFont(fontGreatVibes, fontGreatVibesStyle);
           doc.setFontSize(22);
@@ -533,8 +574,16 @@ export function CertificateGenerator() {
         }
       }
 
+      let batchFileName = `certificados-lote-${category}-${namesToExport.length}-homenageados.pdf`;
+      if (selectedBatchGroup !== "Todos") {
+        const validGroups = parsedGroups.filter(g => g.name !== "Geral");
+        const groupIndex = validGroups.findIndex(g => g.name === selectedBatchGroup);
+        const prefix = groupIndex >= 0 ? String(groupIndex + 1).padStart(2, '0') + ". " : "";
+        batchFileName = `${prefix}${selectedBatchGroup}.pdf`;
+      }
+
       const fileName = generationMode === "batch"
-        ? `certificados-lote-${category}-${namesToExport.length}-homenageados.pdf`
+        ? batchFileName
         : `certificado-${namesToExport[0].toLowerCase().replace(/\s+/g, "-")}.pdf`;
 
       doc.save(fileName);
@@ -559,14 +608,14 @@ export function CertificateGenerator() {
     setRecipientName("Carolyn R. Luthier");
     setCategory("musico");
     setCustomText(CATEGORY_PRESETS.musico.defaultText);
-    setDateText("Rio de Janeiro, 17 de julho de 2026");
+    setDateText("Rio de Janeiro, 7 de julho de 2026");
     setTheme("saver");
-    setSig1Name("Geyzi Moreira");
+    setSig1Name("Geyzilane de Andrade Moreira");
     setSig1Rubric("Geyzi Moreira");
     setSig1Role("Diretora Artística");
-    setSig2Name("Roberto Weingrill Jr.");
-    setSig2Rubric("Roberto Weingrill Jr.");
-    setSig2Role("Presidente — Weril");
+    setSig2Name("Alexandre Alberto Serpa da Rocha");
+    setSig2Rubric("Alexandre Rocha");
+    setSig2Role("Maestro");
     setIsSingleSig(true);
     setIsCropMarks(false);
     setAspectRatioMode("a4");
@@ -787,7 +836,26 @@ export function CertificateGenerator() {
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#e0a020] font-mono leading-relaxed placeholder-slate-500 resize-none"
                 placeholder="Digite ou cole um nome por linha:&#10;Carolyn R. Luthier&#10;Gabriel Santos Silva&#10;Mariana Costa..."
               />
-              <div className="flex items-center justify-between text-[9px] text-slate-400">
+              {parsedGroups.length > 1 && (
+                <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-slate-800/80 p-2 rounded-lg border border-slate-700/80 mt-1">
+                  <ListFilter className="w-3.5 h-3.5 text-[#f5c842]" />
+                  <span className="font-medium uppercase tracking-wider text-[9px]">Exportar Naipe:</span>
+                  <select 
+                    value={selectedBatchGroup}
+                    onChange={(e) => {
+                      setSelectedBatchGroup(e.target.value);
+                      setBatchPreviewIndex(0);
+                    }}
+                    className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white outline-none cursor-pointer hover:border-[#e0a020]"
+                  >
+                    <option value="Todos">Toda a Lista ({parsedGroups.reduce((acc, g) => acc + g.members.length, 0)} nomes)</option>
+                    {parsedGroups.filter(g => g.name !== "Geral").map(g => (
+                      <option key={g.name} value={g.name}>{g.name} ({g.members.length})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-[9px] text-slate-400 mt-1">
                 <span>Carregados: <strong className="text-white">{batchNames.length}</strong></span>
                 <div className="flex gap-2">
                   <button
@@ -848,6 +916,7 @@ export function CertificateGenerator() {
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#e0a020]"
             >
               <option value="musico" className="bg-slate-900 text-white">Músico Homenageado</option>
+              <option value="maestro" className="bg-slate-900 text-white">Maestro Homenageado</option>
               <option value="apoiador" className="bg-slate-900 text-white">Apoiador Institucional</option>
               <option value="colaborador" className="bg-slate-900 text-white">Colaborador Técnico</option>
               <option value="custom" className="bg-slate-900 text-white">Texto Customizado</option>
@@ -1227,7 +1296,7 @@ export function CertificateGenerator() {
             {isSingleSig ? (
               <>
                 {/* Left side: Date Text */}
-                <div className="flex flex-col items-center justify-center pb-2">
+                <div className="flex flex-col items-center justify-center mb-9">
                   <span className="text-[10px] font-bold tracking-wider uppercase text-center" 
                         style={{ 
                           color: isNavy ? BSN_GOLD_LIGHT : "#5c4008",
@@ -1268,7 +1337,7 @@ export function CertificateGenerator() {
                 </div>
 
                 {/* Right side: 1-Year Anniversary Gold Emblem (Vazado & mais alto) */}
-                <div className="flex flex-col items-center justify-center -mt-8 mb-2">
+                <div className="flex flex-col items-center justify-center -mt-8">
                   <div 
                     className="w-16 h-16 rounded-full flex flex-col items-center justify-center border relative"
                     style={{
