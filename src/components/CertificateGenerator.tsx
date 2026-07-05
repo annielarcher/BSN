@@ -147,16 +147,10 @@ export function CertificateGenerator() {
       });
 
       // =========================================================
+      // =========================================================
       // INJEÇÃO SÍNCRONA E BLINDADA DE FONTES (sem rede)
       // As strings Base64 estão embutidas diretamente no bundle JS.
       // =========================================================
-      console.log("🔤 [BSN-FONT-DEBUG] Iniciando injeção de fontes...");
-      console.log("  cinzelNormal starts:", cinzelNormalBase64.substring(0, 10), "len:", cinzelNormalBase64.length);
-      console.log("  cinzelBold starts:", cinzelBoldBase64.substring(0, 10), "len:", cinzelBoldBase64.length);
-      console.log("  garamondNormal starts:", garamondNormalBase64.substring(0, 10), "len:", garamondNormalBase64.length);
-      console.log("  garamondItalic starts:", garamondItalicBase64.substring(0, 10), "len:", garamondItalicBase64.length);
-      console.log("  greatVibes starts:", greatVibesBase64.substring(0, 10), "len:", greatVibesBase64.length);
-
       doc.addFileToVFS("Cinzel-normal.ttf", cinzelNormalBase64);
       doc.addFont("Cinzel-normal.ttf", "Cinzel", "normal");
       doc.addFont("Cinzel-normal.ttf", "cinzel", "normal");
@@ -178,10 +172,6 @@ export function CertificateGenerator() {
       doc.addFileToVFS("GreatVibes.ttf", greatVibesBase64);
       doc.addFont("GreatVibes.ttf", "GreatVibes", "normal");
       doc.addFont("GreatVibes.ttf", "Great Vibes", "normal");
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const registeredFonts = (doc as any).getFontList ? (doc as any).getFontList() : "getFontList não disponível";
-      console.log("✅ [BSN-FONT-DEBUG] Fontes registradas no jsPDF:", JSON.stringify(registeredFonts));
       // =========================================================
 
       const setFillColorCMYK = (c: number, m: number, y: number, k: number) => {
@@ -502,8 +492,6 @@ export function CertificateGenerator() {
         doc.line(printWidth - 3, printHeight, printWidth - 3, printHeight - lLen);
       }
 
-      const pdfBlob = doc.output("blob");
-      console.log("📄 [BSN-FONT-DEBUG] Tamanho do PDF gerado:", pdfBlob.size, "bytes (~" + Math.round(pdfBlob.size / 1024) + "KB). Se < 200KB → fontes NÃO embutidas. Se > 500KB → fontes embutidas ✅");
       doc.save(`certificado-${recipientName.toLowerCase().replace(/\s+/g, "-")}.pdf`);
     } catch (error) {
       console.error("Error generating CMYK PDF:", error);
