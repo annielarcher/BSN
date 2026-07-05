@@ -4,13 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Award, Printer, RotateCcw, Sparkles, User, FileText, Calendar, Feather, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 
-// Import custom ES font modules generated for jsPDF
-import "@/lib/fonts/Cinzel-normal";
-import "@/lib/fonts/Cinzel-bold";
-import "@/lib/fonts/Garamond-normal";
-import "@/lib/fonts/Garamond-italic";
-import "@/lib/fonts/GreatVibes-normal";
-
 // BSN Brand Colors
 const BSN_NAVY = "#031529";
 const BSN_DARK_BLUE = "#020d1a";
@@ -159,6 +152,26 @@ export function CertificateGenerator() {
         unit: "mm",
         format: [printWidth, printHeight]
       });
+
+      // --- INJEÇÃO DINÂMICA DE FONTES ---
+      const fontsToLoad = [
+        { url: "/fonts/Cinzel-Regular.ttf", vfs: "Cinzel-normal.ttf", name: "Cinzel", style: "normal" },
+        { url: "/fonts/Cinzel-Bold.ttf", vfs: "Cinzel-bold.ttf", name: "Cinzel", style: "bold" },
+        { url: "/fonts/CormorantGaramond-Regular.ttf", vfs: "Garamond-normal.ttf", name: "Garamond", style: "normal" },
+        { url: "/fonts/CormorantGaramond-Italic.ttf", vfs: "Garamond-italic.ttf", name: "Garamond", style: "italic" },
+        { url: "/fonts/GreatVibes-Regular.ttf", vfs: "GreatVibes-normal.ttf", name: "GreatVibes", style: "normal" }
+      ];
+
+      for (const font of fontsToLoad) {
+        try {
+          const base64 = await fetchFontBase64(font.url);
+          doc.addFileToVFS(font.vfs, base64);
+          doc.addFont(font.vfs, font.name, font.style);
+        } catch (err) {
+          console.error(`Falha ao carregar a fonte ${font.name}:`, err);
+        }
+      }
+      // ----------------------------------------
 
       const setFillColorCMYK = (c: number, m: number, y: number, k: number) => {
         doc.setFillColor(c / 100, m / 100, y / 100, k / 100);
