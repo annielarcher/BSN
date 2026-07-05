@@ -37,9 +37,15 @@ const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): strin
   return canvas.toDataURL("image/png");
 };
 
-// Helper to fetch custom fonts and convert to base64 for PDF embedding natively and fast using FileReader
+// Helper aprimorado: agora ele avisa se o caminho do arquivo estiver errado
 const fetchFontBase64 = async (url: string): Promise<string> => {
   const resp = await fetch(url);
+  
+  // TRAVA DE SEGURANÇA: Se o arquivo não existir, aborta e mostra o erro
+  if (!resp.ok) {
+    throw new Error(`Arquivo não encontrado (Erro ${resp.status}): Verifique se o caminho ${url} está exato (maiúsculas e minúsculas importam).`);
+  }
+  
   const blob = await resp.blob();
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
