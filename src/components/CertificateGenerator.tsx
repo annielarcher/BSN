@@ -81,8 +81,10 @@ export function CertificateGenerator() {
   const [theme, setTheme] = useState<CertificateTheme>("saver"); // default to cream/papiro classic
   
   const [sig1Name, setSig1Name] = useState("Geyzi Moreira");
+  const [sig1Rubric, setSig1Rubric] = useState("Geyzi Moreira");
   const [sig1Role, setSig1Role] = useState("Diretora Artística");
   const [sig2Name, setSig2Name] = useState("Roberto Weingrill Jr.");
+  const [sig2Rubric, setSig2Rubric] = useState("Roberto Weingrill Jr.");
   const [sig2Role, setSig2Role] = useState("Presidente — Weril");
 
   // Prepress and layout controls
@@ -364,7 +366,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig1Name, xOffset + baseWidth / 2, footerY + 5, { align: "center" });
+        doc.text(sig1Rubric, xOffset + baseWidth / 2, footerY + 5, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -401,7 +403,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig1Name, xOffset + 55, footerY + 5, { align: "center" });
+        doc.text(sig1Rubric, xOffset + 55, footerY + 5, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -438,7 +440,7 @@ export function CertificateGenerator() {
         } else {
           setTextColorCMYK(0, 0, 0, 85);
         }
-        doc.text(sig2Name, xOffset + baseWidth - 55, footerY + 5, { align: "center" });
+        doc.text(sig2Rubric, xOffset + baseWidth - 55, footerY + 5, { align: "center" });
 
         if (isNavy) {
           setDrawColorCMYK(0, 0, 0, 0);
@@ -517,8 +519,10 @@ export function CertificateGenerator() {
     setDateText("Rio de Janeiro, 17 de julho de 2026");
     setTheme("saver");
     setSig1Name("Geyzi Moreira");
+    setSig1Rubric("Geyzi Moreira");
     setSig1Role("Diretora Artística");
     setSig2Name("Roberto Weingrill Jr.");
+    setSig2Rubric("Roberto Weingrill Jr.");
     setSig2Role("Presidente — Weril");
     setIsSingleSig(true);
     setIsCropMarks(false);
@@ -760,46 +764,82 @@ export function CertificateGenerator() {
             </div>
 
             {/* Signature 1 */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <span className="text-[9px] text-slate-400 font-bold">Assinatura 1</span>
-                <input
-                  type="text"
-                  value={sig1Name}
-                  onChange={(e) => setSig1Name(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
-                />
+            <div className="flex flex-col gap-2 bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/80">
+              <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-300">Assinante 1</span>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] text-slate-400 font-bold">Nome Impresso</span>
+                  <input
+                    type="text"
+                    value={sig1Name}
+                    onChange={(e) => setSig1Name(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
+                    placeholder="Nome completo..."
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] text-slate-400 font-bold">Cargo</span>
+                  <input
+                    type="text"
+                    value={sig1Role}
+                    onChange={(e) => setSig1Role(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
+                    placeholder="Cargo..."
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[9px] text-slate-400 font-bold">Cargo 1</span>
+              <div className="flex flex-col gap-1 mt-1">
+                <span className="text-[9px] text-slate-400 font-bold flex items-center justify-between">
+                  Assinatura / Rubrica
+                  <span className="text-[8px] text-slate-500 font-normal">Fonte manuscrita</span>
+                </span>
                 <input
                   type="text"
-                  value={sig1Role}
-                  onChange={(e) => setSig1Role(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
+                  value={sig1Rubric}
+                  onChange={(e) => setSig1Rubric(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020] placeholder-slate-500"
+                  placeholder="Texto manuscrito (ex: Geyzi ou G. Moreira)"
                 />
               </div>
             </div>
 
             {/* Signature 2 (Only active if isSingleSig is false) */}
             {!isSingleSig && (
-              <div className="grid grid-cols-2 gap-2 transition-all duration-300">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[9px] text-slate-400 font-bold">Assinatura 2</span>
-                  <input
-                    type="text"
-                    value={sig2Name}
-                    onChange={(e) => setSig2Name(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
-                  />
+              <div className="flex flex-col gap-2 bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/80 transition-all duration-300">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-300">Assinante 2</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] text-slate-400 font-bold">Nome Impresso</span>
+                    <input
+                      type="text"
+                      value={sig2Name}
+                      onChange={(e) => setSig2Name(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
+                      placeholder="Nome completo..."
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] text-slate-400 font-bold">Cargo</span>
+                    <input
+                      type="text"
+                      value={sig2Role}
+                      onChange={(e) => setSig2Role(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
+                      placeholder="Cargo..."
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[9px] text-slate-400 font-bold">Cargo 2</span>
+                <div className="flex flex-col gap-1 mt-1">
+                  <span className="text-[9px] text-slate-400 font-bold flex items-center justify-between">
+                    Assinatura / Rubrica
+                    <span className="text-[8px] text-slate-500 font-normal">Fonte manuscrita</span>
+                  </span>
                   <input
                     type="text"
-                    value={sig2Role}
-                    onChange={(e) => setSig2Role(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020]"
+                    value={sig2Rubric}
+                    onChange={(e) => setSig2Rubric(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#e0a020] placeholder-slate-500"
+                    placeholder="Texto manuscrito (ex: Roberto W. Jr.)"
                   />
                 </div>
               </div>
@@ -1027,7 +1067,7 @@ export function CertificateGenerator() {
                       opacity: 0.85 
                     }}
                   >
-                    {sig1Name}
+                    {sig1Rubric}
                   </div>
                   <div className="w-[160px] h-[1px] bg-gradient-to-r from-transparent via-current to-transparent opacity-30" 
                        style={{ color: isNavy ? "#ffffff" : "#031529" }} />
@@ -1082,7 +1122,7 @@ export function CertificateGenerator() {
                       opacity: 0.85 
                     }}
                   >
-                    {sig1Name}
+                    {sig1Rubric}
                   </div>
                   <div className="w-[160px] h-[1px] bg-gradient-to-r from-transparent via-current to-transparent opacity-30" 
                        style={{ color: isNavy ? "#ffffff" : "#031529" }} />
@@ -1142,7 +1182,7 @@ export function CertificateGenerator() {
                       opacity: 0.85
                     }}
                   >
-                    {sig2Name}
+                    {sig2Rubric}
                   </div>
                   <div className="w-[160px] h-[1px] bg-gradient-to-r from-transparent via-current to-transparent opacity-30"
                        style={{ color: isNavy ? "#ffffff" : "#031529" }} />
