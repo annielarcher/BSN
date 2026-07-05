@@ -78,6 +78,8 @@ export function CertificateGenerator() {
   const [category, setCategory] = useState<CertificateCategory>("musico");
   const [customText, setCustomText] = useState("");
   const [dateText, setDateText] = useState("Rio de Janeiro, 17 de julho de 2026");
+  const [theme, setTheme] = useState<CertificateTheme>("saver"); // default to cream/papiro classic
+  
   // Batch / Lote Generation State
   const [generationMode, setGenerationMode] = useState<"single" | "batch">("single");
   const [batchNamesText, setBatchNamesText] = useState(
