@@ -37,7 +37,7 @@ const getTransparentLogoBase64 = (img: HTMLImageElement, opacity: number): strin
   return canvas.toDataURL("image/png");
 };
 
-// Helper aprimorado: agora ele avisa se o caminho do arquivo estiver errado
+// Helper aprimorado: carrega e converte a fonte TTF em Base64 de forma direta e ultra-confiável
 const fetchFontBase64 = async (url: string): Promise<string> => {
   const resp = await fetch(url);
   
@@ -46,17 +46,14 @@ const fetchFontBase64 = async (url: string): Promise<string> => {
     throw new Error(`Arquivo não encontrado (Erro ${resp.status}): Verifique se o caminho ${url} está exato (maiúsculas e minúsculas importam).`);
   }
   
-  const blob = await resp.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64data = reader.result as string;
-      const base64 = base64data.split(",")[1];
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  const buffer = await resp.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunkSize)));
+  }
+  return btoa(binary);
 };
 
 type CertificateCategory = "musico" | "apoiador" | "colaborador" | "custom";
@@ -173,6 +170,10 @@ export function CertificateGenerator() {
           const base64 = await fetchFontBase64(font.url);
           doc.addFileToVFS(font.vfs, base64);
           doc.addFont(font.vfs, font.name, font.style);
+          if (font.name === "Garamond") {
+            doc.addFont(font.vfs, "Cormorant Garamond", font.style);
+            doc.addFont(font.vfs, "CormorantGaramond", font.style);
+          }
         } catch (err) {
           console.error(`Falha ao carregar a fonte ${font.name}:`, err);
         }
