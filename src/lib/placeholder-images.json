@@ -9,7 +9,7 @@
     {
       "id": "bsn-logo",
       "description": "",
-      "imageUrl": "https://i.ibb.co/RT04KgYz/BSN-logo-no-BG.png",
+      "imageUrl": "/Images/BSN-logo-no-BG.png",
       "imageHint": "banda sinfonica logo"
     },
     {
@@ -21,13 +21,13 @@
     {
       "id": "geyzi-moreira",
       "description": "",
-      "imageUrl": "https://i.ibb.co/Jw1wR0n7/Whats-App-Image-2026-01-30-at-18-58-42.jpg",
+      "imageUrl": "/Images/geyzi-moreira.jpg",
       "imageHint": "woman headshot"
     },
     {
       "id": "alexandre-rocha",
       "description": "",
-      "imageUrl": "https://i.ibb.co/3y59L7mb/Whats-App-Image-2026-01-29-at-19-04-21.jpg",
+      "imageUrl": "/Images/alexandre-rocha.jpg",
       "imageHint": "man headshot"
     },
     {
@@ -40,6 +40,18 @@
       "id": "eduardo-lagreca",
       "description": "",
       "imageUrl": "/Images/Eduardo-lagreca-fan.jpeg.jpeg",
+      "imageHint": "classical music"
+    },
+    {
+      "id": "Roberto-weingrill",
+      "description": "",
+      "imageUrl": "/Images/Roberto-Weingrill..jpeg",
+      "imageHint": "classical music"
+    },
+    {
+      "id": "reginaldo-de-jesus",
+      "description": "",
+      "imageUrl": "/Images/Reginaldo-Jesus.jpeg",
       "imageHint": "classical music"
     },
     {
@@ -201,7 +213,7 @@
     {
       "id": "reginaldo-logo",
       "description": "RJF Luthier Logo",
-      "imageUrl": "/parceiros/rjf-luthier.jpg",
+      "imageUrl": "/parceiros/rjf-luthier.png",
       "imageHint": "rjf luthier logo"
     }
   ],
