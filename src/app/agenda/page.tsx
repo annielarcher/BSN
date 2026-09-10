@@ -31,6 +31,8 @@ export default function AgendaPage() {
   const nextEvent = upcomingEvents[0];
   const otherUpcomingEvents = upcomingEvents.slice(1);
   const nextEventImage = nextEvent ? ImageAssets.find(img => img.id === nextEvent.imageId) : null;
+  const nextEventDay = nextEvent ? nextEvent.date.split(' de ')[0] : '';
+  const nextEventMonth = nextEvent ? nextEvent.date.split(' de ')[1]?.substring(0, 3).toUpperCase() : '';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -54,7 +56,7 @@ export default function AgendaPage() {
                       alt={nextEvent.title} 
                       fill 
                       className={`object-cover transition-transform duration-700 group-hover:scale-105 ${
-                        (nextEvent as any).imagePosition || 'object-center'
+                        (nextEvent as any).imagePosition || 'object-top'
                       }`}
                     />
                   ) : (
@@ -64,8 +66,8 @@ export default function AgendaPage() {
                   )}
                   {/* Floating Date Badge */}
                   <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-border text-center">
-                    <div className="text-primary font-black text-2xl leading-none">07</div>
-                    <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-1">JUL</div>
+                    <div className="text-primary font-black text-2xl leading-none">{nextEventDay}</div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-1">{nextEventMonth}</div>
                   </div>
                 </div>
 
@@ -138,13 +140,78 @@ export default function AgendaPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {otherUpcomingEvents.map((event, index) => (
-                <Card key={index} className="bg-card border-primary/30 shadow-sm hover:shadow-md hover:border-primary transition-all duration-300 flex flex-col h-full group">
+              {otherUpcomingEvents.map((event, index) => {
+                const imgAsset = event.imageId ? ImageAssets.find(img => img.id === event.imageId) : null;
+                return (
+                  <Card key={index} className="bg-card border-primary/30 shadow-sm hover:shadow-md hover:border-primary transition-all duration-300 flex flex-col h-full group overflow-hidden">
+                    {imgAsset && (
+                      <div className="relative w-full h-52 overflow-hidden shrink-0">
+                        <Image
+                          src={imgAsset.imageUrl}
+                          alt={event.title}
+                          fill
+                          className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
+                            (event as any).imagePosition || 'object-top'
+                          }`}
+                        />
+                      </div>
+                    )}
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider mb-3">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {event.date}
+                        {event.time && <span className="ml-1 px-2 py-0.5 bg-primary/10 rounded-md">{event.time}</span>}
+                      </div>
+                      <CardTitle className="font-headline text-xl lg:text-2xl group-hover:text-primary transition-colors line-clamp-2">
+                        {event.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="text-muted-foreground text-sm line-clamp-4">
+                        {event.description}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="pt-0 pb-6 border-t border-border/30 mt-auto">
+                      <div className="flex items-start gap-2 text-xs text-muted-foreground mt-4">
+                        <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">{event.location}</span>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Past Events Grid */}
+        <section id="historico">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-8 w-2 bg-muted-foreground/30 rounded-full"></div>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold">Concertos Anteriores</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pastEvents.map((event, index) => {
+              const imgAsset = event.imageId ? ImageAssets.find(img => img.id === event.imageId) : null;
+              return (
+                <Card key={index} className="bg-card border-border/40 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full group overflow-hidden">
+                  {imgAsset && (
+                    <div className="relative w-full h-52 overflow-hidden shrink-0">
+                      <Image
+                        src={imgAsset.imageUrl}
+                        alt={event.title}
+                        fill
+                        className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
+                          (event as any).imagePosition || 'object-top'
+                        }`}
+                      />
+                    </div>
+                  )}
                   <CardHeader className="pb-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider mb-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
                       <Calendar className="h-3.5 w-3.5" />
                       {event.date}
-                      {event.time && <span className="ml-1 px-2 py-0.5 bg-primary/10 rounded-md">{event.time}</span>}
                     </div>
                     <CardTitle className="font-headline text-xl lg:text-2xl group-hover:text-primary transition-colors line-clamp-2">
                       {event.title}
@@ -162,43 +229,8 @@ export default function AgendaPage() {
                     </div>
                   </CardFooter>
                 </Card>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Past Events Grid */}
-        <section id="historico">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-8 w-2 bg-muted-foreground/30 rounded-full"></div>
-            <h2 className="font-headline text-3xl md:text-4xl font-bold">Concertos Anteriores</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pastEvents.map((event, index) => (
-              <Card key={index} className="bg-card border-border/40 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full group">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {event.date}
-                  </div>
-                  <CardTitle className="font-headline text-xl lg:text-2xl group-hover:text-primary transition-colors line-clamp-2">
-                    {event.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="text-muted-foreground text-sm line-clamp-4">
-                    {event.description}
-                  </p>
-                </CardContent>
-                <CardFooter className="pt-0 pb-6 border-t border-border/30 mt-auto">
-                  <div className="flex items-start gap-2 text-xs text-muted-foreground mt-4">
-                    <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{event.location}</span>
-                  </div>
-                </CardFooter>
-              </Card>
-            ))}
+              );
+            })}
           </div>
         </section>
 
