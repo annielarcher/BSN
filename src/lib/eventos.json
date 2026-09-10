@@ -1,49 +1,97 @@
 {
   "events": [
     {
+      "title": "Concerto \"Clássicos Mundiais\" — Salão Assyrio (Theatro Municipal)",
+      "date": "28 de Setembro de 2026",
+      "time": "19h",
+      "location": "Theatro Municipal do Rio de Janeiro — Salão Assyrio (Entrada pela Praça Floriano / Av. Treze de Maio)",
+      "description": "Apresentação da Banda Sinfônica Nacional no prestigiado Salão Assyrio do Theatro Municipal do Rio de Janeiro com o concerto \"Clássicos Mundiais\". Participações especiais de Bina Goldrajch (mezzo-soprano), Nadja Daltro (soprano), Wladimir Cabanas (tenor) e do grupo gaiteiro Brazilian Piper.",
+      "imageId": "flyer-tmrj-assyrio",
+      "imagePosition": "object-top"
+    },
+    {
+      "title": "XXI RioHarpFestival (Versão Latino-Americana) — Feat. Christian Rodrigues (harpa)",
+      "date": "19 de Setembro de 2026",
+      "time": "13h",
+      "location": "Centro Cultural Banco do Brasil (CCBB), RJ — Rua Primeiro de Março, 66",
+      "description": "Apresentação especial da Banda Sinfônica Nacional no XXI RioHarpFestival (versão latino-americana), contando com a participação especial do renomado harpista Christian Rodrigues (Chile). Direção: Geyzi Moreira.",
+      "imageId": "flyer-ccbb-rioharpfestival",
+      "imagePosition": "object-top"
+    },
+    {
+      "title": "Concerto \"Clássicos Mundiais\"",
+      "date": "24 de Julho de 2026",
+      "time": "18h",
+      "location": "Teatro João Caetano",
+      "description": "Grandioso concerto realizado no Teatro João Caetano com direção de Geyzi Moreira, regência do Maestro Eduardo Lagreca Fan e solistas convidados: Brazilian Piper, Luiz Augusto, Bina Goldrajch, Wladimir Cabanas e Juliana Sampaio.",
+      "imageId": "flyer-joao-caetano",
+      "imagePosition": "object-top"
+    },
+    {
+      "title": "I Painel Sinfônico \"Diálogos & Sons\"",
+      "date": "17 de Julho de 2026",
+      "time": "18h30",
+      "location": "Catedral Presbiteriana do Rio de Janeiro — R. Silva Jardim, 23, Centro",
+      "description": "Evento promovido pela Banda Sinfônica Nacional sob direção de Geyzi Moreira. Contou com Roda de Conversa (\"Banda Sinfônica: Aspectos Históricos e Perspectivas\") com o Maestro Alexandre Rocha, Prof. Luiz Augusto e Prof. Sérgio de Jesus; palestra sobre manutenção dos instrumentos e saúde do músico com o Luthier Reginaldo de Jesus; oficina de luthieria gratuita com amostra de instrumentos Weril; e palestra da Linha W&N com Roberto Weinsgrill Jr. Apoio: Peter Walker Tenney.",
+      "imageId": "flyer-painel-sinfonico",
+      "imagePosition": "object-top"
+    },
+    {
       "title": "XXI RioHarpFestival: Banda Sinfônica Nacional Feat. Beatriz Millán (harpa)",
       "date": "07 de Julho de 2026",
       "time": "18h",
       "location": "Espaço Cultural Arte Sesc Flamengo — R. Marquês de Abrantes, 99",
       "description": "Apresentação confirmada da Banda Sinfônica Nacional no RioHarpFestival, contando com a brilhante participação especial da harpista Beatriz Millán.",
       "imageId": "gallery-5",
-      "imagePosition": "object-bottom"
+      "imagePosition": "object-top"
     },
     {
       "title": "Abertura da Série \"Música no Museu\"",
       "date": "20 de Janeiro de 2026",
       "location": "Espaço Cultural Arte Sesc, Flamengo",
-      "description": "Concerto gratuito de abertura da temporada 2026 da série \"Música no Museu\", com participações especiais do tenor Wladimir Cabanas e do grupo gaiteiro BrazilianPiper."
+      "description": "Concerto gratuito de abertura da temporada 2026 da série \"Música no Museu\", com participações especiais do tenor Wladimir Cabanas e do grupo gaiteiro BrazilianPiper.",
+      "imageId": "news-musica-no-museu",
+      "imagePosition": "object-top"
     },
     {
       "title": "Queen Sinfônica",
       "date": "19 de Dezembro de 2025",
       "location": "Multiplan Hall - Park Shopping Jacarepaguá",
-      "description": "Uma fusão espetacular de Rock e Clássico, apresentando os maiores sucessos do Queen em colaboração com a banda Special Queen."
+      "description": "Uma fusão espetacular de Rock e Clássico, apresentando os maiores sucessos do Queen em colaboração com a banda Special Queen.",
+      "imageId": "queen-band",
+      "imagePosition": "object-top"
     },
     {
       "title": "Concerto \"Clássicos Brasileiros\"",
       "date": "29 de Setembro de 2025",
       "location": "Espaço Cultural Sesc Flamengo",
-      "description": "Uma noite dedicada aos grandes mestres da música brasileira, em um concerto às 18h que exalta nossa riqueza cultural."
+      "description": "Uma noite dedicada aos grandes mestres da música brasileira, em um concerto às 18h que exalta nossa riqueza cultural.",
+      "imageId": "gallery-1",
+      "imagePosition": "object-top"
     },
     {
       "title": "Concerto em Homenagem ao Dia dos Pais",
       "date": "10 de Agosto de 2025",
       "location": "Teatro Carlos Gomes",
-      "description": "Uma apresentação especial às 11:00 em homenagem ao Dia dos Pais, com um repertório emocionante e envolvente."
+      "description": "Uma apresentação especial às 11:00 em homenagem ao Dia dos Pais, com um repertório emocionante e envolvente.",
+      "imageId": "orchestra",
+      "imagePosition": "object-top"
     },
     {
       "title": "Abertura da Série \"Sons do Brasil\"",
       "date": "01 de Agosto de 2025",
       "location": "Centro Cultural Banco do Brasil (CCBB), RJ",
-      "description": "Concerto de abertura da série \"Sons do Brasil\" às 12:30, com um repertório que celebra a diversidade musical de todas as regiões do Brasil e clássicos mundiais."
+      "description": "Concerto de abertura da série \"Sons do Brasil\" às 12:30, com um repertório que celebra a diversidade musical de todas as regiões do Brasil e clássicos mundiais.",
+      "imageId": "gallery-14",
+      "imagePosition": "object-top"
     },
     {
       "title": "Estreia no XX Rio Harp Festival",
       "date": "22 de Julho de 2025",
       "location": "Espaço Cultural Arte Sesc, Flamengo",
-      "description": "A grande estreia da Banda Sinfônica Nacional, marcando presença no prestigiado XX Rio Harp Festival às 18h."
+      "description": "A grande estreia da Banda Sinfônica Nacional, marcando presença no prestigiado XX Rio Harp Festival às 18h.",
+      "imageId": "gallery-3",
+      "imagePosition": "object-top"
     }
   ]
 }

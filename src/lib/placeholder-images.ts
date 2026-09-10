@@ -229,6 +229,30 @@ export const ImageAssets: ImageAsset[] = [
     "description": "RJF Luthier Logo",
     "imageUrl": "/parceiros/rjf-luthier.png",
     "imageHint": "rjf luthier logo"
+  },
+  {
+    "id": "flyer-tmrj-assyrio",
+    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Salão Assyrio do Theatro Municipal",
+    "imageUrl": "/flyers/theatro-municipal-assyrio.png",
+    "imageHint": "flyer theatro municipal assyrio"
+  },
+  {
+    "id": "flyer-joao-caetano",
+    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Teatro João Caetano",
+    "imageUrl": "/flyers/joao-caetano.png",
+    "imageHint": "flyer teatro joao caetano"
+  },
+  {
+    "id": "flyer-painel-sinfonico",
+    "description": "Flyer Oficial - I Painel Sinfônico Diálogos & Sons",
+    "imageUrl": "/flyers/painel-sinfonico.png",
+    "imageHint": "flyer painel sinfonico"
+  },
+  {
+    "id": "flyer-ccbb-rioharpfestival",
+    "description": "Flyer Oficial - XXI RioHarpFestival no CCBB",
+    "imageUrl": "/flyers/ccbb-rioharpfestival.png",
+    "imageHint": "flyer ccbb rioharpfestival"
   }
 ];
 

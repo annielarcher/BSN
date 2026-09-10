@@ -132,6 +132,13 @@ export default function PortfolioGeyzi() {
       date: '20 de Janeiro de 2026',
       description: 'Apresentação de concerto destacando repertório diversificado, levando a música instrumental a novos públicos.',
       image: '/Images/portfolio-geyzi/musica-no-museu.png'
+    },
+    {
+      title: 'Concerto "Clássicos Mundiais" — Salão Assyrio',
+      location: 'Theatro Municipal do Rio de Janeiro',
+      date: '28 de Setembro de 2026',
+      description: 'Concerto especial da Banda Sinfônica Nacional no prestigiado Salão Assyrio do Theatro Municipal do Rio de Janeiro com solistas convidados.',
+      image: '/Images/bsn-hero.jpg'
     }
   ];
 
