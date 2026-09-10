@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Download, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import QRCode from "react-qr-code";
 
 // ─── DATA & CONSTANTS ────────────────────────────────────────────────────────
 const GUESTS = [
@@ -15,20 +16,50 @@ const GUESTS = [
 const ORCHESTRA_IMG = "/Images/bsn-hero.jpg";
 const TMRJ_LOGO     = "/TMRJ/Horizontal Dourado.png";
 
-type Format = "feed" | "stories" | "theatro" | "sales" | "cartaz" | "totem" | "legenda";
+type Format = "feed" | "stories" | "theatro" | "sales" | "cartaz" | "totem" | "legenda" | "a4_street";
 type ColorPalette = "vermelho" | "obsidian_dourado";
 type PhotoVariant = "com_foto" | "sem_foto";
 type Concept = "coluna" | "hero";
 
 const FORMATS: Record<Format, { label: string; w: number; h: number; filename: string }> = {
-  feed:    { label: "01. Feed Instagram (1080 × 1350)",  w: 1080, h: 1350, filename: "01. BSN_feed_1080x1350" },
-  stories: { label: "02. Stories / Reels (1080 × 1920)", w: 1080, h: 1920, filename: "02. BSN_stories_1080x1920" },
-  theatro: { label: "03. Site do Theatro (1024 × 717)",  w: 1024, h: 717,  filename: "03. BSN_hero_theatro_1024x717" },
-  sales:   { label: "04. Site de Vendas (800 × 800)",    w: 800,  h: 800,  filename: "04. BSN_hero_vendas_800x800" },
-  cartaz:  { label: "05. Cartaz de Pedra (59 × 98 cm)",  w: 590,  h: 980,  filename: "05. BSN_cartaz_59x98cm" },
-  totem:   { label: "06. Totem Digital (533 × 1094)",    w: 533,  h: 1094, filename: "06. BSN_totem_533x1024" },
-  legenda: { label: "07. Legenda / Banner (768 × 256)",  w: 768,  h: 256,  filename: "07. BSN_legenda_768x256" },
+  feed:      { label: "01. Feed Instagram (1080 × 1350)",  w: 1080, h: 1350, filename: "01. BSN_feed_1080x1350" },
+  stories:   { label: "02. Stories / Reels (1080 × 1920)", w: 1080, h: 1920, filename: "02. BSN_stories_1080x1920" },
+  theatro:   { label: "03. Site do Theatro (1024 × 717)",  w: 1024, h: 717,  filename: "03. BSN_hero_theatro_1024x717" },
+  sales:     { label: "04. Site de Vendas (800 × 800)",    w: 800,  h: 800,  filename: "04. BSN_hero_vendas_800x800" },
+  cartaz:    { label: "05. Cartaz de Pedra (59 × 98 cm)",  w: 590,  h: 980,  filename: "05. BSN_cartaz_59x98cm" },
+  totem:     { label: "06. Totem Digital (533 × 1094)",    w: 533,  h: 1094, filename: "06. BSN_totem_533x1024" },
+  legenda:   { label: "07. Legenda / Banner (768 × 256)",  w: 768,  h: 256,  filename: "07. BSN_legenda_768x256" },
+  a4_street: { label: "08. Cartaz A4 Rua (21 × 29.7 cm)",  w: 1240, h: 1754, filename: "08. BSN_cartaz_A4_rua_1240x1754" },
 };
+
+let cachedFontEmbedCSS: string | null = null;
+
+async function getFontEmbedCSS(): Promise<string> {
+  if (typeof window === "undefined") return "";
+  if (cachedFontEmbedCSS) return cachedFontEmbedCSS;
+  try {
+    const fontRes = await fetch("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@600;700&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Pinyon+Script&display=swap");
+    let cssText = await fontRes.text();
+    const matches = Array.from(cssText.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g));
+    for (const m of matches) {
+      const fontUrl = m[1];
+      try {
+        const fRes = await fetch(fontUrl);
+        const blob = await fRes.blob();
+        const base64 = await new Promise<string>((res) => {
+          const reader = new FileReader();
+          reader.onloadend = () => res(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+        cssText = cssText.replaceAll(fontUrl, base64);
+      } catch {}
+    }
+    cachedFontEmbedCSS = cssText;
+    return cssText;
+  } catch {
+    return "";
+  }
+}
 
 export default function ArteAssyrioPage() {
   const [format, setFormat] = useState<Format>("feed");
@@ -46,6 +77,9 @@ export default function ArteAssyrioPage() {
   const spec = FORMATS[format];
 
   useEffect(() => {
+    // Pre-fetch Google Fonts in background on mount to avoid network delay during exports
+    getFontEmbedCSS();
+
     const handleResize = () => {
       if (previewBoxRef.current) {
         setContainerWidth(previewBoxRef.current.clientWidth - 48);
@@ -85,9 +119,12 @@ export default function ArteAssyrioPage() {
 
       const renderFn = htmlToImage.toPng || (htmlToImage as any).default?.toPng;
       const renderJpegFn = htmlToImage.toJpeg || (htmlToImage as any).default?.toJpeg;
-      // Dynamic pixelRatio ensures exact spec.w * 3.5 × spec.h * 3.5 UHD resolution, regardless of preview viewport scale on client device
-      const targetMultiplier = 3.5;
+      // Target scale 1.5x gives crisp high-definition output while keeping file sizes lightweight (~1.5MB - 3MB)
+      const targetMultiplier = 1.5;
       const targetPixelRatio = targetMultiplier / scale;
+
+      // Use pre-cached Google Fonts CSS with base64 embedded woff2 fonts
+      const fontEmbedCSS = await getFontEmbedCSS();
 
       const exportOptions = {
         pixelRatio: targetPixelRatio,
@@ -168,28 +205,7 @@ export default function ArteAssyrioPage() {
       }
 
       const renderFn = htmlToImage.toPng || (htmlToImage as any).default?.toPng;
-      let fontEmbedCSS = "";
-      try {
-        const fontRes = await fetch("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@600;700&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Pinyon+Script&display=swap");
-        let cssText = await fontRes.text();
-        const matches = Array.from(cssText.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g));
-        for (const m of matches) {
-          const fontUrl = m[1];
-          try {
-            const fRes = await fetch(fontUrl);
-            const blob = await fRes.blob();
-            const base64 = await new Promise<string>((res) => {
-              const reader = new FileReader();
-              reader.onloadend = () => res(reader.result as string);
-              reader.readAsDataURL(blob);
-            });
-            cssText = cssText.replaceAll(fontUrl, base64);
-          } catch {}
-        }
-        fontEmbedCSS = cssText;
-      } catch {
-        fontEmbedCSS = "";
-      }
+      const fontEmbedCSS = await getFontEmbedCSS();
 
       const zip = new JSZip();
       const formatKeys = Object.keys(FORMATS) as Format[];
@@ -203,7 +219,7 @@ export default function ArteAssyrioPage() {
         await new Promise((r) => setTimeout(r, 160));
 
         const itemScale = Math.min((containerWidth > 0 ? containerWidth : 650) / itemSpec.w, 0.7);
-        const targetMultiplier = 3.5;
+        const targetMultiplier = 1.5;
         const targetPixelRatio = targetMultiplier / itemScale;
 
         const options = {
@@ -470,9 +486,24 @@ function MonumentalColumnCanvas({ scale, format, palette, variant, spec }: {
   const accentColor = isRed ? "#CE0C22" : "#B8860B";
   const isLandscape = spec.w > spec.h;
   const isSquare    = spec.w === spec.h;
+  const isUltraWide = isLandscape && (spec.w / spec.h) > 2.5;
+  const isTotem     = !isLandscape && !isSquare && (spec.w / spec.h) < 0.55;
+  const isStories   = !isLandscape && !isSquare && spec.h >= 1800;
+  const isCartaz    = format === "cartaz" || format === "a4_street";
   const leftWidthPct  = isLandscape ? "52%" : isSquare ? "48%" : "54%";
   const rightWidthPct = isLandscape ? "42%" : isSquare ? "46%" : "40%";
-  const bsr = isLandscape ? spec.h / 756 : spec.h / 1350;
+  const bsr = isUltraWide ? spec.h / 256
+            : isLandscape ? spec.h / 756
+            : isSquare    ? spec.h / 900
+            :               spec.h / 1350;
+  const tScale = isTotem ? 0.82 : 1.0;
+  // Format scale: Second pass boost across all formats
+  const fScale = isUltraWide ? 1.0
+               : isLandscape  ? 1.45  // +45% boost for landscape
+               : isTotem      ? 1.12  // +12% boost for totem
+               : isStories    ? 1.15  // +15% boost for stories
+               : isSquare     ? 1.30  // +30% boost for square
+               :                1.40; // +40% boost for feed & cartaz
 
   return (
     <div style={{ width: "100%", height: "100%", background: bgMainColor, position: "relative", fontFamily: "'Barlow', sans-serif", color: "#fff", overflow: "hidden" }}>
@@ -488,29 +519,29 @@ function MonumentalColumnCanvas({ scale, format, palette, variant, spec }: {
 
       {/* LEFT ZONE */}
       <div style={{ position: "absolute", top: 0, left: 0, width: leftWidthPct, height: "100%", padding: `${s(46 * bsr)}px ${s(50 * bsr)}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", zIndex: 1 }}>
-        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(24 * bsr), letterSpacing: `${s(2.5 * bsr)}px`, textTransform: "uppercase", lineHeight: 1.1, flexShrink: 0, opacity: 0.95 }}>BANDA<br />SINFÔNICA<br />NACIONAL</div>
+        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(24 * bsr * fScale), letterSpacing: `${s(2.5 * bsr)}px`, textTransform: "uppercase", lineHeight: 1.1, flexShrink: 0, opacity: 0.95 }}>BANDA<br />SINFÔNICA<br />NACIONAL</div>
 
         {variant === "com_foto" && (
-          <div style={{ width: "92%", maxWidth: s(492 * bsr), margin: `${s(12)}px 0`, flexShrink: 0, zIndex: 2 }}>
+          <div style={{ width: "92%", maxWidth: s(492 * bsr * fScale), margin: `${s(12)}px 0`, flexShrink: 0, zIndex: 2 }}>
             <div style={{ width: "100%", padding: s(12 * bsr), background: "#fff", boxShadow: `0 ${s(24 * bsr)}px ${s(50 * bsr)}px rgba(0,0,0,0.35)` }}>
               <div style={{ position: "relative", width: "100%", aspectRatio: "3 / 2", overflow: "hidden", outline: `${s(1.5 * bsr)}px solid ${accentColor}`, outlineOffset: `-${s(7 * bsr)}px` }}>
-                <img src={ORCHESTRA_IMG} alt="BSN em concerto" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "grayscale(1) contrast(1.08) brightness(0.92)", display: "block" }} />
-                <div style={{ position: "absolute", inset: 0, background: "#0e2647", mixBlendMode: "multiply", opacity: 0.88 }} />
+                <img src={ORCHESTRA_IMG} alt="BSN em concerto" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "grayscale(1) contrast(1.08) brightness(1.10)", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: "#0e2647", mixBlendMode: "multiply", opacity: 0.50 }} />
                 <div style={{ position: "absolute", inset: 0, background: "#caa66a", mixBlendMode: "soft-light", opacity: 0.35 }} />
               </div>
             </div>
             <div style={{ marginTop: s(14 * bsr), background: "#fff", padding: `${s(12 * bsr)}px ${s(20 * bsr)}px`, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `0 ${s(12 * bsr)}px ${s(24 * bsr)}px rgba(0,0,0,0.28)` }}>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", color: accentColor, fontSize: s(16 * bsr) }}>em concerto</div>
-              <div style={{ fontFamily: "'Archivo Black', sans-serif", color: accentColor, fontSize: s(19 * bsr), letterSpacing: `${s(0.5)}px` }}>28.09 · 19H</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", color: accentColor, fontSize: s(16 * bsr * fScale) }}>em concerto</div>
+              <div style={{ fontFamily: "'Archivo Black', sans-serif", color: accentColor, fontSize: s(19 * bsr * fScale), letterSpacing: `${s(0.5)}px` }}>28.09 · 19H</div>
             </div>
           </div>
         )}
 
         <div style={{ position: "absolute", left: "10%", top: "45%", width: "80%", height: "40%", backgroundImage: `repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) ${s(2)}px, transparent ${s(2)}px, transparent ${s(32 * bsr)}px)`, WebkitMaskImage: "linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent)", maskImage: "linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent)", pointerEvents: "none" }} />
 
-        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(19 * bsr), letterSpacing: `${s(0.5)}px`, textTransform: "uppercase", lineHeight: 1.3, opacity: 0.95, zIndex: 2 }}>
+        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(19 * bsr * fScale), letterSpacing: `${s(0.5)}px`, textTransform: "uppercase", lineHeight: 1.3, opacity: 0.95, zIndex: 2 }}>
           Entrada pela Praça Floriano
-          <span style={{ display: "block", fontFamily: "'Barlow', sans-serif", fontSize: s(14.5 * bsr), textTransform: "none", letterSpacing: `${s(0.2)}px`, opacity: 0.78, marginTop: s(4 * bsr), fontWeight: 400 }}>Lateral da Av. Treze de Maio</span>
+          <span style={{ display: "block", fontFamily: "'Barlow', sans-serif", fontSize: s(14.5 * bsr * fScale), textTransform: "none", letterSpacing: `${s(0.2)}px`, opacity: 0.78, marginTop: s(4 * bsr), fontWeight: 400 }}>Lateral da Av. Treze de Maio</span>
         </div>
       </div>
 
@@ -519,30 +550,39 @@ function MonumentalColumnCanvas({ scale, format, palette, variant, spec }: {
         <div style={{ width: "100%", height: s(24 * bsr), background: "#fff", flexShrink: 0 }} />
         <div style={{ width: "100%", height: s(9 * bsr), background: "#fff", opacity: 0.55, marginTop: s(4), flexShrink: 0 }} />
         <div style={{ flex: 1, background: "#fff", backgroundImage: `repeating-linear-gradient(90deg, rgba(206,12,34,0.055) 0px, rgba(206,12,34,0.055) ${s(2)}px, transparent ${s(2)}px, transparent ${s(32 * bsr)}px)`, color: accentColor, marginTop: s(4), padding: `${s(46 * bsr)}px ${s(40 * bsr)}px ${s(32 * bsr)}px ${s(40 * bsr)}px`, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(19 * bsr), letterSpacing: `${s(2.5)}px`, textTransform: "uppercase", opacity: 0.75, marginBottom: s(8 * bsr), lineHeight: 1.2 }}>Banda Sinfônica Nacional apresenta</div>
-          <div style={{ fontFamily: "'Pinyon Script', cursive", fontWeight: 400, fontSize: s(80 * bsr), lineHeight: 0.92, letterSpacing: `${s(0.5)}px`, marginBottom: s(4 * bsr), color: "#D4AF37", textShadow: `0 ${s(2)}px ${s(14)}px rgba(160,110,0,0.45)` }}>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(19 * bsr * fScale), letterSpacing: `${s(2.5)}px`, textTransform: "uppercase", opacity: 0.75, marginBottom: s(8 * bsr), lineHeight: 1.2 }}>Banda Sinfônica Nacional apresenta</div>
+          <div style={{ fontFamily: "'Pinyon Script', cursive", fontWeight: 400, fontSize: s((isCartaz ? 68 : 80) * bsr * fScale), lineHeight: 0.92, letterSpacing: `${s(0.5)}px`, marginBottom: s(12 * bsr), color: "#D4AF37", WebkitTextStroke: `${s(0.8 * bsr)}px #f4d9a6`, filter: `drop-shadow(0 ${s(2 * bsr)}px ${s(6 * bsr)}px rgba(0,0,0,0.7))` }}>
             <em style={{ fontStyle: "normal", display: "block" }}>Clássicos</em>
             <em style={{ fontStyle: "normal", display: "block" }}>Mundiais</em>
           </div>
-          <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: s(21 * bsr), opacity: 0.85, marginBottom: s(24 * bsr) }}>uma noite de grandes vozes</div>
-          <div style={{ width: s(50 * bsr), height: s(3.5 * bsr), background: accentColor, opacity: 0.35, marginBottom: s(24 * bsr) }} />
+          <div style={{ width: s(50 * bsr * fScale), height: s(3.5 * bsr), background: accentColor, opacity: 0.35, marginBottom: s(24 * bsr) }} />
           <div style={{ display: "flex", flexDirection: "column", gap: s(12 * bsr) }}>
             {GUESTS.map((g, i) => (
               <div key={i} style={{ display: "flex", flexDirection: "column", borderLeft: `${s(3 * bsr)}px solid ${accentColor}`, paddingLeft: s(14 * bsr) }}>
-                <div style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(22 * bsr), lineHeight: 1.05, textTransform: "uppercase", color: accentColor }}>{g.name.replace("\n", " ")}</div>
-                {g.role && <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(13 * bsr), letterSpacing: `${s(1.5)}px`, textTransform: "uppercase", opacity: 0.65, marginTop: s(2) }}>{g.role}</div>}
+                <div style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(22 * bsr * fScale), lineHeight: 1.05, textTransform: "uppercase", color: accentColor }}>{g.name.replace("\n", " ")}</div>
+                {g.role && <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(13 * bsr * fScale), letterSpacing: `${s(1.5)}px`, textTransform: "uppercase", opacity: 0.65, marginTop: s(2) }}>{g.role}</div>}
                 {/* PHOTO BELOW NAME */}
-                <div style={{ marginTop: s(8 * bsr), width: s(40 * bsr), height: s(40 * bsr), borderRadius: "50%", overflow: "hidden", border: `${s(1.5 * bsr)}px solid ${accentColor}`, flexShrink: 0, opacity: 0.9 }}>
+                <div style={{ marginTop: s(8 * bsr), width: s(46 * bsr * fScale), height: s(46 * bsr * fScale), borderRadius: "50%", overflow: "hidden", border: `${s(1.5 * bsr)}px solid ${accentColor}`, flexShrink: 0, opacity: 0.9 }}>
                   <img src={g.photo} alt={g.name.replace("\n", " ")} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
                 </div>
               </div>
             ))}
           </div>
           <div style={{ marginTop: "auto", paddingTop: s(14 * bsr), borderTop: `${s(2)}px solid rgba(206,12,34,0.25)` }}>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(20 * bsr), letterSpacing: `${s(1)}px`, textTransform: "uppercase", color: accentColor }}>Salão Assyrio</div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(13 * bsr), letterSpacing: `${s(1)}px`, textTransform: "uppercase", opacity: 0.7, marginTop: s(2) }}>28 de setembro · 19h</div>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(20 * bsr * fScale), letterSpacing: `${s(1)}px`, textTransform: "uppercase", color: accentColor }}>Salão Assyrio</div>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(13 * bsr * fScale), letterSpacing: `${s(1)}px`, textTransform: "uppercase", opacity: 0.7, marginTop: s(2) }}>28 de setembro · 19h</div>
             {/* TMRJ LOGO */}
-            <img src={TMRJ_LOGO} alt="Theatro Municipal do Rio de Janeiro" style={{ marginTop: s(10 * bsr), height: s(Math.max(50, 50 * bsr)), objectFit: "contain", display: "block", opacity: 0.85 }} />
+            <img src={TMRJ_LOGO} alt="Theatro Municipal do Rio de Janeiro" style={{ marginTop: s(10 * bsr), height: s(Math.max(38, isTotem ? 38 : isLandscape ? 36 * bsr * fScale : 46 * bsr * fScale)), objectFit: "contain", display: "block", opacity: 0.85 }} />
+            {format === "a4_street" && (
+              <div style={{ marginTop: s(12 * bsr), padding: `${s(8 * bsr)}px ${s(10 * bsr)}px`, background: "#ffffff", border: `2px solid ${accentColor}`, borderRadius: s(8 * bsr), textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: `0 ${s(6 * bsr)}px ${s(18 * bsr)}px rgba(0,0,0,0.15)` }}>
+                <div style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(11 * bsr * fScale), color: accentColor, marginBottom: s(4 * bsr), textTransform: "uppercase", letterSpacing: `${s(0.5)}px` }}>COMPRE SEU INGRESSO</div>
+                <div style={{ padding: s(3 * bsr), background: "#ffffff", borderRadius: s(3 * bsr) }}>
+                  <QRCode value="https://feverup.com/m/740535" size={Math.round(s(84 * bsr * fScale))} bgColor="#ffffff" fgColor="#000000" level="H" />
+                </div>
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(10 * bsr * fScale), color: "#333", marginTop: s(4 * bsr), textTransform: "uppercase", letterSpacing: `${s(0.8)}px` }}>ESCANEIE O QR CODE</div>
+                <div style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: s(8.5 * bsr * fScale), color: accentColor }}>feverup.com/m/740535</div>
+              </div>
+            )}
           </div>
         </div>
         <div style={{ width: "100%", height: s(9 * bsr), background: "#fff", opacity: 0.55, marginTop: s(4), flexShrink: 0 }} />
@@ -571,7 +611,8 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
   const isTotem      = !isLandscape && !isSquare && (spec.w / spec.h) < 0.55;  // totem 533×1094
   const isLegenda    = isUltraWide;                                              // alias
   const isStories    = !isLandscape && !isSquare && spec.h >= 1800;             // stories/reels — already large via bsr
-  const isCartaz     = format === "cartaz";
+  const isCartaz     = format === "cartaz" || format === "a4_street";
+  const isA4         = format === "a4_street";
   const isStackedFooter = isTotem || isCartaz;
   const bsr          = isUltraWide ? spec.h / 256
                      : isLandscape ? spec.h / 756
@@ -579,22 +620,23 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
                      :               spec.h / 1350;
   // Totem text scale: narrow canvas needs proportionally smaller fonts
   const tScale       = isTotem ? 0.82 : 1.0;
-  // Format scale: +25% on landscape, +20% on feed/cartaz, +15% on square, neutral on Stories & Totem
+  // Format scale: Second pass boost across all formats
   const fScale       = isUltraWide ? 1.0
-                     : isLandscape  ? 1.25  // scales text, rule, footer & photos by +25%
-                     : isTotem      ? 1.0
-                     : isStories    ? 1.0   // bsr=1.42 already scales proportionally
-                     : isSquare     ? 1.15
-                     :                1.20;   // feed / cartaz only
+                     : isLandscape  ? 1.45  // +45% boost for landscape
+                     : isTotem      ? 1.12  // +12% boost for totem
+                     : isStories    ? 1.15  // +15% boost for stories
+                     : isSquare     ? 1.30  // +30% boost for square
+                     :                1.40; // +40% boost for feed & cartaz
 
   // ─── Vertical layout — precise values per format ratio ───────────────────
   const heroH     = spec.h * (isLandscape ? 1.0 : 0.66);
   const titleTop  = isUltraWide ? spec.h * 0.08
-                  : isLandscape ? spec.h * 0.250  // adjusted slightly up to accommodate scaled elements
-                  :               spec.h * 0.290;
+                  : isLandscape ? spec.h * 0.230
+                  :               spec.h * 0.265;
   const guestTop  = isUltraWide ? spec.h * 0.90   // banner: guests hidden (below fold)
-                  : isLandscape ? spec.h * 0.585  // adjusted to fit expanded frames
-                  :               spec.h * 0.630;
+                  : isA4        ? spec.h * 0.575
+                  : isLandscape ? spec.h * 0.570
+                  :               spec.h * 0.605;
   const venueTop  = isLandscape ? spec.h * 0.798 : spec.h * 0.807;
   const photoW    = isUltraWide ? 42 * bsr : (isLandscape ? 68 : 94) * bsr * fScale;
   const photoH    = isUltraWide ? 52 * bsr : (isLandscape ? 86 : 118) * bsr * fScale;
@@ -626,11 +668,11 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
   return (
     <div style={{ width: "100%", height: "100%", background: bgColor, position: "relative", fontFamily: "'Barlow', sans-serif", color: "#fff", overflow: "hidden" }}>
 
-      {/* HERO PHOTO */}
+      {/* HERO PHOTO — Higher photo visibility as requested */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: s(heroH), overflow: "hidden" }}>
-        <img src={ORCHESTRA_IMG} alt="BSN em concerto" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "grayscale(1) contrast(1.15) brightness(0.98)", display: "block" }} />
-        <div style={{ position: "absolute", inset: 0, background: isRed ? "#A8081C" : "#4a0512", mixBlendMode: "multiply", opacity: 0.85 }} />
-        <div style={{ position: "absolute", inset: 0, background: isRed ? "#FF1E40" : "#e2a95c", mixBlendMode: "soft-light", opacity: 0.28 }} />
+        <img src={ORCHESTRA_IMG} alt="BSN em concerto" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "grayscale(1) contrast(1.10) brightness(1.12)", display: "block" }} />
+        <div style={{ position: "absolute", inset: 0, background: isRed ? "#A8081C" : "#4a0512", mixBlendMode: "multiply", opacity: 0.50 }} />
+        <div style={{ position: "absolute", inset: 0, background: isRed ? "#FF1E40" : "#e2a95c", mixBlendMode: "soft-light", opacity: 0.18 }} />
         {isLandscape ? (
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(10,2,4,0.55) 0%, rgba(10,2,4,0) 35%)" }} />
         ) : (
@@ -644,7 +686,7 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
       <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none", backgroundImage: `radial-gradient(circle, rgba(244,217,166,0.55) 0.8px, transparent 1.1px)`, backgroundSize: `${s(40)}px ${s(40)}px`, opacity: 0.30, WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 55%)", maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
 
       {/* GLOW BEHIND TITLE */}
-      <div style={{ position: "absolute", top: s(titleTop - 40 * bsr), left: "50%", transform: "translateX(-50%)", width: s(760 * (spec.w / 1080)), height: s(340 * bsr), background: "radial-gradient(ellipse at center, rgba(244,217,166,0.38) 0%, rgba(244,217,166,0.15) 38%, rgba(244,217,166,0) 70%)", mixBlendMode: "screen", zIndex: 4, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: s(titleTop - 40 * bsr), left: "50%", transform: "translateX(-50%)", width: s(760 * (spec.w / 1080)), height: s(340 * bsr), background: "radial-gradient(ellipse at center, rgba(244,217,166,0.22) 0%, rgba(244,217,166,0.08) 38%, rgba(244,217,166,0) 70%)", mixBlendMode: "screen", zIndex: 4, pointerEvents: "none" }} />
 
       {/* BOKEH DOTS */}
       {bokeh.map((b, i) => (
@@ -676,20 +718,21 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
         )}
       </div>
 
-      {/* TITLE BLOCK */}
+      {/* TITLE BLOCK — Clean Floating Layout with Gold Outline (Option 4) */}
       <div style={{ position: "absolute", top: s(titleTop), left: 0, right: 0, zIndex: 6, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: `0 ${s(30 * bsr)}px` }}>
-        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isUltraWide ? 18 : isLandscape ? 12 : 14) * bsr * fScale), letterSpacing: `${s(3.5)}px`, textTransform: "uppercase", color: accentGold, marginBottom: s((isLandscape ? 4 : 6) * bsr), textShadow: "0 2px 8px rgba(0,0,0,0.5)", whiteSpace: "nowrap" }}>Banda Sinfônica Nacional apresenta</div>
+        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isUltraWide ? 18 : isLandscape ? 12 : 14) * bsr * fScale), letterSpacing: `${s(3.5)}px`, textTransform: "uppercase", color: accentGold, marginBottom: s((isLandscape ? 4 : 6) * bsr), textShadow: "0 2px 8px rgba(0,0,0,0.85)", whiteSpace: "nowrap" }}>Banda Sinfônica Nacional apresenta</div>
         <div style={{
           fontFamily: "'Pinyon Script', cursive",
           fontWeight: 400,
-          fontSize: s((isUltraWide ? 60 : isLandscape ? 80 : isTotem ? 78 : 96) * bsr * fScale),
+          fontSize: s((isUltraWide ? 60 : isLandscape ? 80 : isTotem ? 78 : isCartaz ? 78 : 96) * bsr * fScale),
           lineHeight: 0.9,
           whiteSpace: "nowrap",
           background: "linear-gradient(180deg, #fdf1cf 0%, #f4d9a6 35%, #c99a4a 62%, #f4d9a6 85%, #fdf1cf 100%)",
           WebkitBackgroundClip: "text",
           backgroundClip: "text",
           color: "transparent",
-          filter: `drop-shadow(0 ${s(6 * bsr)}px ${s(14 * bsr)}px rgba(0,0,0,0.5))`,
+          WebkitTextStroke: `${s(1.2 * bsr)}px rgba(244, 217, 166, 0.9)`,
+          filter: `drop-shadow(0 ${s(3 * bsr)}px ${s(8 * bsr)}px rgba(0,0,0,0.98)) drop-shadow(0 ${s(10 * bsr)}px ${s(28 * bsr)}px rgba(0,0,0,0.95))`,
           paddingTop: s((isLandscape ? 6 : 14) * bsr),
           paddingBottom: s((isLandscape ? 3 : 5) * bsr)
         }}>
@@ -698,9 +741,6 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
         {/* GOLD RULE */}
         {!isLegenda && (
           <div style={{ width: s((isLandscape ? 90 : 100) * bsr * fScale), height: s(2 * bsr), margin: `${s(isLandscape ? 10 : 14) * bsr}px 0 ${s(isLandscape ? 8 : 12) * bsr}px 0`, background: `linear-gradient(90deg, transparent, ${accentGold}, transparent)`, boxShadow: `0 0 ${s(12 * bsr)}px ${s(1 * bsr)}px rgba(244,217,166,0.5)` }} />
-        )}
-        {!isLegenda && (
-          <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: s((isLandscape ? 15 : 18) * bsr * fScale), color: "#f4e6cf", opacity: 0.95, whiteSpace: "nowrap" }}>uma noite de grandes vozes</div>
         )}
       </div>
 
@@ -769,8 +809,8 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
       )}
 
       {/* 2-COLUMN FOOTER FOR ALL FORMATS */}
-      <div style={{ position: "absolute", left: s(isLandscape ? 60 * bsr : 44 * bsr), right: s(isLandscape ? 60 * bsr : 44 * bsr), bottom: s(isLandscape ? 20 * bsr : 28 * bsr), zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        {/* LEFT COLUMN: VENUE, DATE & ADDRESS */}
+      <div style={{ position: "absolute", left: s(isLandscape ? 60 * bsr : 44 * bsr), right: s(isLandscape ? 60 * bsr : 44 * bsr), bottom: s(isLandscape ? 20 * bsr : (isA4 ? 22 * bsr : 28 * bsr)), zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        {/* LEFT COLUMN: VENUE, DATE, ADDRESS & REALIZAÇÃO */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: s(4 * bsr) }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: s(10 * bsr), whiteSpace: "nowrap", lineHeight: 1.2 }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s((isLandscape ? 22 : 24) * bsr * fScale), letterSpacing: `${s(1.2)}px`, textTransform: "uppercase" }}>Salão Assyrio</span>
@@ -780,18 +820,85 @@ function HeroFullBleedCanvas({ scale, format, palette, spec }: {
           <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isLandscape ? 11.5 : 12.5) * bsr * fScale), letterSpacing: `${s(0.8)}px`, textTransform: "uppercase", opacity: 0.88, lineHeight: 1.25, whiteSpace: "nowrap" }}>
             Entrada pela Praça Floriano <span style={{ fontFamily: "'Barlow', sans-serif", fontSize: s((isLandscape ? 10 : 11) * bsr * fScale), textTransform: "none", letterSpacing: `${s(0.2)}px`, opacity: 0.75, fontWeight: 400 }}>· Lateral da Av. Treze de Maio</span>
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: s(10 * bsr), marginTop: s(4 * bsr) }}>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(9 * bsr * tScale * fScale), letterSpacing: `${s(2.5)}px`, textTransform: "uppercase", opacity: 0.65 }}>Realização</div>
+            <img src={TMRJ_LOGO} alt="Theatro Municipal do Rio de Janeiro" style={{ height: s(Math.max(38, isTotem ? 38 : isLandscape ? 36 * bsr * fScale : 44 * bsr * fScale)), objectFit: "contain", display: "block", opacity: 0.95, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))" }} />
+          </div>
         </div>
 
-        {/* RIGHT COLUMN: REALIZAÇÃO & TMRJ LOGO */}
-        <div style={{
-          display: "flex",
-          flexDirection: isStackedFooter ? "column" : "row",
-          alignItems: "center",
-          gap: s(isStackedFooter ? 3 : 12) * bsr,
-        }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(9 * bsr * tScale * fScale), letterSpacing: `${s(2.5)}px`, textTransform: "uppercase", opacity: 0.65 }}>Realização</div>
-          <img src={TMRJ_LOGO} alt="Theatro Municipal do Rio de Janeiro" style={{ height: s(isTotem ? 38 : Math.max(42, 50 * bsr * fScale)), objectFit: "contain", display: "block", opacity: 0.95, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))" }} />
-        </div>
+        {/* RIGHT COLUMN: QR CODE CARD (FOR A4 STREET) */}
+        {isA4 ? (
+          <div style={{
+            background: "#ffffff",
+            padding: `${s(10 * bsr)}px ${s(14 * bsr)}px`,
+            borderRadius: s(10 * bsr),
+            border: `${s(2 * bsr)}px solid #D4AF37`,
+            boxShadow: `0 ${s(12 * bsr)}px ${s(35 * bsr)}px rgba(0,0,0,0.8), 0 0 ${s(20 * bsr)}px rgba(212,175,55,0.45)`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            color: "#0c0a07",
+            flexShrink: 0,
+          }}>
+            <div style={{
+              fontFamily: "'Archivo Black', sans-serif",
+              fontSize: s(11.5 * bsr * fScale),
+              lineHeight: 1.1,
+              textTransform: "uppercase",
+              color: isRed ? "#A8081C" : "#0C0A07",
+              marginBottom: s(5 * bsr),
+              letterSpacing: `${s(0.5)}px`
+            }}>
+              COMPRE SEU INGRESSO
+            </div>
+            <div style={{
+              background: "#ffffff",
+              padding: s(5 * bsr),
+              borderRadius: s(4 * bsr),
+              boxShadow: "0 2px 8px rgba(0,0,0,0.12)"
+            }}>
+              <QRCode
+                value="https://feverup.com/m/740535"
+                size={Math.round(s(92 * bsr * fScale))}
+                bgColor="#FFFFFF"
+                fgColor="#000000"
+                level="H"
+              />
+            </div>
+            <div style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 700,
+              fontSize: s(10.5 * bsr * fScale),
+              letterSpacing: `${s(1)}px`,
+              textTransform: "uppercase",
+              color: "#333",
+              marginTop: s(5 * bsr)
+            }}>
+              ESCANEIE O QR CODE
+            </div>
+            <div style={{
+              fontFamily: "'Barlow', sans-serif",
+              fontWeight: 700,
+              fontSize: s(8.5 * bsr * fScale),
+              color: isRed ? "#A8081C" : "#B8860B",
+              marginTop: s(1 * bsr)
+            }}>
+              feverup.com/m/740535
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            display: "flex",
+            flexDirection: isStackedFooter ? "column" : "row",
+            alignItems: "center",
+            gap: s(isStackedFooter ? 3 : 12) * bsr,
+          }}>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s(9 * bsr * tScale * fScale), letterSpacing: `${s(2.5)}px`, textTransform: "uppercase", opacity: 0.65 }}>Realização</div>
+            <img src={TMRJ_LOGO} alt="Theatro Municipal do Rio de Janeiro" style={{ height: s(Math.max(38, isTotem ? 38 : isLandscape ? 36 * bsr * fScale : 46 * bsr * fScale)), objectFit: "contain", display: "block", opacity: 0.95, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.35))" }} />
+          </div>
+        )}
       </div>
 
     </div>
