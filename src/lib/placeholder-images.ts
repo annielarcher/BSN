@@ -232,9 +232,9 @@ export const ImageAssets: ImageAsset[] = [
   },
   {
     "id": "flyer-tmrj-assyrio",
-    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Salão Assyrio (Hero Full Bleed)",
-    "imageUrl": "/flyers/theatro-municipal-assyrio-hero.png",
-    "imageHint": "flyer theatro municipal assyrio hero"
+    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Salão Assyrio",
+    "imageUrl": "/flyers/theatro-municipal-assyrio.png",
+    "imageHint": "flyer theatro municipal assyrio"
   },
   {
     "id": "flyer-tmrj-assyrio-coluna",

@@ -99,28 +99,38 @@ export default function AgendaPage() {
               <div className="flex flex-col lg:flex-row">
                 
                 {/* Image Area */}
-                <div className="w-full lg:w-5/12 relative min-h-[340px] lg:min-h-full overflow-hidden bg-muted">
+                <div className="w-full lg:w-5/12 relative min-h-[360px] lg:min-h-full overflow-hidden bg-[#080a08]">
                   {nextEventImage ? (
-                    <Image 
-                      src={nextEventImage.imageUrl} 
-                      alt={nextEvent.title} 
-                      fill 
-                      priority
-                      className={`object-cover transition-transform duration-700 group-hover:scale-105 ${
-                        (nextEvent as any).imagePosition || 'object-top'
-                      }`}
-                    />
+                    <>
+                      {/* Ambient blurred background */}
+                      <Image 
+                        src={nextEventImage.imageUrl} 
+                        alt="" 
+                        fill 
+                        aria-hidden="true"
+                        className="object-cover blur-2xl scale-125 opacity-40 brightness-75"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+                      
+                      {/* Full uncropped flyer foreground */}
+                      <div className="relative w-full h-full p-4 flex items-center justify-center">
+                        <Image 
+                          src={nextEventImage.imageUrl} 
+                          alt={nextEvent.title} 
+                          fill 
+                          priority
+                          className="object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.85)] transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </div>
+                    </>
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center">
                       <Music className="h-24 w-24 text-white opacity-20" />
                     </div>
                   )}
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 lg:hidden" />
-
                   {/* Floating Date Badge */}
-                  <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-md px-4 py-2.5 rounded-xl shadow-xl border border-primary/20 text-center">
+                  <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-md px-4 py-2.5 rounded-xl shadow-xl border border-primary/20 text-center z-10">
                     <div className="text-primary font-black text-3xl leading-none">{nextEventDay}</div>
                     <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-0.5">{nextEventMonth}</div>
                   </div>
