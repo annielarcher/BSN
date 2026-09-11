@@ -43,7 +43,7 @@
       "time": "18h",
       "location": "Espaço Cultural Arte Sesc Flamengo — R. Marquês de Abrantes, 99",
       "description": "Apresentação confirmada da Banda Sinfônica Nacional no RioHarpFestival, contando com a brilhante participação especial da harpista Beatriz Millán.",
-      "imageId": "flyer-ccbb-rioharpfestival",
+      "imageId": "orchestra",
       "imagePosition": "object-top"
     },
     {
@@ -67,7 +67,7 @@
       "date": "29 de Setembro de 2025",
       "location": "Espaço Cultural Sesc Flamengo",
       "description": "Uma noite dedicada aos grandes mestres da música brasileira, em um concerto às 18h que exalta nossa riqueza cultural.",
-      "imageId": "gallery-1",
+      "imageId": "gallery-14",
       "imagePosition": "object-top"
     },
     {
@@ -75,7 +75,7 @@
       "date": "10 de Agosto de 2025",
       "location": "Teatro Carlos Gomes",
       "description": "Uma apresentação especial às 11:00 em homenagem ao Dia dos Pais, com um repertório emocionante e envolvente.",
-      "imageId": "orchestra",
+      "imageId": "gallery-2",
       "imagePosition": "object-top"
     },
     {
@@ -83,7 +83,7 @@
       "date": "01 de Agosto de 2025",
       "location": "Centro Cultural Banco do Brasil (CCBB), RJ",
       "description": "Concerto de abertura da série \"Sons do Brasil\" às 12:30, com um repertório que celebra a diversidade musical de todas as regiões do Brasil e clássicos mundiais.",
-      "imageId": "gallery-14",
+      "imageId": "gallery-1",
       "imagePosition": "object-top"
     },
     {
