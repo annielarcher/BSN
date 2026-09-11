@@ -232,9 +232,15 @@ export const ImageAssets: ImageAsset[] = [
   },
   {
     "id": "flyer-tmrj-assyrio",
-    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Salão Assyrio do Theatro Municipal",
-    "imageUrl": "/flyers/theatro-municipal-assyrio.png",
-    "imageHint": "flyer theatro municipal assyrio"
+    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Salão Assyrio (Hero Full Bleed)",
+    "imageUrl": "/flyers/theatro-municipal-assyrio-hero.png",
+    "imageHint": "flyer theatro municipal assyrio hero"
+  },
+  {
+    "id": "flyer-tmrj-assyrio-coluna",
+    "description": "Flyer Oficial - Concerto Clássicos Mundiais no Salão Assyrio (Coluna Monumental)",
+    "imageUrl": "/flyers/theatro-municipal-assyrio-coluna.png",
+    "imageHint": "flyer theatro municipal assyrio coluna monumental"
   },
   {
     "id": "flyer-joao-caetano",

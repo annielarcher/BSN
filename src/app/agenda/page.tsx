@@ -231,18 +231,25 @@ export default function AgendaPage() {
                 return (
                   <Card key={index} className="bg-card border-primary/20 shadow-lg hover:shadow-xl hover:border-primary transition-all duration-300 flex flex-col h-full group overflow-hidden rounded-2xl">
                     {imgAsset && (
-                      <div className="relative w-full h-56 overflow-hidden shrink-0 bg-muted">
+                      <div className="relative w-full h-56 overflow-hidden shrink-0 bg-[#0a080c] border-b border-border/30">
+                        {/* Ambient blurred background */}
                         <Image
                           src={imgAsset.imageUrl}
-                          alt={event.title}
+                          alt=""
                           fill
-                          className={`object-cover transition-transform duration-700 group-hover:scale-105 ${
-                            (event as any).imagePosition || 'object-top'
-                          }`}
+                          aria-hidden="true"
+                          className="object-cover blur-2xl scale-125 opacity-40 brightness-75"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90" />
-                        <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm px-3 py-1 rounded-lg border border-border text-xs font-bold text-primary uppercase tracking-wider">
-                          {event.date}
+                        <div className="absolute inset-0 bg-gradient-to-t from-card via-black/20 to-black/30" />
+                        
+                        {/* Adapted uncropped artwork foreground */}
+                        <div className="relative w-full h-full p-2.5 flex items-center justify-center">
+                          <Image
+                            src={imgAsset.imageUrl}
+                            alt={event.title}
+                            fill
+                            className="object-contain drop-shadow-[0_10px_22px_rgba(0,0,0,0.85)] transition-transform duration-500 group-hover:scale-105"
+                          />
                         </div>
                       </div>
                     )}
@@ -295,16 +302,26 @@ export default function AgendaPage() {
               return (
                 <Card key={index} className="bg-card/70 border-border/40 shadow-sm hover:shadow-md hover:border-border transition-all duration-300 flex flex-col h-full group overflow-hidden rounded-2xl">
                   {imgAsset && (
-                    <div className="relative w-full h-48 overflow-hidden shrink-0 bg-muted">
+                    <div className="relative w-full h-52 overflow-hidden shrink-0 bg-[#0a080c] border-b border-border/30">
+                      {/* Ambient blurred background */}
                       <Image
                         src={imgAsset.imageUrl}
-                        alt={event.title}
+                        alt=""
                         fill
-                        className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
-                          (event as any).imagePosition || 'object-top'
-                        }`}
+                        aria-hidden="true"
+                        className="object-cover blur-2xl scale-125 opacity-40 brightness-75"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-80" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-black/20 to-black/30" />
+                      
+                      {/* Adapted uncropped artwork foreground */}
+                      <div className="relative w-full h-full p-2.5 flex items-center justify-center">
+                        <Image
+                          src={imgAsset.imageUrl}
+                          alt={event.title}
+                          fill
+                          className="object-contain drop-shadow-[0_10px_22px_rgba(0,0,0,0.85)] transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
                     </div>
                   )}
                   <CardHeader className="pb-3">
