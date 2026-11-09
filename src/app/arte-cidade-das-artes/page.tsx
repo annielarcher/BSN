@@ -31,7 +31,7 @@ const GUESTS = [
 const ORCHESTRA_IMG = "/Images/bsn-hero.jpg";
 
 // Logos exigidas pelo manual da Cidade das Artes (salvar os arquivos nestes caminhos)
-const LOGO_APOIO  = "/cidade-das-artes/apoio-prefeitura-cultura-cda.png"; // Logo 1 — Prefeitura Rio + Cultura + Cidade das Artes
+const LOGO_APOIO  = "/cidade-das-artes/apoio-prefeitura-cultura-cda.png"; // Logo 1 (horizontal) — Prefeitura Rio + Cultura + Cidade das Artes
 const LOGO_SYMPLA = "/cidade-das-artes/sympla.png";                      // Logo 2 — Sympla
 
 const EVENT = {
@@ -43,7 +43,6 @@ const EVENT = {
   place:     "Cidade das Artes",
   address:   "Av. das Américas, 5300 · Barra da Tijuca",
   rating:    "Livre",
-  duration:  "80 min",
 };
 
 type Format =
@@ -236,7 +235,7 @@ function RatingBadge({ size }: { size: number }) {
 
 export default function ArteCidadeDasArtesPage() {
   const [format, setFormat] = useState<Format>("feed");
-  const [palette, setPalette] = useState<ColorPalette>("vermelho");
+  const [palette, setPalette] = useState<ColorPalette>("obsidian_dourado");
   const [whiteLogos, setWhiteLogos] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
@@ -386,8 +385,8 @@ export default function ArteCidadeDasArtesPage() {
             <label className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase block mb-3">Paleta de Cores</label>
             <div className="flex flex-col gap-2">
               {([
-                ["vermelho", "Vermelho Ópera (#B00A1E)"],
                 ["obsidian_dourado", "Obsidian / Preto + Dourado (#0C0A07)"],
+                ["vermelho", "Vermelho Ópera (#B00A1E)"],
               ] as [ColorPalette, string][]).map(([p, label]) => (
                 <button key={p} onClick={() => setPalette(p)} className={`px-4 py-2.5 rounded-lg border text-xs text-left font-medium transition-all ${
                   palette === p ? "border-red-600 bg-red-600/10 text-white font-bold" : "border-white/10 bg-black/40 text-zinc-400 hover:text-white"
@@ -515,7 +514,8 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
   const isTotem      = format === "totem_sympla";                                 // totem Sympla 600×960
   const isLegenda    = isUltraWide;                                               // alias
   const isStories    = !isLandscape && !isSquare && (spec.h / spec.w) >= 1.7;     // stories / displays 9:16
-  const isStackedFooter = isTotem || isStories;
+  // Nas peças 03, 06, 07 e 10: dados do concerto centralizados e, uma linha abaixo, as logos horizontais do Rio e da Sympla
+  const isCenteredFooter = isTotem || isStories;
   const bsr          = isUltraWide ? Math.min(spec.h / 256, spec.w / 768)
                      : isLandscape ? spec.h / 756
                      : isSquare    ? spec.h / 900
@@ -532,18 +532,19 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
 
   // ─── Vertical layout ─────────────────────────────────────────────────────
   const heroH     = spec.h * (isLandscape ? 1.0 : 0.66);
-  const titleTop  = isUltraWide ? spec.h * 0.08
+  const titleTop  = isUltraWide ? spec.h * 0.275
                   : isLandscape ? spec.h * 0.230
                   :               spec.h * 0.265;
-  const guestTop  = isUltraWide ? spec.h * 0.90
-                  : isLandscape ? spec.h * 0.555
-                  :               spec.h * 0.595;
+  const guestTop  = isUltraWide        ? spec.h * 0.90
+                  : isLandscape        ? spec.h * 0.555
+                  : isCenteredFooter   ? spec.h * 0.555
+                  :                      spec.h * 0.595;
   const photoW    = isUltraWide ? 42 * bsr : (isLandscape ? 68 : 94) * bsr * fScale;
   const photoH    = isUltraWide ? 52 * bsr : (isLandscape ? 86 : 118) * bsr * fScale;
 
-  // Footer logos
+  // Footer logos (sempre horizontais)
   const logoH       = (isUltraWide ? 26 : isLandscape ? 30 : 34) * bsr * fScale;
-  const symplaLogoH = (isUltraWide ? 36 : isLandscape ? 42 : 48) * bsr * fScale;
+  const symplaLogoH = (isUltraWide ? 52 : isLandscape ? 62 : 70) * bsr * fScale;
 
   const sparkles = [
     { x: 0.194, y: 0.443, sz: 22, op: 0.85 },
@@ -583,24 +584,63 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
     <div style={{ width: "100%", height: "100%", background: bgColor, position: "relative", fontFamily: "'Barlow', sans-serif", color: "#fff", overflow: "hidden" }}>
 
       {/* HERO PHOTO */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: s(heroH), overflow: "hidden" }}>
-        <img src={ORCHESTRA_IMG} alt="BSN em concerto" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "grayscale(1) contrast(1.10) brightness(1.12)", display: "block" }} />
-        <div style={{ position: "absolute", inset: 0, background: isRed ? "#A8081C" : "#4a0512", mixBlendMode: "multiply", opacity: 0.50 }} />
-        <div style={{ position: "absolute", inset: 0, background: isRed ? "#FF1E40" : "#e2a95c", mixBlendMode: "soft-light", opacity: 0.18 }} />
-        {isLandscape ? (
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(10,2,4,0.55) 0%, rgba(10,2,4,0) 35%)" }} />
+      <div style={{
+        position: "absolute",
+        top: 0,
+        left: isLegenda ? "22%" : 0,
+        right: 0,
+        height: s(heroH),
+        overflow: "hidden",
+      }}>
+        <img
+          src={ORCHESTRA_IMG}
+          alt="BSN em concerto"
+          style={{
+            position: "relative",
+            top: isLegenda ? "-52%" : !isLandscape ? "-21%" : 0,
+            width: "100%",
+            height: isLegenda ? "152%" : "100%",
+            objectFit: "cover",
+            objectPosition: isLegenda ? "center top" : !isLandscape ? "center top" : "center 40%",
+            filter: isLegenda
+              ? "grayscale(0.75) contrast(1.18) brightness(0.92)"
+              : "grayscale(1) contrast(1.15) brightness(0.68)",
+            display: "block",
+          }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: isRed ? "#A8081C" : "#6B0612", mixBlendMode: "multiply", opacity: isLegenda ? 0.45 : isRed ? 0.50 : 0.78 }} />
+        <div style={{ position: "absolute", inset: 0, background: isRed ? "#FF1E40" : "#A8081C", mixBlendMode: "soft-light", opacity: isLegenda ? 0.22 : isRed ? 0.18 : 0.28 }} />
+        <div style={{ position: "absolute", inset: 0, background: isLegenda ? "rgba(8,2,4,0.12)" : "rgba(8,2,4,0.32)" }} />
+        {isLegenda ? (
+          <>
+            {/* Fusão lateral suave com o fundo escuro da coluna de texto à esquerda */}
+            <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${bgColor} 0%, ${bgColor}EB 12%, ${bgColor}66 28%, rgba(8,6,8,0) 48%)` }} />
+            {/* Sombra localizada no canto inferior direito apenas para destacar as logos */}
+            <div style={{ position: "absolute", right: 0, bottom: 0, width: "55%", height: "44%", background: `radial-gradient(ellipse at 85% 90%, ${bgColor}E6 0%, ${bgColor}88 48%, rgba(8,6,8,0) 78%)` }} />
+          </>
+        ) : isLandscape ? (
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(10,2,4,0.68) 0%, rgba(10,2,4,0) 40%)" }} />
         ) : (
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(10,2,4,0.6) 0%, rgba(10,2,4,0) 32%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(10,2,4,0.62) 0%, rgba(10,2,4,0) 24%)" }} />
         )}
         {/* FADE TO BG COLOR AT BOTTOM */}
-        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: isLandscape ? "66%" : s(280 * bsr), background: `linear-gradient(to bottom, ${bgColor}00 0%, ${bgColor} 92%)` }} />
+        <div style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: isLegenda ? "18%" : isLandscape ? "66%" : "46%",
+          background: !isLandscape
+            ? `linear-gradient(to bottom, ${bgColor}00 0%, ${bgColor} 52%, ${bgColor} 100%)`
+            : `linear-gradient(to bottom, ${bgColor}00 0%, ${bgColor} 95%)`,
+        }} />
       </div>
 
       {/* DUST GRAIN LAYER */}
       <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none", backgroundImage: `radial-gradient(circle, rgba(244,217,166,0.55) 0.8px, transparent 1.1px)`, backgroundSize: `${s(40)}px ${s(40)}px`, opacity: 0.30, WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 55%)", maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
 
       {/* GLOW BEHIND TITLE */}
-      <div style={{ position: "absolute", top: s(titleTop - 40 * bsr), left: "50%", transform: "translateX(-50%)", width: s(760 * (spec.w / 1080)), height: s(340 * bsr), background: "radial-gradient(ellipse at center, rgba(244,217,166,0.22) 0%, rgba(244,217,166,0.08) 38%, rgba(244,217,166,0) 70%)", mixBlendMode: "screen", zIndex: 4, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: s(titleTop - 40 * bsr), left: isLegenda ? "24%" : "50%", transform: "translateX(-50%)", width: s(760 * (spec.w / 1080)), height: s(340 * bsr), background: "radial-gradient(ellipse at center, rgba(244,217,166,0.22) 0%, rgba(244,217,166,0.08) 38%, rgba(244,217,166,0) 70%)", mixBlendMode: "screen", zIndex: 4, pointerEvents: "none" }} />
 
       {/* BOKEH DOTS */}
       {bokeh.map((b, i) => (
@@ -630,36 +670,181 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
         )}
       </div>
 
-      {/* TITLE BLOCK */}
-      <div style={{ position: "absolute", top: s(titleTop), left: 0, right: 0, zIndex: 6, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: `0 ${s(30 * bsr)}px` }}>
-        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isUltraWide ? 18 : isLandscape ? 12 : 14) * bsr * fScale), letterSpacing: `${s(3.5)}px`, textTransform: "uppercase", color: accentGold, marginBottom: s((isLandscape ? 4 : 6) * bsr), textShadow: "0 2px 8px rgba(0,0,0,0.85)", whiteSpace: "nowrap" }}>Banda Sinfônica Nacional apresenta</div>
-        <div style={{
-          fontFamily: "'Pinyon Script', cursive",
-          fontWeight: 400,
-          fontSize: s((isUltraWide ? 60 : isLandscape ? 80 : isTotem ? 78 : 96) * bsr * fScale),
-          lineHeight: 0.9,
-          whiteSpace: "nowrap",
-          background: "linear-gradient(180deg, #fdf1cf 0%, #f4d9a6 35%, #c99a4a 62%, #f4d9a6 85%, #fdf1cf 100%)",
-          WebkitBackgroundClip: "text",
-          backgroundClip: "text",
-          color: "transparent",
-          WebkitTextStroke: `${s(1.2 * bsr)}px rgba(244, 217, 166, 0.9)`,
-          filter: `drop-shadow(0 ${s(3 * bsr)}px ${s(8 * bsr)}px rgba(0,0,0,0.98)) drop-shadow(0 ${s(10 * bsr)}px ${s(28 * bsr)}px rgba(0,0,0,0.95))`,
-          paddingTop: s((isLandscape ? 6 : 14) * bsr),
-          paddingBottom: s((isLandscape ? 3 : 5) * bsr)
-        }}>
-          Clássicos Mundiais
-        </div>
-        {!isLegenda && (
-          <div style={{ width: s((isLandscape ? 90 : 100) * bsr * fScale), height: s(2 * bsr), margin: `${s(isLandscape ? 10 : 14) * bsr}px 0 ${s(isLandscape ? 8 : 12) * bsr}px 0`, background: `linear-gradient(90deg, transparent, ${accentGold}, transparent)`, boxShadow: `0 0 ${s(12 * bsr)}px ${s(1 * bsr)}px rgba(244,217,166,0.5)` }} />
-        )}
-        {/* LED: data/hora logo abaixo do título (gabarito do manual) */}
-        {isLegenda && (
-          <div style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(16 * bsr), letterSpacing: `${s(1)}px`, textTransform: "uppercase", marginTop: s(4 * bsr), textShadow: "0 2px 8px rgba(0,0,0,0.85)" }}>
-            {EVENT.dateShort} <span style={{ color: accentGold }}>|</span> {EVENT.time.toUpperCase()}
+      {/* TITLE BLOCK (peças 01 a 07, 09 e 10: centralizado) */}
+      {!isLegenda && (
+        <div style={{ position: "absolute", top: s(titleTop), left: 0, right: 0, zIndex: 6, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: `0 ${s(30 * bsr)}px` }}>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isLandscape ? 12 : 14) * bsr * fScale), letterSpacing: `${s(3.5)}px`, textTransform: "uppercase", color: accentGold, marginBottom: s((isLandscape ? 4 : 6) * bsr), textShadow: "0 2px 8px rgba(0,0,0,0.85)", whiteSpace: "nowrap" }}>Banda Sinfônica Nacional apresenta</div>
+          <div style={{
+            fontFamily: "'Pinyon Script', cursive",
+            fontWeight: 400,
+            fontSize: s((isLandscape ? 80 : isTotem ? 78 : 96) * bsr * fScale),
+            lineHeight: 0.9,
+            whiteSpace: "nowrap",
+            background: "linear-gradient(180deg, #f4d9a6 0%, #d4a853 48%, #b8862d 75%, #e8c77b 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            filter: `drop-shadow(0 ${s(2 * bsr)}px ${s(6 * bsr)}px rgba(0,0,0,0.9)) drop-shadow(0 ${s(8 * bsr)}px ${s(22 * bsr)}px rgba(0,0,0,0.85))`,
+            paddingTop: s((isLandscape ? 6 : 14) * bsr),
+            paddingBottom: s((isLandscape ? 3 : 5) * bsr)
+          }}>
+            Clássicos Mundiais
           </div>
-        )}
-      </div>
+          <div style={{ width: s((isLandscape ? 90 : 100) * bsr * fScale), height: s(2 * bsr), margin: `${s(isLandscape ? 8 : 12) * bsr}px 0 ${s(isLandscape ? 4 : 6) * bsr}px 0`, background: `linear-gradient(90deg, transparent, ${accentGold}, transparent)`, boxShadow: `0 0 ${s(12 * bsr)}px ${s(1 * bsr)}px rgba(244,217,166,0.5)` }} />
+          <div style={{
+            fontFamily: "'Playfair Display', serif",
+            fontStyle: "italic",
+            fontWeight: 400,
+            fontSize: s((isLandscape ? 14 : isTotem ? 14 : 16) * bsr * fScale),
+            letterSpacing: `${s(0.8)}px`,
+            color: "rgba(255,255,255,0.92)",
+            textShadow: "0 2px 8px rgba(0,0,0,0.9)",
+          }}>
+            uma noite de grandes vozes
+          </div>
+        </div>
+      )}
+
+      {/* PEÇA 08 — LED (960 × 384): Texto à esquerda + Foto da Banda em destaque à direita */}
+      {isLegenda && (
+        <>
+          <div style={{
+            position: "absolute",
+            top: s(64 * bsr),
+            bottom: s(20 * bsr),
+            left: s(38 * bsr),
+            zIndex: 6,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            textAlign: "left",
+          }}>
+            {/* Grupo superior: Apresenta + Título + Subtítulo (abaixo da linha dos rostos da banda) */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <div style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: s(16 * bsr),
+                letterSpacing: `${s(2.8)}px`,
+                textTransform: "uppercase",
+                color: accentGold,
+                marginBottom: s(2 * bsr),
+                textShadow: "0 2px 8px rgba(0,0,0,0.95)",
+                whiteSpace: "nowrap",
+              }}>
+                Banda Sinfônica Nacional apresenta
+              </div>
+              <div style={{
+                fontFamily: "'Pinyon Script', cursive",
+                fontWeight: 400,
+                fontSize: s(72 * bsr),
+                lineHeight: 0.9,
+                whiteSpace: "nowrap",
+                background: "linear-gradient(180deg, #f4d9a6 0%, #d4a853 48%, #b8862d 75%, #e8c77b 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                filter: `drop-shadow(0 ${s(2 * bsr)}px ${s(6 * bsr)}px rgba(0,0,0,0.95)) drop-shadow(0 ${s(6 * bsr)}px ${s(18 * bsr)}px rgba(0,0,0,0.9))`,
+                paddingTop: s(4 * bsr),
+                paddingBottom: s(2 * bsr),
+              }}>
+                Clássicos Mundiais
+              </div>
+              <div style={{
+                width: s(110 * bsr),
+                height: s(2 * bsr),
+                margin: `${s(4 * bsr)}px 0 ${s(4 * bsr)}px 0`,
+                background: `linear-gradient(90deg, ${accentGold}, transparent)`,
+                boxShadow: `0 0 ${s(10 * bsr)}px ${s(1 * bsr)}px rgba(244,217,166,0.45)`,
+              }} />
+              <div style={{
+                fontFamily: "'Playfair Display', serif",
+                fontStyle: "italic",
+                fontWeight: 600,
+                fontSize: s(19 * bsr),
+                letterSpacing: `${s(0.6)}px`,
+                color: "rgba(255,255,255,0.95)",
+                textShadow: "0 2px 8px rgba(0,0,0,0.95)",
+              }}>
+                uma noite de grandes vozes
+              </div>
+            </div>
+
+            {/* Grupo inferior esquerdo: Data | Hora + Cidade das Artes */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: s(4 * bsr),
+            }}>
+              <div style={{
+                fontFamily: "'Archivo Black', sans-serif",
+                fontSize: s(25 * bsr),
+                lineHeight: 1.05,
+                letterSpacing: `${s(1.2)}px`,
+                textTransform: "uppercase",
+                color: "#ffffff",
+                textShadow: "0 2px 10px rgba(0,0,0,0.95)",
+              }}>
+                19 NOV <span style={{ color: accentGold }}>|</span> 19H
+              </div>
+              <div style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: s(25 * bsr),
+                lineHeight: 1.0,
+                letterSpacing: `${s(2.4)}px`,
+                textTransform: "uppercase",
+                color: "#ffffff",
+                textShadow: "0 2px 10px rgba(0,0,0,0.95)",
+              }}>
+                CIDADE DAS ARTES
+              </div>
+            </div>
+          </div>
+
+          {/* Canto inferior direito: Sympla acima à direita e régua Prefeitura Rio | Cultura | Cidade das Artes na base */}
+          <div style={{
+            position: "absolute",
+            right: s(34 * bsr),
+            bottom: s(18 * bsr),
+            zIndex: 6,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: s(6 * bsr),
+          }}>
+            <div style={{ marginBottom: -s(54 * bsr * 0.24) }}>
+              <LogoImg
+                src={LOGO_SYMPLA}
+                alt="Sympla"
+                height={s(54 * bsr)}
+                maxWidth={s(spec.w * 0.26)}
+                white={whiteLogos}
+                fallback={(c) => (
+                  <div style={{ height: s(54 * bsr), display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", color: c, lineHeight: 1 }}>
+                    <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: s(12 * bsr), opacity: 0.9 }}>Ingressos:</span>
+                    <span style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(30 * bsr) }}>sympla</span>
+                  </div>
+                )}
+              />
+            </div>
+            <LogoImg
+              src={LOGO_APOIO}
+              alt="Prefeitura do Rio · Cultura · Cidade das Artes"
+              height={s(30 * bsr)}
+              maxWidth={s(spec.w * 0.40)}
+              white={whiteLogos}
+              fallback={(c) => (
+                <div style={{ height: s(30 * bsr), display: "flex", alignItems: "center", gap: s(6 * bsr), color: c, whiteSpace: "nowrap", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(12 * bsr), textTransform: "uppercase" }}>
+                  <span>Prefeitura Rio</span><span style={{ opacity: 0.5 }}>|</span><span style={{ textTransform: "none" }}>Cultura</span><span style={{ opacity: 0.5 }}>|</span><span style={{ textTransform: "none" }}>Cidade das Artes</span>
+                </div>
+              )}
+            />
+          </div>
+        </>
+      )}
 
       {/* GUEST STRIP */}
       {!isLegenda && (
@@ -712,11 +897,30 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
       </div>
       )}
 
-      {/* FOOTER — local/data/classificação à esquerda · logos Cidade das Artes à direita */}
-      <div style={{ position: "absolute", left: s(isLandscape ? 60 * bsr : 44 * bsr), right: s(isLandscape ? 60 * bsr : 44 * bsr), bottom: s(isLandscape ? 20 * bsr : 28 * bsr), zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: s(16 * bsr) }}>
-        {/* LEFT COLUMN */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: s(4 * bsr), minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: s(10 * bsr), whiteSpace: "nowrap", lineHeight: 1.2 }}>
+      {/* FOOTER — nas peças 03/06/07/10: dados centralizados e logos horizontais uma linha abaixo; nas demais (exceto 08 LED): 2 colunas */}
+      {!isLegenda && (
+      <div style={{
+        position: "absolute",
+        left: s(isLandscape ? 60 * bsr : 44 * bsr),
+        right: s(isLandscape ? 60 * bsr : 44 * bsr),
+        bottom: s(isLandscape ? 20 * bsr : 28 * bsr),
+        zIndex: 5,
+        display: "flex",
+        flexDirection: isCenteredFooter ? "column" : "row",
+        justifyContent: isCenteredFooter ? "center" : "space-between",
+        alignItems: isCenteredFooter ? "center" : "flex-end",
+        gap: s((isCenteredFooter ? 22 : 16) * bsr),
+      }}>
+        {/* DADOS DO CONCERTO */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: isCenteredFooter ? "center" : "flex-start",
+          textAlign: isCenteredFooter ? "center" : "left",
+          gap: s(4 * bsr),
+          minWidth: 0,
+        }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: isCenteredFooter ? "center" : "flex-start", gap: s(10 * bsr), whiteSpace: "nowrap", lineHeight: 1.2 }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s((isLandscape ? 22 : 24) * bsr * fScale), letterSpacing: `${s(1.2)}px`, textTransform: "uppercase" }}>{EVENT.venue}</span>
             <span style={{ opacity: 0.4, fontSize: s(14 * bsr * fScale) }}>·</span>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isLandscape ? 14 : 15) * bsr * fScale), letterSpacing: `${s(1.5)}px`, textTransform: "uppercase", color: accentGold }}>{EVENT.dateLong} · {EVENT.time}</span>
@@ -724,23 +928,17 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
           <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isLandscape ? 11.5 : 12.5) * bsr * fScale), letterSpacing: `${s(0.8)}px`, textTransform: "uppercase", opacity: 0.88, lineHeight: 1.25, whiteSpace: "nowrap" }}>
             {EVENT.place} <span style={{ fontFamily: "'Barlow', sans-serif", fontSize: s((isLandscape ? 10 : 11) * bsr * fScale), textTransform: "none", letterSpacing: `${s(0.2)}px`, opacity: 0.75, fontWeight: 400 }}>· {EVENT.address}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: s(8 * bsr), marginTop: s(4 * bsr), whiteSpace: "nowrap" }}>
-            <RatingBadge size={s(18 * bsr * fScale)} />
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: s((isLandscape ? 10.5 : 11.5) * bsr * fScale), letterSpacing: `${s(1.2)}px`, textTransform: "uppercase", opacity: 0.9 }}>
-              Classificação {EVENT.rating} · {EVENT.duration}
-            </span>
-          </div>
         </div>
 
-        {/* RIGHT COLUMN — LOGOS (manual: Logo 1 + Logo 2) */}
-        <div style={{ display: "flex", flexDirection: isStackedFooter ? "column" : "row", alignItems: "flex-end", gap: s((isStackedFooter ? 8 : 16) * bsr), flexShrink: 0 }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: isStackedFooter ? "flex-end" : "flex-start" }}>
+        {/* LOGOS HORIZONTAIS (Rio + Sympla lado a lado) */}
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: isCenteredFooter ? "center" : "flex-end", gap: s((isCenteredFooter ? 24 : 16) * bsr), flexShrink: 0 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
             <div style={chancelaStyle}>Apoio Institucional</div>
             <LogoImg
               src={LOGO_APOIO}
               alt="Prefeitura do Rio · Cultura · Cidade das Artes"
               height={s(logoH)}
-              maxWidth={s(spec.w * (isStackedFooter ? 0.42 : 0.26))}
+              maxWidth={s(spec.w * (isCenteredFooter ? 0.52 : 0.26))}
               white={whiteLogos}
               fallback={(c) => (
                 <div style={{ height: s(logoH), display: "flex", alignItems: "center", gap: s(6 * bsr), color: c, whiteSpace: "nowrap", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: s(logoH * 0.36), letterSpacing: `${s(0.6)}px`, textTransform: "uppercase" }}>
@@ -749,23 +947,31 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
               )}
             />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: isStackedFooter ? "flex-end" : "flex-start" }}>
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            // Compensa a margem interna transparente e o descendente do "y/p" do PNG da Sympla para alinhar a base do "S" com a base do "R" de RIO
+            marginBottom: -s(symplaLogoH * 0.305),
+          }}>
             <LogoImg
               src={LOGO_SYMPLA}
               alt="Sympla"
               height={s(symplaLogoH)}
-              maxWidth={s(spec.w * 0.24)}
+              maxWidth={s(spec.w * 0.34)}
               white={whiteLogos}
               fallback={(c) => (
                 <div style={{ height: s(symplaLogoH), display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", color: c, lineHeight: 1 }}>
-                  <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: s(symplaLogoH * 0.22), opacity: 0.9, marginBottom: s(2 * bsr) }}>Ingressos:</span>
-                  <span style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(symplaLogoH * 0.56), letterSpacing: `${s(0.3)}px` }}>sympla</span>
+                  <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: s(symplaLogoH * 0.24), opacity: 0.9, marginBottom: s(2 * bsr) }}>Ingressos:</span>
+                  <span style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(symplaLogoH * 0.62), letterSpacing: `${s(0.3)}px` }}>sympla</span>
                 </div>
               )}
             />
           </div>
+          <RatingBadge size={s(18 * bsr * fScale)} />
         </div>
       </div>
+      )}
 
     </div>
   );
