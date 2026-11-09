@@ -10,8 +10,16 @@ import eventosData from '@/lib/eventos.json';
 
 export const metadata: Metadata = {
   title: 'Agenda de Concertos — Banda Sinfônica Nacional',
-  description: 'Consulte a agenda oficial de concertos da Banda Sinfônica Nacional. Veja nossas próximas apresentações no Salão Assyrio do Theatro Municipal e relembre edições passadas.',
+  description: 'Consulte a agenda oficial de concertos da Banda Sinfônica Nacional. Veja nossas próximas apresentações em grandes palcos do Rio de Janeiro, como a Cidade das Artes e o Theatro Municipal, e relembre edições passadas.',
 };
+
+/** Retorna o nome da plataforma de ingressos a partir da URL (ex.: " (Sympla)"). */
+function ticketPlatform(url?: string): string {
+  if (!url) return '';
+  if (url.includes('sympla')) return ' (Sympla)';
+  if (url.includes('fever')) return ' (Fever)';
+  return '';
+}
 
 export default function AgendaPage() {
   // Data atual (meia-noite) para comparação justa
@@ -50,7 +58,7 @@ export default function AgendaPage() {
               Agenda de Concertos
             </h1>
             <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
-              Acompanhe as próximas apresentações da Banda Sinfônica Nacional no Salão Assyrio do Theatro Municipal do Rio de Janeiro e em grandes palcos do Brasil.
+              Acompanhe as próximas apresentações da Banda Sinfônica Nacional nos grandes palcos do Rio de Janeiro, como a Cidade das Artes e o Theatro Municipal, e em todo o Brasil.
             </p>
 
             {/* Quick Navigation Badges */}
@@ -184,6 +192,28 @@ export default function AgendaPage() {
                           </div>
                         </div>
                       )}
+                      {(nextEvent as any).duration && (
+                        <div className="flex items-start gap-3">
+                          <div className="bg-primary/10 p-3 rounded-xl text-primary shrink-0">
+                            <Music className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Duração</div>
+                            <div className="font-bold text-foreground">{(nextEvent as any).duration}</div>
+                          </div>
+                        </div>
+                      )}
+                      {(nextEvent as any).rating && (
+                        <div className="flex items-start gap-3">
+                          <div className="bg-[#00A651] w-11 h-11 rounded-xl text-white font-black text-xl flex items-center justify-center shrink-0">
+                            {String((nextEvent as any).rating).toLowerCase() === 'livre' ? 'L' : (nextEvent as any).rating}
+                          </div>
+                          <div>
+                            <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Classificação</div>
+                            <div className="font-bold text-foreground">{(nextEvent as any).rating}</div>
+                          </div>
+                        </div>
+                      )}
                       <div className="flex items-start gap-3 sm:col-span-2">
                         <div className="bg-primary/10 p-3 rounded-xl text-primary shrink-0">
                           <MapPin className="h-5 w-5" />
@@ -202,14 +232,14 @@ export default function AgendaPage() {
                       <Button asChild size="lg" className="bg-gradient-to-r from-red-600 via-red-500 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-black shadow-xl gap-2 rounded-xl group/btn text-base px-8 py-6">
                         <a href={(nextEvent as any).ticketUrl} target="_blank" rel="noopener noreferrer">
                           <Ticket className="h-5 w-5 transition-transform group-hover/btn:rotate-12" />
-                          Garantir Ingresso (Fever)
+                          Garantir Ingresso{ticketPlatform((nextEvent as any).ticketUrl)}
                           <ExternalLink className="h-4 w-4 opacity-70" />
                         </a>
                       </Button>
                     ) : (
                       <div className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <Ticket className="h-4 w-4 text-primary" />
-                        Entrada Gratuita ou Informações no Local
+                        {(nextEvent as any).ticketInfo || 'Entrada Gratuita ou Informações no Local'}
                       </div>
                     )}
                   </div>

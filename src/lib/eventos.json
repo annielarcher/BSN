@@ -1,6 +1,18 @@
 {
   "events": [
     {
+      "title": "Banda Sinfônica Nacional apresenta Clássicos Mundiais — Grande Sala (Cidade das Artes)",
+      "date": "19 de Novembro de 2026",
+      "time": "19h",
+      "duration": "80 minutos",
+      "rating": "Livre",
+      "location": "Cidade das Artes — Grande Sala (Av. das Américas, 5300, Barra da Tijuca, RJ)",
+      "description": "A Banda Sinfônica Nacional leva o concerto \"Clássicos Mundiais\" à Grande Sala da Cidade das Artes, o maior complexo cultural da América Latina. Participações especiais de Bina Goldrajch (mezzo-soprano), Nadja Daltro (soprano), Wladimir Cabanas (tenor) e do grupo gaiteiro Brazilian Piper.",
+      "imageId": "flyer-cda-grande-sala",
+      "imagePosition": "object-top",
+      "ticketInfo": "Ingressos em breve pela Sympla"
+    },
+    {
       "title": "Concerto \"Clássicos Mundiais\" — Salão Assyrio (Theatro Municipal)",
       "date": "28 de Setembro de 2026",
       "time": "19h",

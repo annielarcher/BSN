@@ -259,6 +259,13 @@ export const ImageAssets: ImageAsset[] = [
     "description": "Flyer Oficial - XXI RioHarpFestival no CCBB",
     "imageUrl": "/flyers/ccbb-rioharpfestival.png",
     "imageHint": "flyer ccbb rioharpfestival"
+  },
+  {
+    // Provisório: trocar por "/flyers/cidade-das-artes-grande-sala.jpg" após exportar a arte em /arte-cidade-das-artes
+    "id": "flyer-cda-grande-sala",
+    "description": "Clássicos Mundiais na Grande Sala da Cidade das Artes",
+    "imageUrl": "/Images/bsn-hero.jpg",
+    "imageHint": "flyer cidade das artes grande sala"
   }
 ];
 
