@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 // ─── DATA & CONSTANTS ────────────────────────────────────────────────────────
 const GUESTS = [
   { name: "Bina\nGoldrajch",   role: "MEZZO SOPRANO", photo: "/Bina Goldrajch.jpeg" },
-  { name: "Nadja\nDaltro",     role: "SOPRANO",       photo: "/nadja-daltro.jpeg" },
+  { name: "Cíntia\nFortunato",     role: "SOPRANO",       photo: "/cintia-fortunato.jpg" },
   { name: "Wladimir\nCabanas", role: "TENOR",         photo: "/wladimir-cabanas.jpeg" },
   { name: "Brazilian\nPiper",  role: "BANDA",         photo: "/brazilian-piper.jpeg" },
 ];
@@ -439,7 +439,7 @@ export default function ArteCidadeDasArtesPage() {
               {[
                 "Classificação indicativa (Livre) em todas as peças",
                 "Logo 1 com chancela \"Apoio Institucional\"",
-                "Logo 2 Sympla com chancela \"Ingressos\"",
+                "Logo 2 Sympla aplicada no rodapé",
                 "JPG nas dimensões exatas + limite de KB",
                 "Ingresso Sympla em preto e branco",
               ].map((item) => (
@@ -542,7 +542,8 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
   const photoH    = isUltraWide ? 52 * bsr : (isLandscape ? 86 : 118) * bsr * fScale;
 
   // Footer logos
-  const logoH     = (isUltraWide ? 26 : isLandscape ? 30 : 34) * bsr * fScale;
+  const logoH       = (isUltraWide ? 26 : isLandscape ? 30 : 34) * bsr * fScale;
+  const symplaLogoH = (isUltraWide ? 36 : isLandscape ? 42 : 48) * bsr * fScale;
 
   const sparkles = [
     { x: 0.194, y: 0.443, sz: 22, op: 0.85 },
@@ -749,16 +750,16 @@ function HeroFullBleedCanvas({ scale, format, palette, spec, whiteLogos }: {
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: isStackedFooter ? "flex-end" : "flex-start" }}>
-            <div style={chancelaStyle}>Ingressos</div>
             <LogoImg
               src={LOGO_SYMPLA}
               alt="Sympla"
-              height={s(logoH)}
-              maxWidth={s(spec.w * 0.16)}
+              height={s(symplaLogoH)}
+              maxWidth={s(spec.w * 0.24)}
               white={whiteLogos}
               fallback={(c) => (
-                <div style={{ height: s(logoH), display: "flex", alignItems: "center", color: c, fontFamily: "'Archivo Black', sans-serif", fontSize: s(logoH * 0.62), letterSpacing: `${s(0.3)}px`, lineHeight: 1 }}>
-                  sympla
+                <div style={{ height: s(symplaLogoH), display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", color: c, lineHeight: 1 }}>
+                  <span style={{ fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: s(symplaLogoH * 0.22), opacity: 0.9, marginBottom: s(2 * bsr) }}>Ingressos:</span>
+                  <span style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: s(symplaLogoH * 0.56), letterSpacing: `${s(0.3)}px` }}>sympla</span>
                 </div>
               )}
             />
